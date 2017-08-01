@@ -3,7 +3,7 @@
 PollBot is an hardworking little robot (microservice) that frees its human masters from the toilsome task of polling for the state of things during the Firefox release process. 
 
 
-[Version 1.0](mozilla/PollBot/projects/1) will provide, at a minimum, these API resources: 
+[Version 1.0](https://github.com/mozilla/PollBot/projects/1) will provide, at a minimum, these API resources: 
 
 1. build exists on archive.mozilla.org
 1. release notes published
