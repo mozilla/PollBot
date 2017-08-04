@@ -9,3 +9,5 @@ tox
 wheel
 zest.releaser
 pytest-aiohttp
+aioresponses
+asynctest

@@ -6,3 +6,4 @@ CHANGELOG
 
 - Add the /v1/ info page
 - Add the release status checks
+- Add the releasenotes bot
