@@ -1,0 +1,9 @@
+.venv/
+version.json
+*.egg-info/
+dist/
+build/
+__pycache__/
+*.pyc
+.cache/
+.coverage
