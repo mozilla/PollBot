@@ -1,6 +1,9 @@
+aioresponses
+asynctest
 flake8
 mock
 pytest
+pytest-aiohttp
 pytest-cache
 pytest-capturelog
 pytest-cover
@@ -8,6 +11,3 @@ pytest-sugar
 tox
 wheel
 zest.releaser
-pytest-aiohttp
-aioresponses
-asynctest
