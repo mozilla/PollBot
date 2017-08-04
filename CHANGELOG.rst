@@ -4,6 +4,6 @@ CHANGELOG
 0.1.0 (unreleased)
 ------------------
 
-- Add the /v1/ info page
+- Add the /v1/ info page (#10)
 - Add the release status checks
-- Add the releasenotes bot
+- Add the releasenotes bot (#16)

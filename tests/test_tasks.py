@@ -6,9 +6,6 @@ from pollbot.tasks.releasenotes import release_notes_published
 
 
 class ReleasePublishedTest(asynctest.TestCase):
-    url = 'http://test.example.com'
-    data = {'foo': 'bar'}
-
     async def setUp(self):
         self.session = aiohttp.ClientSession(loop=self.loop)
         self.addCleanup(self.session.close)
