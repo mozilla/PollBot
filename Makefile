@@ -17,6 +17,7 @@ help:
 	@echo "  build-requirements          install all requirements and freeze them in requirements.txt"
 	@echo "  serve                       start the kinto server on default port"
 	@echo "  flake8                      run the flake8 linter"
+	@echo "  tests                       run all the tests with all the supported python interpreters (same as travis)"
 	@echo "  tests-once                  only run the tests once with the default python interpreter"
 	@echo "  clean                       remove *.pyc files and __pycache__ directory"
 	@echo "  distclean                   remove *.egg-info files and *.egg, build and dist directories"
@@ -60,6 +61,9 @@ tests-once: install-dev version-file
 
 flake8: install-dev
 	$(VENV)/bin/flake8 pollbot tests
+
+tests: install-dev version-file
+	$(VENV)/bin/tox
 
 clean:
 	find . -name '__pycache__' -type d | xargs rm -fr

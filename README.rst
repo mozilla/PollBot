@@ -1,6 +1,27 @@
 PollBot
 =======
 
+|coc| |travis| |master-coverage|
+
+.. |coc| image:: https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg
+    :target: https://github.com/mozilla/pollbot/blob/master/CODE_OF_CONDUCT.md
+    :alt: Code of conduct
+
+.. |travis| image:: https://travis-ci.org/mozilla/pollbot.svg?branch=master
+    :target: https://travis-ci.org/mozilla/pollbot
+
+.. |master-coverage| image::
+    https://coveralls.io/repos/mozilla/pollbot/badge.svg?branch=master
+    :alt: Coverage
+    :target: https://coveralls.io/r/mozilla/pollbot
+
+.. |readthedocs| image:: https://readthedocs.org/projects/pollbot/badge/?version=latest
+    :target: https://pollbot.readthedocs.io/en/latest/
+    :alt: Documentation Status
+
+.. |pypi| image:: https://img.shields.io/pypi/v/pollbot.svg
+    :target: https://pypi.python.org/pypi/pollbot
+
 PollBot is an hardworking little robot (microservice) that frees its
 human masters from the toilsome task of polling for the state of
 things during the Firefox release process.
