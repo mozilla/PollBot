@@ -24,10 +24,12 @@ async def test_home_body(cli):
     }
 
 
+# This is currently a functional test.
 async def test_release_body(cli):
     resp = await cli.get("/v1/firefox/54.0")
     assert resp.status == 200
     assert await resp.json() == {
         "product": "firefox",
         "version": "54.0",
+        "releasenotes": True
     }
