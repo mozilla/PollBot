@@ -8,6 +8,8 @@ pytest-cache
 pytest-capturelog
 pytest-cover
 pytest-sugar
+ruamel.yaml
+swagger-spec-validator
 tox
 wheel
 zest.releaser
