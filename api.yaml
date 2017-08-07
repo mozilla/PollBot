@@ -30,7 +30,85 @@ parameters:
     required: true
     type: "string"
 
+tags:
+- name: Utilities
+- name: Status
+
 paths:
+  /:
+    get:
+      summary: "Display server information and public settings."
+      operationId: "getServerInfo"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Return information about the running instance"
+          schema:
+            type: "object"
+      tags:
+      - Utilities
+
+  /__heartbeat__:
+    get:
+      summary: "Is the server working properly? What is failing?"
+      operationId: "heartbeat"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Server working properly"
+          schema:
+            type: "object"
+        "503":
+          description: "One or more subsystems failing."
+          schema:
+            type: "object"
+      tags:
+      - Utilities
+
+  /__lbheartbeat__:
+    get:
+      summary: "Is the server reachable?"
+      operationId: "lbheartbeat"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Server reachable"
+          schema:
+            type: "object"
+      tags:
+      - Utilities
+
+  /__version__:
+    get:
+      summary: "Running instance version information"
+      operationId: "version"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Return the running instance version information"
+          schema:
+            type: "object"
+      tags:
+      - Utilities
+
+  /contribute.json:
+    get:
+      summary: "Open source contributing information"
+      operationId: "contribute"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Return open source contributing information."
+          schema:
+            type: "object"
+      tags:
+      - Utilities
+
   /{product}/{version}/archive:
     get:
       summary: "checks if the product version archive is downloadable"
@@ -45,6 +123,8 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/existanceStatus"
+      tags:
+      - Status
 
   /{product}/{version}/product-details:
     get:
@@ -63,6 +143,8 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/existanceStatus"
+      tags:
+      - Status
 
   /{product}/{version}/bedrock/security-advisories:
     get:
@@ -78,6 +160,8 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/existanceStatus"
+      tags:
+      - Status
 
   /{product}/{version}/bedrock/download-links:
     get:
@@ -93,6 +177,9 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/existanceStatus"
+      tags:
+      - Status
+
   /{product}/{version}/bedrock/release-notes:
     get:
       summary: "check release notes have been published on mozilla.org"
@@ -107,6 +194,8 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/existanceStatus"
+      tags:
+      - Status
 
 definitions:
   existanceStatus:
