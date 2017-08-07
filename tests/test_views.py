@@ -55,8 +55,9 @@ async def test_home_body(cli):
         "project_name": "pollbot",
         "project_version": pollbot_version,
         "url": "https://github.com/mozilla/PollBot",
-        "http_api_version": HTTP_API_VERSION
-    })
+        "http_api_version": HTTP_API_VERSION,
+        "docs": "http://127.0.0.1/v1/api/doc"
+    }, headers={"Host": "127.0.0.1"})
 
 
 async def test_status_response_handle_task_errors(cli):

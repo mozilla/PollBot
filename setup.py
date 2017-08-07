@@ -19,6 +19,7 @@ CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 REQUIREMENTS = [
     'aiohttp',
     'aiohttp_cors',
+    'aiohttp-swagger',
     'ruamel.yaml',
     'pyquery',
 ]

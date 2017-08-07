@@ -1,6 +1,12 @@
-from aiohttp import web
+import os.path
 import aiohttp_cors
+from aiohttp import web
+from aiohttp_swagger import setup_swagger
+
 from .views import home, release, utilities
+
+
+HERE = os.path.dirname(__file__)
 
 
 def get_app(loop=None):
@@ -29,4 +35,8 @@ def get_app(loop=None):
                                 release.bedrock_download_links))
     cors.add(app.router.add_get('/v1/{product}/{version}/product-details',
                                 release.product_details))
+
+    setup_swagger(app,
+                  swagger_url="/v1/api/doc",
+                  swagger_from_file=os.path.join(HERE, "api.yaml"))
     return app

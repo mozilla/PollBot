@@ -14,6 +14,9 @@ async def check_cors(cli, url):
     assert 'Access-Control-Expose-Headers' in resp.headers
 
 
+SWAGGER_PREFIX = "/v1/api/doc"
+
+
 async def test_route_have_cors_enabled(cli):
     app = get_app()
     for r in app.router.resources():
@@ -26,9 +29,19 @@ async def test_route_have_cors_enabled(cli):
                 formatter = formatter.replace('{product}', 'firefox')
             if '{version}' in formatter:
                 formatter = formatter.replace('{version}', '52.0')
+        elif 'prefix' in info:
+            if info['prefix'].startswith(SWAGGER_PREFIX):
+                continue
+            else:
+                import pdb
+                pdb.set_trace()
         else:
             # A new case to handle
             import pdb
             pdb.set_trace()
+
+        # Handle swagger URL
+        if url.startswith(SWAGGER_PREFIX):
+            continue
 
         await check_cors(cli, url)
