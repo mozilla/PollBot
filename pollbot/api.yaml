@@ -123,6 +123,10 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/existanceStatus"
+        "404":
+          description: "Release archive status not found"
+          schema:
+            $ref: "#/definitions/errorResponse"
       tags:
       - Status
 
@@ -143,6 +147,10 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/existanceStatus"
+        "404":
+          description: "Release not found in product-details"
+          schema:
+            $ref: "#/definitions/errorResponse"
       tags:
       - Status
 
@@ -160,6 +168,10 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/existanceStatus"
+        "404":
+          description: "Security advisories for this release were not found on mozilla.org"
+          schema:
+            $ref: "#/definitions/errorResponse"
       tags:
       - Status
 
@@ -177,6 +189,10 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/existanceStatus"
+        "404":
+          description: "Download links for this release were not found on mozilla.org"
+          schema:
+            $ref: "#/definitions/errorResponse"
       tags:
       - Status
 
@@ -194,6 +210,10 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/existanceStatus"
+        "404":
+          description: "Release notes not found on mozilla.org"
+          schema:
+            $ref: "#/definitions/errorResponse"
       tags:
       - Status
 
@@ -211,6 +231,20 @@ definitions:
         - "incomplete"
         - "exists"
         - "error"
+      message:
+        type: "string"
+        description: "error message"
+  errorResponse:
+    type: "object"
+    required:
+    - "status"
+    - "message"
+    properties:
+      status:
+        type: "number"
+        description: "Error code"
+        enum:
+        - 404
       message:
         type: "string"
         description: "error message"
