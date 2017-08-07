@@ -38,9 +38,10 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - $ref: "#/parameters/versionId"
+      - $ref: "#/parameters/product"
+      - $ref: "#/parameters/version"
       responses:
-        200:
+        "200":
           description: "successful operation"
           schema:
             $ref: "#/definitions/existanceStatus"
@@ -55,9 +56,10 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - $ref: "#/parameters/versionId"
+      - $ref: "#/parameters/product"
+      - $ref: "#/parameters/version"
       responses:
-        200:
+        "200":
           description: "successful operation"
           schema:
             $ref: "#/definitions/existanceStatus"
@@ -69,9 +71,10 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - $ref: "#/parameters/versionId"
+      - $ref: "#/parameters/product"
+      - $ref: "#/parameters/version"
       responses:
-        200:
+        "200":
           description: "successful operation"
           schema:
             $ref: "#/definitions/existanceStatus"
@@ -83,9 +86,10 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - $ref: "#/parameters/versionId"
+      - $ref: "#/parameters/product"
+      - $ref: "#/parameters/version"
       responses:
-        200:
+        "200":
           description: "successful operation"
           schema:
             $ref: "#/definitions/existanceStatus"
@@ -96,9 +100,10 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - $ref: "#/parameters/versionId"
+      - $ref: "#/parameters/product"
+      - $ref: "#/parameters/version"
       responses:
-        200:
+        "200":
           description: "successful operation"
           schema:
             $ref: "#/definitions/existanceStatus"
