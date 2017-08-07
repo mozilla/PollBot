@@ -124,7 +124,7 @@ paths:
           schema:
             $ref: "#/definitions/existanceStatus"
         "404":
-          description: "Release not found"
+          description: "Release archive status not found"
           schema:
             $ref: "#/definitions/errorResponse"
       tags:
@@ -148,7 +148,7 @@ paths:
           schema:
             $ref: "#/definitions/existanceStatus"
         "404":
-          description: "Release not found"
+          description: "Release not found in product-details"
           schema:
             $ref: "#/definitions/errorResponse"
       tags:
@@ -169,7 +169,7 @@ paths:
           schema:
             $ref: "#/definitions/existanceStatus"
         "404":
-          description: "Release not found"
+          description: "Security advisories for this release were not found on mozilla.org"
           schema:
             $ref: "#/definitions/errorResponse"
       tags:
@@ -189,6 +189,10 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/existanceStatus"
+        "404":
+          description: "Download links for this release were not found on mozilla.org"
+          schema:
+            $ref: "#/definitions/errorResponse"
       tags:
       - Status
 
@@ -207,7 +211,7 @@ paths:
           schema:
             $ref: "#/definitions/existanceStatus"
         "404":
-          description: "Release not found"
+          description: "Release notes not found on mozilla.org"
           schema:
             $ref: "#/definitions/errorResponse"
       tags:
