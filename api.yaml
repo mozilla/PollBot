@@ -1,0 +1,118 @@
+swagger: "2.0"
+info:
+  description: >
+    some description of PollBot
+  version: "1.0.0"
+  title: "Mozilla Product Delivery PollBot"
+  contact:
+    email: "product-delivery@mozilla.com"
+  license:
+    name: "Mozilla Public License 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "pollbot.services.mozilla.com"
+basePath: "/v1"
+schemes:
+- "https"
+
+parameters:
+  versionId:
+    name: "versionId"
+    in: "path"
+    description: "version of firefox to check for"
+    required: true
+    type: "string"
+
+paths:
+  /archive/{versionId}:
+    get:
+      summary: "checks if Fx version is in the archive"
+      operationId: "checkArchiveExistance"
+      produces:
+      - "application/json"
+      parameters:
+      - $ref: "#/parameters/versionId"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/existanceStatus"
+
+  /product-details/{versionId}:
+    get:
+      summary: "checks version exists in product-details.mozilla.org"
+      description: >
+        checks https://product-details.mozilla.org/1.0/firefox.json for the
+        specific versionid
+      operationId: "checkProductDetailsExistance"
+      produces:
+      - "application/json"
+      parameters:
+      - $ref: "#/parameters/versionId"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/existanceStatus"
+
+  /bedrock/security-advisories/{versionId}:
+    get:
+      summary: "check security advisories have been published"
+      operationId: "checkBedrockSecurityAdvisoryExistance"
+      produces:
+      - "application/json"
+      parameters:
+      - $ref: "#/parameters/versionId"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/existanceStatus"
+
+  /bedrock/download-links/{versionId}:
+    get:
+      summary: "check download links have been published on mozilla.org"
+      operationId: "checkBedrockDownloadLinkExistance"
+      produces:
+      - "application/json"
+      parameters:
+      - $ref: "#/parameters/versionId"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/existanceStatus"
+  /bedrock/release-notes/{versionId}:
+    get:
+      summary: "check release notes have been published on mozilla.org"
+      operationId: "checkBedrockReleaseNotesExistance"
+      produces:
+      - "application/json"
+      parameters:
+      - $ref: "#/parameters/versionId"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/existanceStatus"
+
+definitions:
+  existanceStatus:
+    type: "object"
+    required:
+    - "status"
+    properties:
+      status:
+        type: "string"
+        description: "current status of the resource"
+        enum:
+        - "missing"
+        - "incomplete"
+        - "exists"
+        - "error"
+      message:
+        type: "string"
+        description: "error message"
+
+externalDocs:
+  description: "Find out more about PollBot"
+  url: "http://github.com/mozilla/PollBot"
