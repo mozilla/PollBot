@@ -14,4 +14,6 @@ def get_app(loop=None):
                        release.bedrock_release_notes)
     app.router.add_get('/v1/{product}/{version}/bedrock/security-advisories',
                        release.bedrock_security_advisories)
+    app.router.add_get('/v1/{product}/{version}/product-details',
+                       release.product_details)
     return app
