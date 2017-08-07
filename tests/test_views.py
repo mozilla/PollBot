@@ -31,10 +31,19 @@ async def test_v1_redirects_to_v1_slash(cli):
     assert resp.headers['Location'] == "/v1/"
 
 
+async def check_yaml_resource(cli, url, filename):
+    with open(os.path.join(HERE, "..", "pollbot", filename)) as stream:
+        content = yaml.safe_load(stream)
+    resp = await cli.get(url)
+    assert await resp.json() == content
+
+
 async def test_oas_spec(cli):
-    with open(os.path.join(HERE, "..", "pollbot", "api.yaml"), 'r') as stream:
-        oas_spec = yaml.load(stream)
-    await check_response(cli, "/v1/__api__", body=oas_spec)
+    await check_yaml_resource(cli, "/v1/__api__", "api.yaml")
+
+
+async def test_contribute_json(cli):
+    await check_yaml_resource(cli, "/contribute.json", "contribute.yaml")
 
 
 async def test_home_body(cli):

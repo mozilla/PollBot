@@ -7,6 +7,6 @@ HERE = os.path.dirname(__file__)
 
 def test_oas_spec():
     with open(os.path.join(HERE, "..", "pollbot", "api.yaml"), 'r') as stream:
-        oas_spec = yaml.load(stream)
+        oas_spec = yaml.safe_load(stream)
     # example for swagger spec v2.0
     validate_spec(oas_spec)

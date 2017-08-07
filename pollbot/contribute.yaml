@@ -1,0 +1,22 @@
+name: PollBot
+description: A hardworking little robot (microservice) that frees its human masters from the toilsome task of polling for the state of things during the Firefox release process.
+repository:
+  license: Mozilla Public Licence 2.0
+  url: https://github.com/mozilla/PollBot
+  tests: https://travis-ci.org/mozilla/PollBot/
+participate:
+  irc: irc://irc.mozilla.org/#product-delivery
+  docs: https://github.com/mozilla/PollBot
+  irc-contacts:
+  - Natim
+  - mostlygeek
+keywords:
+- JSON
+- Python
+- asyncio
+- aiohttp
+- Firefox
+- product-delivery
+- Mozilla
+- release
+- bots
