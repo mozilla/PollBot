@@ -1,8 +1,8 @@
 from aiohttp import web
 from pollbot import PRODUCTS
 
-from ..tasks.releasenotes import release_notes_published
 from ..tasks.archives import archives_published
+from ..tasks.bedrock import release_notes_published
 
 
 def status_response(task):

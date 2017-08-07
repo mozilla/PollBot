@@ -2,8 +2,8 @@ import aiohttp
 import asynctest
 from aioresponses import aioresponses
 
-from pollbot.tasks.releasenotes import release_notes_published
 from pollbot.tasks.archives import archives_published
+from pollbot.tasks.bedrock import release_notes_published
 
 
 class DeliveryTasksTest(asynctest.TestCase):
