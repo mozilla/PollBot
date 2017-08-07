@@ -11,10 +11,7 @@ info:
   license:
     name: "Mozilla Public License 2.0"
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: "pollbot.services.mozilla.com"
 basePath: "/v1"
-schemes:
-- "https"
 
 parameters:
   product:
