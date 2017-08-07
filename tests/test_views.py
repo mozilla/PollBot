@@ -1,6 +1,11 @@
+import os.path
 import pytest
+import ruamel.yaml as yaml
+
 from pollbot import __version__ as pollbot_version, HTTP_API_VERSION
 from pollbot.app import get_app
+
+HERE = os.path.dirname(__file__)
 
 
 @pytest.fixture
@@ -11,6 +16,13 @@ def cli(loop, test_client):
 async def test_home_redirects_to_v1(cli):
     resp = await cli.get("/", allow_redirects=False)
     assert resp.status == 302
+
+
+async def test_oas_spec(cli):
+    with open(os.path.join(HERE, "..", "pollbot", "api.yaml"), 'r') as stream:
+        oas_spec = yaml.load(stream)
+    resp = await cli.get("/v1/__api__")
+    assert await resp.json() == oas_spec
 
 
 async def test_home_body(cli):

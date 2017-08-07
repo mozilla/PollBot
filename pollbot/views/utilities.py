@@ -1,0 +1,12 @@
+import os.path
+
+from aiohttp import web
+import ruamel.yaml as yaml
+
+HERE = os.path.dirname(__file__)
+
+
+async def oas_spec(request):
+    with open(os.path.join(HERE, "..", "api.yaml")) as stream:
+        oas_spec = yaml.load(stream)
+    return web.json_response(oas_spec)
