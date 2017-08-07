@@ -1,11 +1,13 @@
 swagger: "2.0"
 info:
   description: >
-    some description of PollBot
+    PollBot is an hardworking little robot (microservice) that frees
+    its human masters from the toilsome task of polling for the state
+    of things during the Firefox release process.
   version: "1.0.0"
   title: "Mozilla Product Delivery PollBot"
   contact:
-    email: "product-delivery@mozilla.com"
+    url: "irc://irc.mozilla.org:6696/product-delivery"
   license:
     name: "Mozilla Public License 2.0"
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
