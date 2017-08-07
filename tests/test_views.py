@@ -37,6 +37,13 @@ async def test_oas_spec(cli):
     await check_response(cli, "/v1/__api__", body=oas_spec)
 
 
+async def test_contribute_json(cli):
+    with open(os.path.join(HERE, "..", "pollbot", "contribute.yaml"), 'r') as stream:
+        contribute = yaml.load(stream)
+    resp = await cli.get("/v1/contribute.json")
+    assert await resp.json() == contribute
+
+
 async def test_home_body(cli):
     await check_response(cli, "/v1/", body={
         "project_name": "pollbot",
