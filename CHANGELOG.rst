@@ -11,3 +11,4 @@ CHANGELOG
 - Add the contribute.json endpoint (#25)
 - Add the bedrock security-advisories bot (#26)
 - Add the product-details bot (#27)
+- Add CORS support (#28)
