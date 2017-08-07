@@ -33,13 +33,13 @@ async def test_v1_redirects_to_v1_slash(cli):
 
 async def test_oas_spec(cli):
     with open(os.path.join(HERE, "..", "pollbot", "api.yaml"), 'r') as stream:
-        oas_spec = yaml.load(stream)
+        oas_spec = yaml.safe_load(stream)
     await check_response(cli, "/v1/__api__", body=oas_spec)
 
 
 async def test_contribute_json(cli):
     with open(os.path.join(HERE, "..", "pollbot", "contribute.yaml"), 'r') as stream:
-        contribute = yaml.load(stream)
+        contribute = yaml.safe_load(stream)
     resp = await cli.get("/v1/contribute.json")
     assert await resp.json() == contribute
 
