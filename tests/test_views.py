@@ -112,3 +112,18 @@ async def test_release_bedrock_security_advisories_404(cli):
                              "status": 404,
                              "message": "Invalid product: invalid-product not in ['firefox']"
                          })
+
+
+async def test_release_product_details(cli):
+    await check_response(cli, "/v1/firefox/54.0/product-details",
+                         body={
+                             "status": "exists"
+                         })
+
+
+async def test_release_product_details_404(cli):
+    await check_response(cli, "/v1/invalid-product/54.0/product-details",
+                         status=404, body={
+                             "status": 404,
+                             "message": "Invalid product: invalid-product not in ['firefox']"
+                         })
