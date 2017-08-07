@@ -1,19 +1,27 @@
-import asyncio
 from aiohttp import web
-from pollbot.tasks.releasenotes import release_notes_published
-from pollbot.tasks.archives import archives_published
+from pollbot import PRODUCTS
+
+from ..tasks.releasenotes import release_notes_published
+from ..tasks.archives import archives_published
 
 
-async def info(request):
-    product = 'firefox'
-    version = request.match_info['version']
+def status_response(task):
+    async def wrapped(request):
+        product = request.match_info['product']
+        version = request.match_info['version']
 
-    infos = await asyncio.gather(release_notes_published(product, version),
-                                 archives_published(product, version))
+        if product not in PRODUCTS:
+            return web.json_response({
+                'status': 404,
+                'error': 'Invalid product: {} not in {}'.format(product, PRODUCTS)
+            }, status=404)
 
-    return web.json_response({
-        "product": product,
-        "version": version,
-        "releasenotes": infos[0],
-        "archives": infos[1],
-    })
+        status = await task(product, version)
+        return web.json_response({
+            "status": status and "exists" or "missing"
+        })
+    return wrapped
+
+
+archive = status_response(archives_published)
+bedrock_release_notes = status_response(release_notes_published)

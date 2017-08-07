@@ -37,12 +37,35 @@ async def test_home_body(cli):
 
 
 # This is currently a functional test.
-async def test_release_body(cli):
-    resp = await cli.get("/v1/firefox/54.0")
+async def test_release_archive(cli):
+    resp = await cli.get("/v1/firefox/54.0/archive")
     assert resp.status == 200
     assert await resp.json() == {
-        "product": "firefox",
-        "version": "54.0",
-        "releasenotes": True,
-        "archives": True,
+        "status": "exists"
+    }
+
+
+async def test_release_archive_404(cli):
+    resp = await cli.get("/v1/thunderbird/54.0/archive")
+    assert resp.status == 404
+    assert await resp.json() == {
+        "status": 404,
+        "error": "Invalid product: thunderbird not in ['firefox']"
+    }
+
+
+async def test_release_bedrock_release_notes(cli):
+    resp = await cli.get("/v1/firefox/54.0/bedrock/release-notes")
+    assert resp.status == 200
+    assert await resp.json() == {
+        "status": "exists"
+    }
+
+
+async def test_release_bedrock_release_notes_404(cli):
+    resp = await cli.get("/v1/thunderbird/54.0/bedrock/release-notes")
+    assert resp.status == 404
+    assert await resp.json() == {
+        "status": 404,
+        "error": "Invalid product: thunderbird not in ['firefox']"
     }
