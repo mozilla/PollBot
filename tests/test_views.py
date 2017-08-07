@@ -31,5 +31,6 @@ async def test_release_body(cli):
     assert await resp.json() == {
         "product": "firefox",
         "version": "54.0",
-        "releasenotes": True
+        "releasenotes": True,
+        "archives": True,
     }
