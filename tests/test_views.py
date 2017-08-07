@@ -14,7 +14,12 @@ HERE = os.path.dirname(__file__)
 
 @pytest.fixture
 def cli(loop, test_client):
-    return loop.run_until_complete(test_client(get_app(loop=loop)))
+    async def error(request):
+        raise ValueError()
+
+    app = get_app(loop=loop)
+    app.router.add_get('/v1/error', error)
+    return loop.run_until_complete(test_client(app))
 
 
 async def check_response(cli, url, *, status=200, body=None, method="get", **kwargs):
@@ -85,6 +90,20 @@ async def test_status_response_validates_product_name(cli):
         "status": 404,
         "message": "Invalid product: invalid-product not in ['firefox']",
     }
+
+
+async def test_404_pages_are_json_responses(cli):
+    await check_response(cli, "/v1/not-found", body={
+        "status": 404,
+        "message": "Page '/v1/not-found' not found"
+    }, status=404)
+
+
+async def test_500_pages_are_json_responses(cli):
+    await check_response(cli, "/v1/error", body={
+        "status": 503,
+        "message": "Service currently unavailable"
+    }, status=503)
 
 
 # This is currently a functional test.
