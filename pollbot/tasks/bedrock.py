@@ -16,8 +16,8 @@ async def security_advisories_published(product, version):
         url = 'https://www.mozilla.org/en-US/security/known-vulnerabilities/{}/'.format(product)
         async with session.get(url) as resp:
             if resp.status != 200:
-                raise TaskError(
-                    'Security advisories page not available  ({})'.format(resp.status))
+                msg = 'Security advisories page not available  ({})'.format(resp.status)
+                raise TaskError(msg)
             # Does the content contains the version number?
             body = await resp.text()
             d = pq(body)

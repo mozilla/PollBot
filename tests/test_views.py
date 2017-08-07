@@ -58,6 +58,7 @@ async def test_home_body(cli):
         "http_api_version": HTTP_API_VERSION
     })
 
+
 async def test_status_response_handle_task_errors(cli):
     async def error_task(product, version):
         raise TaskError('Error message')
@@ -69,6 +70,7 @@ async def test_status_response_handle_task_errors(cli):
         "status": "error",
         "message": "Error message",
     }
+
 
 # This is currently a functional test.
 async def test_release_archive(cli):
