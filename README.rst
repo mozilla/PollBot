@@ -4,16 +4,16 @@ PollBot
 |coc| |travis| |master-coverage|
 
 .. |coc| image:: https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg
-    :target: https://github.com/mozilla/pollbot/blob/master/CODE_OF_CONDUCT.md
+    :target: https://github.com/mozilla/PollBot/blob/master/CODE_OF_CONDUCT.md
     :alt: Code of conduct
 
-.. |travis| image:: https://travis-ci.org/mozilla/pollbot.svg?branch=master
-    :target: https://travis-ci.org/mozilla/pollbot
+.. |travis| image:: https://travis-ci.org/mozilla/PollBot.svg?branch=master
+    :target: https://travis-ci.org/mozilla/PollBot
 
 .. |master-coverage| image::
-    https://coveralls.io/repos/mozilla/pollbot/badge.svg?branch=master
+    https://coveralls.io/repos/mozilla/PollBot/badge.svg?branch=master
     :alt: Coverage
-    :target: https://coveralls.io/r/mozilla/pollbot
+    :target: https://coveralls.io/r/mozilla/PollBot
 
 .. |readthedocs| image:: https://readthedocs.org/projects/pollbot/badge/?version=latest
     :target: https://pollbot.readthedocs.io/en/latest/
