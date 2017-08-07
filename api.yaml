@@ -7,7 +7,7 @@ info:
   version: "1.0.0"
   title: "Mozilla Product Delivery PollBot"
   contact:
-    url: "irc://irc.mozilla.org:6696/product-delivery"
+    url: "irc://irc.mozilla.org:6696/#product-delivery"
   license:
     name: "Mozilla Public License 2.0"
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
@@ -17,17 +17,23 @@ schemes:
 - "https"
 
 parameters:
-  versionId:
-    name: "versionId"
+  product:
+    name: "product"
     in: "path"
-    description: "version of firefox to check for"
+    description: "Mozila Product name (i.e firefox, thunderbird, fennec)"
+    required: true
+    type: "string"
+  version:
+    name: "version"
+    in: "path"
+    description: "version of the given product to check for (i.e 52.0.1)"
     required: true
     type: "string"
 
 paths:
-  /archive/{versionId}:
+  /{product}/{version}/archive:
     get:
-      summary: "checks if Fx version is in the archive"
+      summary: "checks if the product version archive is downloadable"
       operationId: "checkArchiveExistance"
       produces:
       - "application/json"
@@ -39,12 +45,12 @@ paths:
           schema:
             $ref: "#/definitions/existanceStatus"
 
-  /product-details/{versionId}:
+  /{product}/{version}/product-details:
     get:
       summary: "checks version exists in product-details.mozilla.org"
       description: >
         checks https://product-details.mozilla.org/1.0/firefox.json for the
-        specific versionid
+        specific version
       operationId: "checkProductDetailsExistance"
       produces:
       - "application/json"
@@ -56,9 +62,9 @@ paths:
           schema:
             $ref: "#/definitions/existanceStatus"
 
-  /bedrock/security-advisories/{versionId}:
+  /{product}/{version}/bedrock/security-advisories:
     get:
-      summary: "check security advisories have been published"
+      summary: "check security advisories have been published on mozilla.org"
       operationId: "checkBedrockSecurityAdvisoryExistance"
       produces:
       - "application/json"
@@ -70,7 +76,7 @@ paths:
           schema:
             $ref: "#/definitions/existanceStatus"
 
-  /bedrock/download-links/{versionId}:
+  /{product}/{version}/bedrock/download-links:
     get:
       summary: "check download links have been published on mozilla.org"
       operationId: "checkBedrockDownloadLinkExistance"
@@ -83,7 +89,7 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/existanceStatus"
-  /bedrock/release-notes/{versionId}:
+  /{product}/{version}/bedrock/release-notes:
     get:
       summary: "check release notes have been published on mozilla.org"
       operationId: "checkBedrockReleaseNotesExistance"
