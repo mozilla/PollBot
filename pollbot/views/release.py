@@ -1,8 +1,9 @@
 from aiohttp import web
 from pollbot import PRODUCTS
 
-from ..tasks.releasenotes import release_notes_published
+from ..exceptions import TaskError
 from ..tasks.archives import archives_published
+from ..tasks.bedrock import release_notes_published, security_advisories_published
 
 
 def status_response(task):
@@ -16,7 +17,13 @@ def status_response(task):
                 'message': 'Invalid product: {} not in {}'.format(product, PRODUCTS)
             }, status=404)
 
-        status = await task(product, version)
+        try:
+            status = await task(product, version)
+        except TaskError as e:
+            return web.json_response({
+                'status': 'error',
+                'message': str(e)
+            })
         return web.json_response({
             "status": status and "exists" or "missing"
         })
@@ -25,3 +32,4 @@ def status_response(task):
 
 archive = status_response(archives_published)
 bedrock_release_notes = status_response(release_notes_published)
+bedrock_security_advisories = status_response(security_advisories_published)

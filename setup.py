@@ -18,6 +18,8 @@ CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 
 REQUIREMENTS = [
     'aiohttp',
+    'ruamel.yaml',
+    'pyquery',
 ]
 
 ENTRY_POINTS = {

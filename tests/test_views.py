@@ -1,9 +1,13 @@
-import os.path
+import json
+import mock
 import pytest
+import os.path
 import ruamel.yaml as yaml
 
 from pollbot import __version__ as pollbot_version, HTTP_API_VERSION
 from pollbot.app import get_app
+from pollbot.exceptions import TaskError
+from pollbot.views.release import status_response
 
 HERE = os.path.dirname(__file__)
 
@@ -55,6 +59,19 @@ async def test_home_body(cli):
     })
 
 
+async def test_status_response_handle_task_errors(cli):
+    async def error_task(product, version):
+        raise TaskError('Error message')
+    error_endpoint = status_response(error_task)
+    request = mock.MagicMock()
+    request.match_info = {"product": "firefox", "version": "57.0"}
+    resp = await error_endpoint(request)
+    assert json.loads(resp.body.decode()) == {
+        "status": "error",
+        "message": "Error message",
+    }
+
+
 # This is currently a functional test.
 async def test_release_archive(cli):
     await check_response(cli, "/v1/firefox/54.0/archive", body={
@@ -80,3 +97,18 @@ async def test_release_bedrock_release_notes_404(cli):
         "status": 404,
         "message": "Invalid product: invalid-product not in ['firefox']"
     })
+
+
+async def test_release_bedrock_security_advisories(cli):
+    await check_response(cli, "/v1/firefox/54.0/bedrock/security-advisories",
+                         body={
+                             "status": "exists"
+                         })
+
+
+async def test_release_bedrock_security_advisories_404(cli):
+    await check_response(cli, "/v1/invalid-product/54.0/bedrock/security-advisories",
+                         status=404, body={
+                             "status": 404,
+                             "message": "Invalid product: invalid-product not in ['firefox']"
+                         })
