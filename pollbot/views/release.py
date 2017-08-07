@@ -2,7 +2,7 @@ from aiohttp import web
 from pollbot import PRODUCTS
 
 from ..tasks.archives import archives_published
-from ..tasks.bedrock import release_notes_published
+from ..tasks.bedrock import release_notes_published, security_advisories_published
 
 
 def status_response(task):
@@ -25,3 +25,4 @@ def status_response(task):
 
 archive = status_response(archives_published)
 bedrock_release_notes = status_response(release_notes_published)
+bedrock_security_advisories = status_response(security_advisories_published)
