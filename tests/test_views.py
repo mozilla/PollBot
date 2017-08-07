@@ -72,6 +72,20 @@ async def test_status_response_handle_task_errors(cli):
     }
 
 
+async def test_status_response_validates_product_name(cli):
+    async def dummy_task(product, version):
+        return True
+    error_endpoint = status_response(dummy_task)
+    request = mock.MagicMock()
+    request.match_info = {"product": "invalid-product", "version": "57.0"}
+    resp = await error_endpoint(request)
+    assert resp.status == 404
+    assert json.loads(resp.body.decode()) == {
+        "status": 404,
+        "message": "Invalid product: invalid-product not in ['firefox']",
+    }
+
+
 # This is currently a functional test.
 async def test_release_archive(cli):
     await check_response(cli, "/v1/firefox/54.0/archive", body={
@@ -79,23 +93,9 @@ async def test_release_archive(cli):
     })
 
 
-async def test_release_archive_404(cli):
-    await check_response(cli, "/v1/invalid-product/54.0/archive", status=404, body={
-        "status": 404,
-        "message": "Invalid product: invalid-product not in ['firefox']"
-    })
-
-
 async def test_release_bedrock_release_notes(cli):
     await check_response(cli, "/v1/firefox/54.0/bedrock/release-notes", body={
         "status": "exists"
-    })
-
-
-async def test_release_bedrock_release_notes_404(cli):
-    await check_response(cli, "/v1/invalid-product/54.0/bedrock/release-notes", status=404, body={
-        "status": 404,
-        "message": "Invalid product: invalid-product not in ['firefox']"
     })
 
 
@@ -106,11 +106,10 @@ async def test_release_bedrock_security_advisories(cli):
                          })
 
 
-async def test_release_bedrock_security_advisories_404(cli):
-    await check_response(cli, "/v1/invalid-product/54.0/bedrock/security-advisories",
-                         status=404, body={
-                             "status": 404,
-                             "message": "Invalid product: invalid-product not in ['firefox']"
+async def test_release_bedrock_download_links(cli):
+    await check_response(cli, "/v1/firefox/54.0/bedrock/download-links",
+                         body={
+                             "status": "exists"
                          })
 
 
@@ -118,12 +117,4 @@ async def test_release_product_details(cli):
     await check_response(cli, "/v1/firefox/54.0/product-details",
                          body={
                              "status": "exists"
-                         })
-
-
-async def test_release_product_details_404(cli):
-    await check_response(cli, "/v1/invalid-product/54.0/product-details",
-                         status=404, body={
-                             "status": 404,
-                             "message": "Invalid product: invalid-product not in ['firefox']"
                          })
