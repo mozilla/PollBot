@@ -13,7 +13,7 @@ def status_response(task):
         if product not in PRODUCTS:
             return web.json_response({
                 'status': 404,
-                'error': 'Invalid product: {} not in {}'.format(product, PRODUCTS)
+                'message': 'Invalid product: {} not in {}'.format(product, PRODUCTS)
             }, status=404)
 
         status = await task(product, version)

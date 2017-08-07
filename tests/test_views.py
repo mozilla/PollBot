@@ -50,7 +50,7 @@ async def test_release_archive_404(cli):
     assert resp.status == 404
     assert await resp.json() == {
         "status": 404,
-        "error": "Invalid product: thunderbird not in ['firefox']"
+        "message": "Invalid product: thunderbird not in ['firefox']"
     }
 
 
@@ -67,5 +67,5 @@ async def test_release_bedrock_release_notes_404(cli):
     assert resp.status == 404
     assert await resp.json() == {
         "status": 404,
-        "error": "Invalid product: thunderbird not in ['firefox']"
+        "message": "Invalid product: thunderbird not in ['firefox']"
     }
