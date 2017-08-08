@@ -2,8 +2,8 @@
 FROM python:3.6-slim
 MAINTAINER Product Delivery irc://irc.mozilla.org/#product-delivery
 
-RUN groupadd -g 9000 pollbot && \
-    useradd -M -u 9000 -g 9000 -G pollbot -d /app -s /sbin/nologin pollbot
+RUN groupadd -g 10001 pollbot && \
+    useradd -M -u 10001 -g 10001 -G pollbot -d /app -s /sbin/nologin pollbot
 
 
 WORKDIR /app
