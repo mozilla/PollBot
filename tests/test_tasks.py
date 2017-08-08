@@ -7,6 +7,7 @@ import pytest
 from aioresponses import aioresponses
 
 from pollbot.exceptions import TaskError
+from pollbot.tasks import get_session
 from pollbot.tasks.archives import archives
 from pollbot.tasks.bedrock import release_notes, security_advisories, download_links
 from pollbot.tasks.product_details import product_details
@@ -20,6 +21,11 @@ class DeliveryTasksTest(asynctest.TestCase):
         self.mocked = aioresponses()
         self.mocked.start()
         self.addCleanup(self.mocked.stop)
+
+    async def test_tasks_user_agent(self):
+        self.mocked.get("http://localhost", status=200)
+        with get_session() as session:
+            assert session._default_headers['User-Agent'].startswith("PollBot/")
 
     async def test_releasenotes_tasks_returns_true_if_present(self):
         url = 'https://www.mozilla.org/en-US/firefox/52.0.2/releasenotes/'
