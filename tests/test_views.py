@@ -4,6 +4,8 @@ import pytest
 import os.path
 import ruamel.yaml as yaml
 
+from aiohttp import web
+
 from pollbot import __version__ as pollbot_version, HTTP_API_VERSION
 from pollbot.app import get_app
 from pollbot.exceptions import TaskError
@@ -14,7 +16,20 @@ HERE = os.path.dirname(__file__)
 
 @pytest.fixture
 def cli(loop, test_client):
-    return loop.run_until_complete(test_client(get_app(loop=loop)))
+    async def error403(request):
+        raise web.HTTPForbidden()
+
+    async def error404(request):
+        return web.HTTPNotFound()
+
+    async def error(request):
+        raise ValueError()
+
+    app = get_app(loop=loop)
+    app.router.add_get('/v1/error', error)
+    app.router.add_get('/v1/error-403', error403)
+    app.router.add_get('/v1/error-404', error404)
+    return loop.run_until_complete(test_client(app))
 
 
 async def check_response(cli, url, *, status=200, body=None, method="get", **kwargs):
@@ -85,6 +100,34 @@ async def test_status_response_validates_product_name(cli):
         "status": 404,
         "message": "Invalid product: invalid-product not in ['firefox']",
     }
+
+
+async def test_403_errors_are_json_responses(cli):
+    await check_response(cli, "/v1/error-403", body={
+        "status": 403,
+        "message": "Forbidden"
+    }, status=403)
+
+
+async def test_404_pages_are_json_responses(cli):
+    await check_response(cli, "/v1/not-found", body={
+        "status": 404,
+        "message": "Page '/v1/not-found' not found"
+    }, status=404)
+
+
+async def test_handle_views_that_return_404_pages_are_json_responses(cli):
+    await check_response(cli, "/v1/error-404", body={
+        "status": 404,
+        "message": "Page '/v1/error-404' not found"
+    }, status=404)
+
+
+async def test_500_pages_are_json_responses(cli):
+    await check_response(cli, "/v1/error", body={
+        "status": 503,
+        "message": "Service currently unavailable"
+    }, status=503)
 
 
 # This is currently a functional test.

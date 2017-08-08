@@ -3,6 +3,7 @@ import aiohttp_cors
 from aiohttp import web
 from aiohttp_swagger import setup_swagger
 
+from .middlewares import setup_middlewares
 from .views import home, release, utilities
 
 
@@ -11,6 +12,9 @@ HERE = os.path.dirname(__file__)
 
 def get_app(loop=None):
     app = web.Application(loop=loop)
+
+    # Setup middlewares
+    setup_middlewares(app)
 
     # Allow Web Application calls.
     cors = aiohttp_cors.setup(app, defaults={
@@ -39,4 +43,5 @@ def get_app(loop=None):
     setup_swagger(app,
                   swagger_url="/v1/api/doc",
                   swagger_from_file=os.path.join(HERE, "api.yaml"))
+
     return app
