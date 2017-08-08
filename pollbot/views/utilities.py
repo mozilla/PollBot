@@ -10,12 +10,13 @@ from pollbot.tasks import archives, bedrock, product_details
 
 
 HERE = os.path.dirname(__file__)
+VERSION_FILE = os.getenv("VERSION_FILE", "version.json")
 
 
 async def version(request):
     # Use the version.json file in the current dir.
     with suppress(IOError):
-        with open("version.json") as fd:
+        with open(VERSION_FILE) as fd:
             return web.json_response(json.load(fd))
     return web.HTTPNotFound()
 
