@@ -179,3 +179,19 @@ async def test_heartbeat(cli):
                              "bedrock": True,
                              "product-details": True,
                          })
+
+
+async def test_version_view_return_404_if_missing_file(cli):
+    with mock.patch("builtins.open", side_effect=IOError):
+        await check_response(cli, "/v1/__version__",
+                             status=404,
+                             body={
+                                 "status": 404,
+                                 "message": "Page '/v1/__version__' not found"
+                             })
+
+
+async def test_version_view_return_200(cli):
+    with open("version.json") as fd:
+        await check_response(cli, "/v1/__version__",
+                             body=json.load(fd))

@@ -33,6 +33,7 @@ def get_app(loop=None):
     # Utilities
     cors.add(app.router.add_get('/contribute.json', utilities.contribute_json))
     cors.add(app.router.add_get('/v1/__api__', utilities.oas_spec))
+    cors.add(app.router.add_get('/v1/__version__', utilities.version))
 
     # Heartbeat
     cors.add(app.router.add_get('/v1/__heartbeat__', utilities.heartbeat))
