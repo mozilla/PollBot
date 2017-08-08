@@ -11,6 +11,7 @@ from pollbot.tasks import get_session
 from pollbot.tasks.archives import archives
 from pollbot.tasks.bedrock import release_notes, security_advisories, download_links
 from pollbot.tasks.product_details import product_details
+from pollbot.tasks.ship_it import ship_it_firefox_versions
 from pollbot.views.utilities import heartbeat
 
 
@@ -136,6 +137,28 @@ class DeliveryTasksTest(asynctest.TestCase):
             await product_details('firefox', '54.0')
         assert str(excinfo.value) == 'Product Details info not available  (404)'
 
+    async def test_ship_it_firefox_versions_tasks_returns_true_if_present(self):
+        url = 'https://ship-it.mozilla.org/json/1.0/firefox_versions.json'
+        self.mocked.get(url, status=200, body=json.dumps({"LATEST_FIREFOX_VERSION": "52.0"}))
+
+        received = await ship_it_firefox_versions('firefox', '52.0')
+        assert received is True
+
+    async def test_ship_it_firefox_versions_tasks_returns_false_if_absent(self):
+        url = 'https://ship-it.mozilla.org/json/1.0/firefox_versions.json'
+        self.mocked.get(url, status=200, body=json.dumps({"LATEST_FIREFOX_VERSION": "52.0"}))
+
+        received = await ship_it_firefox_versions('firefox', '54.0')
+        assert received is False
+
+    async def test_ship_it_firefox_versions_tasks_returns_error_if_error(self):
+        url = 'https://ship-it.mozilla.org/json/1.0/firefox_versions.json'
+        self.mocked.get(url, status=404)
+
+        with pytest.raises(TaskError) as excinfo:
+            await ship_it_firefox_versions('firefox', '54.0')
+        assert str(excinfo.value) == 'Ship it info not available  (404)'
+
     async def test_failing_heartbeat(self):
         # Archive
         url = 'https://archive.mozilla.org/pub/firefox/releases/'
@@ -149,10 +172,15 @@ class DeliveryTasksTest(asynctest.TestCase):
         url = 'https://product-details.mozilla.org/1.0/firefox.json'
         self.mocked.get(url, status=404)
 
+        # Ship it
+        url = 'https://ship-it.mozilla.org/json/1.0/firefox_versions.json'
+        self.mocked.get(url, status=404)
+
         resp = await heartbeat(None)
         assert json.loads(resp.body.decode()) == {
             "archive": False,
             "bedrock": False,
-            "product-details": False
+            "product-details": False,
+            "ship-it": False,
         }
         assert resp.status == 503

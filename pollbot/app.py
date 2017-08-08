@@ -49,6 +49,8 @@ def get_app(loop=None):
                                 release.bedrock_download_links))
     cors.add(app.router.add_get('/v1/{product}/{version}/product-details',
                                 release.product_details))
+    cors.add(app.router.add_get('/v1/{product}/{version}/ship-it',
+                                release.ship_it))
 
     # Swagger UI and documentation
     setup_swagger(app,

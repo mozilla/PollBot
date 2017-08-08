@@ -6,7 +6,7 @@ from contextlib import suppress
 import ruamel.yaml as yaml
 from aiohttp import web
 
-from pollbot.tasks import archives, bedrock, product_details
+from pollbot.tasks import archives, bedrock, product_details, ship_it
 
 
 HERE = os.path.dirname(__file__)
@@ -42,9 +42,11 @@ async def lbheartbeat(request):
 async def heartbeat(request):
     info = await asyncio.gather(archives.heartbeat(),
                                 bedrock.heartbeat(),
-                                product_details.heartbeat())
+                                product_details.heartbeat(),
+                                ship_it.heartbeat())
     status = all(info) and 200 or 503
     return web.json_response({"archive": info[0],
                               "bedrock": info[1],
-                              "product-details": info[2]},
+                              "product-details": info[2],
+                              "ship-it": info[3]},
                              status=status)
