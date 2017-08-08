@@ -1,6 +1,6 @@
 from pollbot.exceptions import TaskError
 
-from . import get_session
+from . import get_session, heartbeat_factory
 
 
 async def product_details(product, version):
@@ -14,10 +14,4 @@ async def product_details(product, version):
             return '{}-{}'.format(product, version) in body['releases']
 
 
-async def heartbeat():
-    with get_session() as session:
-        url = 'https://product-details.mozilla.org/1.0/firefox.json'
-        async with session.get(url, timeout=10) as resp:
-            if resp.status == 200:
-                return True
-        return False
+heartbeat = heartbeat_factory('https://product-details.mozilla.org/1.0/firefox.json')

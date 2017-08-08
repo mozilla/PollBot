@@ -33,8 +33,7 @@ async def heartbeat(request):
                                 bedrock.heartbeat(),
                                 product_details.heartbeat())
     status = all(info) and 200 or 503
-    return web.json_response({
-        "archive": info[0],
-        "bedrock": info[1],
-        "product-details": info[2]
-    }, status=status)
+    return web.json_response({"archive": info[0],
+                              "bedrock": info[1],
+                              "product-details": info[2]},
+                             status=status)

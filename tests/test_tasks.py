@@ -155,3 +155,4 @@ class DeliveryTasksTest(asynctest.TestCase):
             "bedrock": False,
             "product-details": False
         }
+        assert resp.status == 503

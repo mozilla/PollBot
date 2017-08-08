@@ -47,7 +47,7 @@ async def handle_404(request, response):
 
 
 async def handle_500(request, response=None, error=None):
-    print(error)
+    logger.error(error)
     return web.json_response({
             "status": 503,
             "message": "Service currently unavailable"
