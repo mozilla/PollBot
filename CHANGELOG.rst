@@ -22,4 +22,3 @@ CHANGELOG
 - Add the /__version__ endpoint (39)
 - Add the __heartbeat__ and __lbheartbeat__ endpoints (#38)
 - Serve the Swagger documentation (#30)
-
