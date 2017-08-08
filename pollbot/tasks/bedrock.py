@@ -37,3 +37,12 @@ async def download_links(product, version):
             d = pq(body)
             last_release = d("html").attr('data-latest-firefox')
             return build_version_id(last_release) >= build_version_id(version)
+
+
+async def heartbeat():
+    with get_session() as session:
+        url = 'https://www.mozilla.org/en-US/firefox/all/'
+        async with session.get(url, timeout=10) as resp:
+            if resp.status == 200:
+                return True
+        return False

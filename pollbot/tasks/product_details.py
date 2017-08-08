@@ -12,3 +12,12 @@ async def product_details(product, version):
                 raise TaskError(msg)
             body = await resp.json()
             return '{}-{}'.format(product, version) in body['releases']
+
+
+async def heartbeat():
+    with get_session() as session:
+        url = 'https://product-details.mozilla.org/1.0/firefox.json'
+        async with session.get(url, timeout=10) as resp:
+            if resp.status == 200:
+                return True
+        return False

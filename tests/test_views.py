@@ -162,3 +162,20 @@ async def test_release_product_details(cli):
                          body={
                              "status": "exists"
                          })
+
+
+# Utilities
+async def test_lbheartbeat(cli):
+    await check_response(cli, "/v1/__lbheartbeat__",
+                         body={
+                             "status": "running"
+                         })
+
+
+async def test_heartbeat(cli):
+    await check_response(cli, "/v1/__heartbeat__",
+                         body={
+                             "archive": True,
+                             "bedrock": True,
+                             "product-details": True,
+                         })
