@@ -1,4 +1,4 @@
-from . import get_session
+from . import get_session, heartbeat_factory
 
 
 async def archives(product, version):
@@ -6,3 +6,6 @@ async def archives(product, version):
         url = 'https://archive.mozilla.org/pub/{}/releases/{}/'.format(product, version)
         async with session.get(url) as resp:
             return resp.status != 404
+
+
+heartbeat = heartbeat_factory('https://archive.mozilla.org/pub/firefox/releases/')

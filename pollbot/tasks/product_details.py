@@ -1,6 +1,6 @@
 from pollbot.exceptions import TaskError
 
-from . import get_session
+from . import get_session, heartbeat_factory
 
 
 async def product_details(product, version):
@@ -12,3 +12,6 @@ async def product_details(product, version):
                 raise TaskError(msg)
             body = await resp.json()
             return '{}-{}'.format(product, version) in body['releases']
+
+
+heartbeat = heartbeat_factory('https://product-details.mozilla.org/1.0/firefox.json')

@@ -11,6 +11,7 @@ from pollbot.tasks import get_session
 from pollbot.tasks.archives import archives
 from pollbot.tasks.bedrock import release_notes, security_advisories, download_links
 from pollbot.tasks.product_details import product_details
+from pollbot.views.utilities import heartbeat
 
 
 class DeliveryTasksTest(asynctest.TestCase):
@@ -134,3 +135,24 @@ class DeliveryTasksTest(asynctest.TestCase):
         with pytest.raises(TaskError) as excinfo:
             await product_details('firefox', '54.0')
         assert str(excinfo.value) == 'Product Details info not available  (404)'
+
+    async def test_failing_heartbeat(self):
+        # Archive
+        url = 'https://archive.mozilla.org/pub/firefox/releases/'
+        self.mocked.get(url, status=404)
+
+        # Bedrock
+        url = 'https://www.mozilla.org/en-US/firefox/all/'
+        self.mocked.get(url, status=404)
+
+        # Product Details
+        url = 'https://product-details.mozilla.org/1.0/firefox.json'
+        self.mocked.get(url, status=404)
+
+        resp = await heartbeat(None)
+        assert json.loads(resp.body.decode()) == {
+            "archive": False,
+            "bedrock": False,
+            "product-details": False
+        }
+        assert resp.status == 503

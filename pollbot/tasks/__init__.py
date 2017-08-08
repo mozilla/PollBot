@@ -13,3 +13,13 @@ def get_session():
         "User-Agent": "PollBot/{} aiohttp/{} python/{}".format(
             pollbot_version, aiohttp_version, python_version)
     })
+
+
+def heartbeat_factory(url):
+    async def heartbeat():
+        with get_session() as session:
+            async with session.get(url, timeout=10) as resp:
+                if resp.status == 200:
+                    return True
+                return False
+    return heartbeat

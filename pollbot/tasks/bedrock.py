@@ -1,7 +1,7 @@
 from pyquery import PyQuery as pq
 from pollbot.exceptions import TaskError
 from pollbot.utils import build_version_id
-from . import get_session
+from . import get_session, heartbeat_factory
 
 
 async def release_notes(product, version):
@@ -37,3 +37,6 @@ async def download_links(product, version):
             d = pq(body)
             last_release = d("html").attr('data-latest-firefox')
             return build_version_id(last_release) >= build_version_id(version)
+
+
+heartbeat = heartbeat_factory('https://www.mozilla.org/en-US/firefox/all/')
