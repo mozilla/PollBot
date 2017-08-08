@@ -1,5 +1,7 @@
 import asyncio
+import json
 import os.path
+from contextlib import suppress
 
 import ruamel.yaml as yaml
 from aiohttp import web
@@ -8,6 +10,14 @@ from pollbot.tasks import archives, bedrock, product_details
 
 
 HERE = os.path.dirname(__file__)
+
+
+async def version(request):
+    # Use the version.json file in the current dir.
+    with suppress(IOError):
+        with open("version.json") as fd:
+            return web.json_response(json.load(fd))
+    return web.HTTPNotFound()
 
 
 def render_yaml_file(filename):
