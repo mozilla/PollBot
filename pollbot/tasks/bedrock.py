@@ -1,18 +1,18 @@
-import aiohttp
 from pyquery import PyQuery as pq
 from pollbot.exceptions import TaskError
 from pollbot.utils import build_version_id
+from . import get_session
 
 
 async def release_notes(product, version):
-    with aiohttp.ClientSession() as session:
+    with get_session() as session:
         url = 'https://www.mozilla.org/en-US/{}/{}/releasenotes/'.format(product, version)
         async with session.get(url) as resp:
             return resp.status != 404
 
 
 async def security_advisories(product, version):
-    with aiohttp.ClientSession() as session:
+    with get_session() as session:
         url = 'https://www.mozilla.org/en-US/security/known-vulnerabilities/{}/'.format(product)
         async with session.get(url) as resp:
             if resp.status != 200:
@@ -26,7 +26,7 @@ async def security_advisories(product, version):
 
 
 async def download_links(product, version):
-    with aiohttp.ClientSession() as session:
+    with get_session() as session:
         url = 'https://www.mozilla.org/en-US/{}/all/'.format(product)
         async with session.get(url) as resp:
             if resp.status != 200:

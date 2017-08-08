@@ -1,9 +1,10 @@
-import aiohttp
 from pollbot.exceptions import TaskError
+
+from . import get_session
 
 
 async def product_details(product, version):
-    with aiohttp.ClientSession() as session:
+    with get_session() as session:
         url = 'https://product-details.mozilla.org/1.0/{}.json'.format(product)
         async with session.get(url) as resp:
             if resp.status != 200:
