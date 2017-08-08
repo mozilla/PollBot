@@ -42,7 +42,7 @@ dependencies:
 
 test:
   override:
-    -  'true'
+    -  docker run -it app /bin/bash /app/scripts/run-tests.sh
 
 # appropriately tag and push the container to dockerhub
 deployment:
