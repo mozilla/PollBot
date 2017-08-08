@@ -171,10 +171,6 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/existanceStatus"
-        "404":
-          description: "Security advisories for this release were not found on mozilla.org"
-          schema:
-            $ref: "#/definitions/errorResponse"
       tags:
       - Status
 
