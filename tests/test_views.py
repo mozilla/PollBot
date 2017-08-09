@@ -102,6 +102,13 @@ async def test_status_response_validates_product_name(cli):
     }
 
 
+async def test_delivery_dashboard_response_validates_product_name(cli):
+    await check_response(cli, "/v1/invalid-product/54.0/", body={
+        "status": 404,
+        "message": "Invalid product: invalid-product not in ['firefox']"
+    }, status=404)
+
+
 async def test_403_errors_are_json_responses(cli):
     await check_response(cli, "/v1/error-403", body={
         "status": 403,
@@ -161,6 +168,17 @@ async def test_release_product_details(cli):
     await check_response(cli, "/v1/firefox/54.0/product-details",
                          body={
                              "status": "exists"
+                         })
+
+
+async def test_release_delivery_dashboard(cli):
+    await check_response(cli, "/v1/firefox/54.0/",
+                         body={
+                             "archive": "exists",
+                             "release-notes": "exists",
+                             "security-advisories": "exists",
+                             "download-links": "exists",
+                             "product-details": "exists",
                          })
 
 
