@@ -73,3 +73,9 @@ distclean: clean
 
 maintainer-clean: distclean
 	rm -fr .venv/ .tox/
+
+docker-build:
+	docker build -t mozilla/pollbot .
+
+docker-test:
+	docker run -it  mozilla/pollbot /bin/bash /app/scripts/run-tests.sh
