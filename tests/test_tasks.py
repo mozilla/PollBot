@@ -9,7 +9,7 @@ from aioresponses import aioresponses
 from pollbot.exceptions import TaskError
 from pollbot.tasks import get_session
 from pollbot.tasks.archives import archives
-from pollbot.tasks.bedrock import release_notes, security_advisories, download_links
+from pollbot.tasks.bedrock import release_notes, security_advisories, download_links, get_releases
 from pollbot.tasks.product_details import product_details
 from pollbot.views.utilities import heartbeat
 
@@ -27,6 +27,43 @@ class DeliveryTasksTest(asynctest.TestCase):
         self.mocked.get("http://localhost", status=200)
         with get_session() as session:
             assert session._default_headers['User-Agent'].startswith("PollBot/")
+
+    async def test_get_releases_tasks_return_releases(self):
+        url = 'https://www.mozilla.org/en-US/firefox/releases/'
+        self.mocked.get(url, status=200, body='''
+        <html data-latest-firefox="55.0">
+          <div id="main-content">
+            <ol reversed>
+              <li>
+                <strong><a href="../55.0/releasenotes/">55.0</a></strong>
+              </li>
+              <li>
+                <strong><a href="../54.0/releasenotes/">54.0</a></strong>
+                <ol>
+                  <li><a href="../54.0.1/releasenotes/">54.0.1</a></li>
+                </ol>
+              </li>
+              <li>
+                <strong><a href="../53.0/releasenotes/">53.0</a></strong>
+                <ol>
+                  <li><a href="../53.0.2/releasenotes/">53.0.2</a></li>
+                  <li><a href="../53.0.3/releasenotes/">53.0.3</a></li>
+                </ol>
+              </li>
+            </ol>
+          </div>
+        </html>
+        ''')
+        received = await get_releases('firefox')
+        assert received == ["53.0", "53.0.2", "53.0.3", "54.0", "54.0.1", "55.0"]
+
+    async def test_get_releases_tasks_returns_error_if_error(self):
+        url = 'https://www.mozilla.org/en-US/firefox/releases/'
+        self.mocked.get(url, status=404)
+
+        with pytest.raises(TaskError) as excinfo:
+            await get_releases('firefox')
+        assert str(excinfo.value) == 'Releases page not available  (404)'
 
     async def test_releasenotes_tasks_returns_true_if_present(self):
         url = 'https://www.mozilla.org/en-US/firefox/52.0.2/releasenotes/'

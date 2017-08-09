@@ -120,6 +120,31 @@ paths:
       tags:
       - Utilities
 
+  /{product}/:
+    get:
+      summary: "Return the list of available product versions."
+      operationId: "getProductReleases"
+      produces:
+      - "application/json"
+      parameters:
+      - $ref: "#/parameters/product"
+      responses:
+        "200":
+          description: "Return the list of releases"
+          schema:
+            type: "object"
+            required:
+            - "releases"
+            properties:
+              releases:
+                type: "array"
+                description: The list of releases
+                items:
+                  title: Release version
+                  type: string
+      tags:
+      - Status
+
   /{product}/{version}/archive:
     get:
       summary: "checks if the product version archive is downloadable"

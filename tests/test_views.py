@@ -102,6 +102,13 @@ async def test_status_response_validates_product_name(cli):
     }
 
 
+async def test_get_releases_response_validates_product_name(cli):
+    await check_response(cli, "/v1/invalid-product/", body={
+        "status": 404,
+        "message": "Invalid product: invalid-product not in ['firefox']"
+    }, status=404)
+
+
 async def test_403_errors_are_json_responses(cli):
     await check_response(cli, "/v1/error-403", body={
         "status": 403,
@@ -162,6 +169,13 @@ async def test_release_product_details(cli):
                          body={
                              "status": "exists"
                          })
+
+
+async def test_releases_list(cli):
+    resp = await check_response(cli, "/v1/firefox/")
+    body = await resp.json()
+    assert "releases" in body
+    assert all([isinstance(version, str) for version in body["releases"]])
 
 
 # Utilities
