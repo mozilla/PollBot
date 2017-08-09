@@ -120,6 +120,71 @@ paths:
       tags:
       - Utilities
 
+  /{product}/{version}/:
+    get:
+      summary: "checks the product version statuses"
+      operationId: "checkReleaseStatus"
+      produces:
+      - "application/json"
+      parameters:
+      - $ref: "#/parameters/product"
+      - $ref: "#/parameters/version"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "object"
+            required:
+            - "archive"
+            - "release-notes"
+            - "security-advisories"
+            - "download-links"
+            - "product-details"
+            properties:
+              archive:
+                type: "string"
+                description: "current status of the archive"
+                enum:
+                - "missing"
+                - "incomplete"
+                - "exists"
+                - "error"
+              release-notes:
+                type: "string"
+                description: "current status of the release-notes"
+                enum:
+                - "missing"
+                - "incomplete"
+                - "exists"
+                - "error"
+              security-advisories:
+                type: "string"
+                description: "current status of the security-advisories"
+                enum:
+                - "missing"
+                - "incomplete"
+                - "exists"
+                - "error"
+              download-links:
+                type: "string"
+                description: "current status of the download-links"
+                enum:
+                - "missing"
+                - "incomplete"
+                - "exists"
+                - "error"
+              product-details:
+                type: "string"
+                description: "current status of the product-details"
+                enum:
+                - "missing"
+                - "incomplete"
+                - "exists"
+                - "error"
+
+      tags:
+      - Status
+
   /{product}/{version}/archive:
     get:
       summary: "checks if the product version archive is downloadable"

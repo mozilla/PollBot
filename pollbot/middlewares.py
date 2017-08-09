@@ -40,10 +40,12 @@ async def handle_any(request, response):
 
 
 async def handle_404(request, response):
-    return web.json_response({
-        "status": 404,
-        "message": "Page '{}' not found".format(request.path)
-    }, status=404)
+    if 'json' not in response.headers['Content-Type']:
+        return web.json_response({
+            "status": 404,
+            "message": "Page '{}' not found".format(request.path)
+        }, status=404)
+    return response
 
 
 async def handle_500(request, response=None, error=None):

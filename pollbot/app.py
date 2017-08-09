@@ -40,15 +40,16 @@ def get_app(loop=None):
     cors.add(app.router.add_get('/v1/__lbheartbeat__', utilities.lbheartbeat))
 
     # Statuses
-    cors.add(app.router.add_get('/v1/{product}/{version}/archive', release.archive))
+    cors.add(app.router.add_get('/v1/{product}/{version}/', release.delivery_dashboard))
+    cors.add(app.router.add_get('/v1/{product}/{version}/archive', release.view_archive))
     cors.add(app.router.add_get('/v1/{product}/{version}/bedrock/release-notes',
-                                release.bedrock_release_notes))
+                                release.view_bedrock_release_notes))
     cors.add(app.router.add_get('/v1/{product}/{version}/bedrock/security-advisories',
-                                release.bedrock_security_advisories))
+                                release.view_bedrock_security_advisories))
     cors.add(app.router.add_get('/v1/{product}/{version}/bedrock/download-links',
-                                release.bedrock_download_links))
+                                release.view_bedrock_download_links))
     cors.add(app.router.add_get('/v1/{product}/{version}/product-details',
-                                release.product_details))
+                                release.view_product_details))
 
     # Swagger UI and documentation
     setup_swagger(app,
