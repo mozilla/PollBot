@@ -4,7 +4,7 @@ CHANGELOG
 0.2.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add a /v1/firefox/ongoing-version endpoint (#52)
 
 
 0.1.0 (2017-08-08)

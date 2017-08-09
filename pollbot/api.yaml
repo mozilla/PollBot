@@ -120,7 +120,7 @@ paths:
       tags:
       - Utilities
 
-  /{product}/:
+  /{product}:
     get:
       summary: "Return the list of available product versions."
       operationId: "getProductReleases"
@@ -142,6 +142,38 @@ paths:
                 items:
                   title: Release version
                   type: string
+      tags:
+      - Status
+
+
+  /{product}/ongoing-versions:
+    get:
+      summary: "Get the product ongoing versions: The last version number for each release channels."
+      operationId: "getProductOngoingVersions"
+      produces:
+      - "application/json"
+      parameters:
+      - $ref: "#/parameters/product"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: object
+            required:
+            - "status"
+            properties:
+              esr:
+                type: "string"
+                description: "Current Firefox ESR version"
+              release:
+                type: "string"
+                description: "Current Firefox Release version"
+              beta:
+                type: "string"
+                description: "Current Firefox Beta version"
+              nightly:
+                type: "string"
+                description: "Current Firefox Nightly version"
       tags:
       - Status
 

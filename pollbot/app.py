@@ -4,7 +4,7 @@ from aiohttp import web
 from aiohttp_swagger import setup_swagger
 
 from .middlewares import setup_middlewares
-from .views import home, release, utilities
+from .views import home, release, utilities, product
 
 
 HERE = os.path.dirname(__file__)
@@ -40,8 +40,12 @@ def get_app(loop=None):
     cors.add(app.router.add_get('/v1/__lbheartbeat__', utilities.lbheartbeat))
 
     # Statuses
-    cors.add(app.router.add_get('/v1/{product}/', release.view_get_releases))
-    cors.add(app.router.add_get('/v1/{product}/{version}/archive', release.archive))
+    cors.add(app.router.add_get('/v1/{product}',
+                                release.view_get_releases))
+    cors.add(app.router.add_get('/v1/{product}/ongoing-versions',
+                                product.get_ongoing_versions))
+    cors.add(app.router.add_get('/v1/{product}/{version}/archive',
+                                release.archive))
     cors.add(app.router.add_get('/v1/{product}/{version}/bedrock/release-notes',
                                 release.bedrock_release_notes))
     cors.add(app.router.add_get('/v1/{product}/{version}/bedrock/security-advisories',
