@@ -88,6 +88,20 @@ async def test_status_response_handle_task_errors(cli):
     }
 
 
+async def test_status_response_handle_task_timeout(cli):
+    async def error_task(product, version):
+        return None
+    error_endpoint = status_response(error_task)
+    request = mock.MagicMock()
+    request.match_info = {"product": "firefox", "version": "57.0"}
+    resp = await error_endpoint(request)
+    assert json.loads(resp.body.decode()) == {
+        "status": "error",
+        "message": "Remote service request timeout",
+    }
+    assert resp.status == 503
+
+
 async def test_status_response_validates_product_name(cli):
     async def dummy_task(product, version):
         return True
@@ -178,6 +192,7 @@ async def test_heartbeat(cli):
                              "archive": True,
                              "bedrock": True,
                              "product-details": True,
+                             "ship-it": True,
                          })
 
 

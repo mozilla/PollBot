@@ -157,6 +157,26 @@ paths:
       tags:
       - Status
 
+  /{product}/{version}/ship-it:
+    get:
+      summary: "checks version exists in ship-it.mozilla.org"
+      description: >
+        checks https://ship-it.mozilla.org/1.0/firefox.json for the
+        specific version
+      operationId: "checkShipItExistance"
+      produces:
+      - "application/json"
+      parameters:
+      - $ref: "#/parameters/product"
+      - $ref: "#/parameters/version"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/existanceStatus"
+      tags:
+      - Status
+
   /{product}/{version}/bedrock/security-advisories:
     get:
       summary: "check security advisories have been published on mozilla.org"
