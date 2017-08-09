@@ -50,12 +50,18 @@ class DeliveryTasksTest(asynctest.TestCase):
                   <li><a href="../53.0.3/releasenotes/">53.0.3</a></li>
                 </ol>
               </li>
+              <li>
+                <strong><a href="../9.0/releasenotes/">9.0</a></strong>
+                <ol>
+                  <li><a href="../9.0.1/releasenotes/">9.0.1</a></li>
+                </ol>
+              </li>
             </ol>
           </div>
         </html>
         ''')
         received = await get_releases('firefox')
-        assert received == ["53.0", "53.0.2", "53.0.3", "54.0", "54.0.1", "55.0"]
+        assert received == ["9.0", "9.0.1", "53.0", "53.0.2", "53.0.3", "54.0", "54.0.1", "55.0"]
 
     async def test_get_releases_tasks_returns_error_if_error(self):
         url = 'https://www.mozilla.org/en-US/firefox/releases/'

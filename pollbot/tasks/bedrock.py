@@ -15,7 +15,7 @@ async def get_releases(product):
             d = pq(body)
             major_releases = [n.text for n in d("strong>a")]
             minor_releases = [n.text for n in d("ol>li>ol>li>a")]
-            return sorted(major_releases + minor_releases)
+            return sorted(major_releases + minor_releases, key=build_version_id)
 
 
 async def release_notes(product, version):
