@@ -1,3 +1,5 @@
+import re
+
 from pyquery import PyQuery as pq
 from pollbot.exceptions import TaskError
 from pollbot.utils import build_version_id
@@ -20,6 +22,7 @@ async def get_releases(product):
 
 async def release_notes(product, version):
     with get_session() as session:
+        version = re.sub('esr$', '', version)
         url = 'https://www.mozilla.org/en-US/{}/{}/releasenotes/'.format(product, version)
         async with session.get(url) as resp:
             return resp.status != 404

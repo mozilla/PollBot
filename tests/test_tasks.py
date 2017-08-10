@@ -78,6 +78,13 @@ class DeliveryTasksTest(asynctest.TestCase):
         received = await release_notes('firefox', '52.0.2')
         assert received is True
 
+    async def test_releasenotes_tasks_strip_esr_from_version_number(self):
+        url = 'https://www.mozilla.org/en-US/firefox/52.3.0/releasenotes/'
+        self.mocked.get(url, status=200)
+
+        received = await release_notes('firefox', '52.3.0esr')
+        assert received is True
+
     async def test_releasenotes_tasks_returns_false_if_absent(self):
         url = 'https://www.mozilla.org/en-US/firefox/52.0.2/releasenotes/'
         self.mocked.get(url, status=404)
