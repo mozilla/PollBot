@@ -113,6 +113,13 @@ class DeliveryTasksTest(asynctest.TestCase):
         received = await download_links('firefox', '52.0.2')
         assert received is True
 
+    async def test_download_links_tasks_returns_true_if_version_matches_esr(self):
+        url = 'https://www.mozilla.org/en-US/firefox/all/'
+        self.mocked.get(url, status=200, body='<html data-esr-versions="52.3.0"></html>')
+
+        received = await download_links('firefox', '52.3.0esr')
+        assert received is True
+
     async def test_download_links_tasks_returns_true_if_older_version(self):
         url = 'https://www.mozilla.org/en-US/firefox/all/'
         self.mocked.get(url, status=200, body='<html data-latest-firefox="52.0.2"></html>')
