@@ -38,7 +38,11 @@ async def security_advisories(product, version):
             # Does the content contains the version number?
             body = await resp.text()
             d = pq(body)
-            last_release = d("html").attr('data-latest-firefox')
+            if version.endswith('esr'):
+                version = re.sub('esr$', '', version)
+                last_release = d("html").attr('data-esr-versions')
+            else:
+                last_release = d("html").attr('data-latest-firefox')
             return build_version_id(last_release) >= build_version_id(version)
 
 
