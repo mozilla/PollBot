@@ -85,6 +85,13 @@ class DeliveryTasksTest(asynctest.TestCase):
         received = await release_notes('firefox', '52.0.2')
         assert received is True
 
+    async def test_releasenotes_tasks_strip_esr_from_version_number(self):
+        url = 'https://www.mozilla.org/en-US/firefox/52.3.0/releasenotes/'
+        self.mocked.get(url, status=200)
+
+        received = await release_notes('firefox', '52.3.0esr')
+        assert received is True
+
     async def test_releasenotes_tasks_returns_false_if_absent(self):
         url = 'https://www.mozilla.org/en-US/firefox/52.0.2/releasenotes/'
         self.mocked.get(url, status=404)
@@ -149,6 +156,13 @@ class DeliveryTasksTest(asynctest.TestCase):
         received = await download_links('firefox', '55.0b1')
         assert received is True
 
+    async def test_download_links_tasks_returns_true_if_version_matches_esr(self):
+        url = 'https://www.mozilla.org/en-US/firefox/all/'
+        self.mocked.get(url, status=200, body='<html data-esr-versions="52.3.0"></html>')
+
+        received = await download_links('firefox', '52.3.0esr')
+        assert received is True
+
     async def test_download_links_tasks_returns_true_if_older_version(self):
         url = 'https://www.mozilla.org/en-US/firefox/all/'
         self.mocked.get(url, status=200, body='<html data-latest-firefox="52.0.2"></html>')
@@ -183,6 +197,13 @@ class DeliveryTasksTest(asynctest.TestCase):
         self.mocked.get(url, status=200, body='<html data-latest-firefox="52.0.2"></html>')
 
         received = await security_advisories('firefox', '52.0.2')
+        assert received is True
+
+    async def test_security_advisories_tasks_returns_true_if_version_matches_esr(self):
+        url = 'https://www.mozilla.org/en-US/security/known-vulnerabilities/firefox/'
+        self.mocked.get(url, status=200, body='<html data-esr-versions="52.3.0"></html>')
+
+        received = await security_advisories('firefox', '52.3.0esr')
         assert received is True
 
     async def test_security_advisories_tasks_returns_true_if_older_version(self):
