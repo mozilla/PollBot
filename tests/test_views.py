@@ -26,9 +26,9 @@ def cli(loop, test_client):
         raise ValueError()
 
     app = get_app(loop=loop)
-    app.router.add_get('/v1/error', error)
-    app.router.add_get('/v1/error-403', error403)
-    app.router.add_get('/v1/error-404', error404)
+    app.router.add_get('/v1/error/', error)
+    app.router.add_get('/v1/error-403/', error403)
+    app.router.add_get('/v1/error-404/', error404)
     return loop.run_until_complete(test_client(app))
 
 
@@ -103,35 +103,35 @@ async def test_status_response_validates_product_name(cli):
 
 
 async def test_get_releases_response_validates_product_name(cli):
-    await check_response(cli, "/v1/invalid-product/", body={
+    await check_response(cli, "/v1/invalid-product", body={
         "status": 404,
         "message": "Invalid product: invalid-product not in ['firefox']"
     }, status=404)
 
 
 async def test_403_errors_are_json_responses(cli):
-    await check_response(cli, "/v1/error-403", body={
+    await check_response(cli, "/v1/error-403/", body={
         "status": 403,
         "message": "Forbidden"
     }, status=403)
 
 
 async def test_404_pages_are_json_responses(cli):
-    await check_response(cli, "/v1/not-found", body={
+    await check_response(cli, "/v1/not-found/", body={
         "status": 404,
-        "message": "Page '/v1/not-found' not found"
+        "message": "Page '/v1/not-found/' not found"
     }, status=404)
 
 
 async def test_handle_views_that_return_404_pages_are_json_responses(cli):
-    await check_response(cli, "/v1/error-404", body={
+    await check_response(cli, "/v1/error-404/", body={
         "status": 404,
-        "message": "Page '/v1/error-404' not found"
+        "message": "Page '/v1/error-404/' not found"
     }, status=404)
 
 
 async def test_500_pages_are_json_responses(cli):
-    await check_response(cli, "/v1/error", body={
+    await check_response(cli, "/v1/error/", body={
         "status": 503,
         "message": "Service currently unavailable"
     }, status=503)
@@ -172,7 +172,7 @@ async def test_release_product_details(cli):
 
 
 async def test_releases_list(cli):
-    resp = await check_response(cli, "/v1/firefox/")
+    resp = await check_response(cli, "/v1/firefox")
     body = await resp.json()
     assert "releases" in body
     assert all([isinstance(version, str) for version in body["releases"]])
@@ -209,3 +209,19 @@ async def test_version_view_return_200(cli):
     with open("version.json") as fd:
         await check_response(cli, "/v1/__version__",
                              body=json.load(fd))
+
+
+async def test_ongoing_versions_response_validates_product_name(cli):
+    await check_response(cli, "/v1/invalid-product/ongoing-versions", body={
+        "status": 404,
+        "message": "Invalid product: invalid-product not in ['firefox']"
+    }, status=404)
+
+
+async def test_ongoing_versions_view(cli):
+    resp = await check_response(cli, "/v1/firefox/ongoing-versions")
+    body = await resp.json()
+    assert "esr" in body
+    assert "release" in body
+    assert "beta" in body
+    assert "nightly" in body

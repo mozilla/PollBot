@@ -10,7 +10,7 @@ from pollbot.exceptions import TaskError
 from pollbot.tasks import get_session
 from pollbot.tasks.archives import archives
 from pollbot.tasks.bedrock import release_notes, security_advisories, download_links, get_releases
-from pollbot.tasks.product_details import product_details
+from pollbot.tasks.product_details import product_details, ongoing_versions
 from pollbot.views.utilities import heartbeat
 
 
@@ -199,3 +199,32 @@ class DeliveryTasksTest(asynctest.TestCase):
             "product-details": False
         }
         assert resp.status == 503
+
+    async def test_get_ongoing_versions_return_ongoing_versions(self):
+        url = 'https://product-details.mozilla.org/1.0/firefox_versions.json'
+        body = {
+            "FIREFOX_NIGHTLY": "57.0a1",
+            "FIREFOX_AURORA": "54.0a2",
+            "FIREFOX_ESR": "52.3.0esr",
+            "FIREFOX_ESR_NEXT": "",
+            "LATEST_FIREFOX_DEVEL_VERSION": "55.0b13",
+            "LATEST_FIREFOX_OLDER_VERSION": "3.6.28",
+            "LATEST_FIREFOX_RELEASED_DEVEL_VERSION": "55.0b14",
+            "LATEST_FIREFOX_VERSION": "55.0"
+        }
+        self.mocked.get(url, status=200, body=json.dumps(body))
+        received = await ongoing_versions('firefox')
+        assert received == {
+            "esr": "52.3.0esr",
+            "release": "55.0",
+            "beta": "55.0b13",
+            "nightly": "57.0a1",
+        }
+
+    async def test_get_ongoing_versions_returns_error_if_error(self):
+        url = 'https://product-details.mozilla.org/1.0/firefox_versions.json'
+        self.mocked.get(url, status=404)
+
+        with pytest.raises(TaskError) as excinfo:
+            await ongoing_versions('firefox')
+        assert str(excinfo.value) == 'Product Details info not available  (404)'
