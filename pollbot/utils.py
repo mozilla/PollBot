@@ -1,3 +1,13 @@
+from enum import Enum
+
+
+class Channel(Enum):
+    ESR = "ESR"
+    RELEASE = "RELEASE"
+    BETA = "BETA"
+    NIGHTLY = "NIGHTLY"
+
+
 def version_parts(parts):
     patch = '0'
     major = parts[0]
@@ -27,3 +37,14 @@ def build_version_id(version):
     major, minor, patch = version_parts(parts)
     return '{}{}{}{}{}'.format(major.zfill(3), minor.zfill(3), patch.zfill(3),
                                release_code, channel.zfill(3))
+
+
+def get_version_channel(version):  # pragma: no cover
+    if version.endswith('esr'):
+        return Channel.ESR
+    elif 'a' in version:
+        return Channel.NIGHTLY
+    elif 'b' in version:
+        return Channel.BETA
+    else:
+        return Channel.RELEASE
