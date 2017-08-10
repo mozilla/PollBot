@@ -40,6 +40,7 @@ def get_app(loop=None):
     cors.add(app.router.add_get('/v1/__lbheartbeat__', utilities.lbheartbeat))
 
     # Statuses
+    cors.add(app.router.add_get('/v1/{product}/', release.view_get_releases))
     cors.add(app.router.add_get('/v1/{product}/{version}/archive', release.archive))
     cors.add(app.router.add_get('/v1/{product}/{version}/bedrock/release-notes',
                                 release.bedrock_release_notes))
