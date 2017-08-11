@@ -48,3 +48,8 @@ def get_version_channel(version):  # pragma: no cover
         return Channel.BETA
     else:
         return Channel.RELEASE
+
+
+def get_version_from_filename(filename):
+    parts = filename.split('.', 2)
+    return '{}.{}'.format(parts[0].split('-')[1], parts[1])

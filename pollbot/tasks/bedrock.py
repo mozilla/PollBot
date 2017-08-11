@@ -5,7 +5,7 @@ from pyquery import PyQuery as pq
 from urllib.parse import urlparse, parse_qs
 
 from pollbot.exceptions import TaskError
-from pollbot.utils import build_version_id, Channel, get_version_channel
+from pollbot.utils import build_version_id, Channel, get_version_channel, get_version_from_filename
 from . import get_session, heartbeat_factory
 
 
@@ -84,8 +84,7 @@ async def download_links(product, version):
                 async with session.get(url, allow_redirects=False) as resp:
                     url = resp.headers['Location']
                     filename = os.path.basename(url)
-                    parts = filename.split('.', 2)
-                    last_release = '{}.{}'.format(parts[0].split('-')[1], parts[1])
+                    last_release = get_version_from_filename(filename)
             elif channel is Channel.BETA:
                 link_path = "#desktop-beta-download > .download-list > .os_linux64 > a"
                 url = d(link_path).attr('href')

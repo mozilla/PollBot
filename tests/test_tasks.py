@@ -99,7 +99,49 @@ class DeliveryTasksTest(asynctest.TestCase):
         received = await release_notes('firefox', '52.0.2')
         assert received is False
 
-    async def test_archives_tasks_returns_true_if_folder_existspresent(self):
+    async def test_archives_tasks_returns_true_if_file_exists_nightly(self):
+        url = "https://archive.mozilla.org/pub/firefox/nightly/latest-date-l10n/"
+        body = {
+            "files": [
+                {
+                    "last_modified": "2017-08-11T05:29:18Z",
+                    "name": "Firefox Installer.en-US.exe",
+                    "size": 290544
+                },
+                {
+                    "last_modified": "2017-07-16T01:16:12Z",
+                    "name": "firefox-56.0a1.gd.win32.installer-stub.exe",
+                    "size": 243400
+                },
+                {
+                    "last_modified": "2017-08-11T04:29:50Z",
+                    "name": "firefox-57.0a1.en-US.win64_info.txt",
+                    "size": 23
+                },
+                {
+                    "last_modified": "2017-08-11T04:29:50Z",
+                    "name": "jsshell-win64.zip",
+                    "size": 9398067
+                },
+                {
+                    "last_modified": "2017-08-11T05:29:19Z",
+                    "name": "mozharness.zip",
+                    "size": 650385
+                }
+             ]
+            }
+        self.mocked.get(url, status=200, body=json.dumps(body))
+        received = await archives('firefox', '57.0a1')
+        assert received is True
+
+    async def test_archives_tasks_returns_false_if_absent_for_nightly(self):
+        url = 'https://archive.mozilla.org/pub/firefox/nightly/latest-date-l10n/'
+        self.mocked.get(url, status=404)
+
+        received = await archives('firefox', '57.0a1')
+        assert received is False
+
+    async def test_archives_tasks_returns_true_if_folder_exists(self):
         url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/'
         self.mocked.get(url, status=200)
 
