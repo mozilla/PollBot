@@ -1,3 +1,4 @@
+import os.path
 import re
 
 from pyquery import PyQuery as pq
@@ -77,7 +78,15 @@ async def download_links(product, version):
             body = await resp.text()
             d = pq(body)
 
-            if channel is Channel.BETA:
+            if channel is Channel.NIGHTLY:
+                link_path = "#desktop-nightly-download > .download-list > .os_linux64 > a"
+                url = d(link_path).attr('href')
+                async with session.get(url, allow_redirects=False) as resp:
+                    url = resp.headers['Location']
+                    filename = os.path.basename(url)
+                    parts = filename.split('.', 2)
+                    last_release = '{}.{}'.format(parts[0].split('-')[1], parts[1])
+            elif channel is Channel.BETA:
                 link_path = "#desktop-beta-download > .download-list > .os_linux64 > a"
                 url = d(link_path).attr('href')
                 qs = parse_qs(urlparse(url).query)
