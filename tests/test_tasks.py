@@ -99,7 +99,49 @@ class DeliveryTasksTest(asynctest.TestCase):
         received = await release_notes('firefox', '52.0.2')
         assert received is False
 
-    async def test_archives_tasks_returns_true_if_folder_existspresent(self):
+    async def test_archives_tasks_returns_true_if_file_exists_nightly(self):
+        url = "https://archive.mozilla.org/pub/firefox/nightly/latest-date-l10n/"
+        body = {
+            "files": [
+                {
+                    "last_modified": "2017-08-11T05:29:18Z",
+                    "name": "Firefox Installer.en-US.exe",
+                    "size": 290544
+                },
+                {
+                    "last_modified": "2017-07-16T01:16:12Z",
+                    "name": "firefox-56.0a1.gd.win32.installer-stub.exe",
+                    "size": 243400
+                },
+                {
+                    "last_modified": "2017-08-11T04:29:50Z",
+                    "name": "firefox-57.0a1.en-US.win64_info.txt",
+                    "size": 23
+                },
+                {
+                    "last_modified": "2017-08-11T04:29:50Z",
+                    "name": "jsshell-win64.zip",
+                    "size": 9398067
+                },
+                {
+                    "last_modified": "2017-08-11T05:29:19Z",
+                    "name": "mozharness.zip",
+                    "size": 650385
+                }
+             ]
+            }
+        self.mocked.get(url, status=200, body=json.dumps(body))
+        received = await archives('firefox', '57.0a1')
+        assert received is True
+
+    async def test_archives_tasks_returns_false_if_absent_for_nightly(self):
+        url = 'https://archive.mozilla.org/pub/firefox/nightly/latest-date-l10n/'
+        self.mocked.get(url, status=404)
+
+        received = await archives('firefox', '57.0a1')
+        assert received is False
+
+    async def test_archives_tasks_returns_true_if_folder_exists(self):
         url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/'
         self.mocked.get(url, status=200)
 
@@ -136,6 +178,28 @@ class DeliveryTasksTest(asynctest.TestCase):
         </html>''')
 
         received = await download_links('firefox', '56.0b1')
+        assert received is True
+
+    async def test_download_links_tasks_returns_true_if_version_matches_for_nightly(self):
+        url = 'https://www.mozilla.org/fr/firefox/channel/desktop/'
+        self.mocked.get(url, status=200, body='''
+        <html>
+          <div id="desktop-nightly-download">
+            <ul class="download-list">
+              <li class="os_linux64">
+                <a class="download-link"
+                   href="https://download.mozilla.org/?product=firefox-nightly-latest-l10n-ssl&os=linux64"
+                   >Téléchargement</a>
+              </li>
+            </ul>
+          </div>
+        </html>''')
+        url = 'https://download.mozilla.org/?product=firefox-nightly-latest-l10n-ssl&os=linux64'
+        self.mocked.get(url, status=302, headers={
+            "Location": "https://download-installer.cdn.mozilla.net/pub/firefox/nightly"
+            "/latest-mozilla-central-l10n/firefox-57.0a1.en-US.linux-x86_64.tar.bz2"})
+
+        received = await download_links('firefox', '57.0a1')
         assert received is True
 
     async def test_download_links_tasks_returns_true_if_older_version_for_beta(self):
@@ -186,10 +250,11 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert str(excinfo.value) == 'Download page not available  (404)'
 
     async def test_security_advisories_tasks_returns_true_for_beta(self):
-        url = 'https://www.mozilla.org/en-US/security/known-vulnerabilities/firefox/'
-        self.mocked.get(url, status=200)
+        received = await security_advisories('firefox', '56.0b2')
+        assert received is True
 
-        received = await security_advisories('firefox', '56.b2')
+    async def test_security_advisories_tasks_returns_true_for_nightly(self):
+        received = await security_advisories('firefox', '56.0a2')
         assert received is True
 
     async def test_security_advisories_tasks_returns_true_if_version_matches(self):
@@ -227,6 +292,40 @@ class DeliveryTasksTest(asynctest.TestCase):
         with pytest.raises(TaskError) as excinfo:
             await security_advisories('firefox', '54.0')
         assert str(excinfo.value) == 'Security advisories page not available  (404)'
+
+    async def test_product_details_tasks_returns_true_if_present_for_nightly(self):
+        url = 'https://product-details.mozilla.org/1.0/firefox_versions.json'
+        body = {
+            "FIREFOX_NIGHTLY": "57.0a1",
+            "FIREFOX_AURORA": "54.0a2",
+            "FIREFOX_ESR": "52.3.0esr",
+            "FIREFOX_ESR_NEXT": "",
+            "LATEST_FIREFOX_DEVEL_VERSION": "55.0b13",
+            "LATEST_FIREFOX_OLDER_VERSION": "3.6.28",
+            "LATEST_FIREFOX_RELEASED_DEVEL_VERSION": "55.0b14",
+            "LATEST_FIREFOX_VERSION": "55.0"
+        }
+        self.mocked.get(url, status=200, body=json.dumps(body))
+
+        received = await product_details('firefox', '57.0a1')
+        assert received is True
+
+    async def test_product_details_tasks_returns_true_if_not_present_for_nightly(self):
+        url = 'https://product-details.mozilla.org/1.0/firefox_versions.json'
+        body = {
+            "FIREFOX_NIGHTLY": "57.0a1",
+            "FIREFOX_AURORA": "54.0a2",
+            "FIREFOX_ESR": "52.3.0esr",
+            "FIREFOX_ESR_NEXT": "",
+            "LATEST_FIREFOX_DEVEL_VERSION": "55.0b13",
+            "LATEST_FIREFOX_OLDER_VERSION": "3.6.28",
+            "LATEST_FIREFOX_RELEASED_DEVEL_VERSION": "55.0b14",
+            "LATEST_FIREFOX_VERSION": "55.0"
+        }
+        self.mocked.get(url, status=200, body=json.dumps(body))
+
+        received = await product_details('firefox', '58.0a1')
+        assert received is False
 
     async def test_product_details_tasks_returns_true_if_present(self):
         url = 'https://product-details.mozilla.org/1.0/firefox.json'

@@ -1,5 +1,5 @@
 from pollbot.exceptions import TaskError
-
+from pollbot.utils import Channel, get_version_channel, build_version_id
 from . import get_session, heartbeat_factory
 
 
@@ -20,6 +20,10 @@ async def ongoing_versions(product):
 
 
 async def product_details(product, version):
+    if get_version_channel(version) is Channel.NIGHTLY:
+        versions = await ongoing_versions(product)
+        return build_version_id(versions["nightly"]) >= build_version_id(version)
+
     with get_session() as session:
         url = 'https://product-details.mozilla.org/1.0/{}.json'.format(product)
         async with session.get(url) as resp:

@@ -1,10 +1,11 @@
+import os.path
 import re
 
 from pyquery import PyQuery as pq
 from urllib.parse import urlparse, parse_qs
 
 from pollbot.exceptions import TaskError
-from pollbot.utils import build_version_id, Channel, get_version_channel
+from pollbot.utils import build_version_id, Channel, get_version_channel, get_version_from_filename
 from . import get_session, heartbeat_factory
 
 
@@ -77,7 +78,14 @@ async def download_links(product, version):
             body = await resp.text()
             d = pq(body)
 
-            if channel is Channel.BETA:
+            if channel is Channel.NIGHTLY:
+                link_path = "#desktop-nightly-download > .download-list > .os_linux64 > a"
+                url = d(link_path).attr('href')
+                async with session.get(url, allow_redirects=False) as resp:
+                    url = resp.headers['Location']
+                    filename = os.path.basename(url)
+                    last_release = get_version_from_filename(filename)
+            elif channel is Channel.BETA:
                 link_path = "#desktop-beta-download > .download-list > .os_linux64 > a"
                 url = d(link_path).attr('href')
                 qs = parse_qs(urlparse(url).query)
