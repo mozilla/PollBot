@@ -228,9 +228,21 @@ async def test_release_archive_date(cli):
     })
 
 
+async def test_release_archive_date_with_wrong_version_number(cli):
+    await check_response(cli, "/v1/firefox/56.0b1/archive-date", body={
+        "status": "missing"
+    })
+
+
 async def test_release_archive_date_l10n(cli):
     await check_response(cli, "/v1/firefox/57.0a1/archive-date-l10n", body={
         "status": "exists"
+    })
+
+
+async def test_release_archive_date_l10n_with_wrong_version_number(cli):
+    await check_response(cli, "/v1/firefox/56.0b1/archive-date-l10n", body={
+        "status": "missing"
     })
 
 
