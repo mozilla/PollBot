@@ -31,7 +31,8 @@ def get_app(loop=None):
     cors.add(app.router.add_get('/v1/', home.index))
 
     # Utilities
-    cors.add(app.router.add_get('/contribute.json', utilities.contribute_json))
+    cors.add(app.router.add_get('/contribute.json', utilities.contribute_redirect))
+    cors.add(app.router.add_get('/v1/contribute.json', utilities.contribute_json))
     cors.add(app.router.add_get('/v1/__api__', utilities.oas_spec))
     cors.add(app.router.add_get('/v1/__version__', utilities.version))
 

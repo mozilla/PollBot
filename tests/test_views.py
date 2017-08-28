@@ -61,8 +61,13 @@ async def test_oas_spec(cli):
     await check_yaml_resource(cli, "/v1/__api__", "api.yaml")
 
 
+async def test_contribute_redirect(cli):
+    resp = await check_response(cli, "/contribute.json", status=302, allow_redirects=False)
+    assert resp.headers['Location'] == "/v1/contribute.json"
+
+
 async def test_contribute_json(cli):
-    await check_yaml_resource(cli, "/contribute.json", "contribute.yaml")
+    await check_yaml_resource(cli, "/v1/contribute.json", "contribute.yaml")
 
 
 async def test_home_body(cli):
