@@ -104,8 +104,8 @@ async def view_get_checks(request):
     for check_name, channels in CHECKS.items():
         if channel in channels:
             info = CHECKS_INFO[check_name].copy()
-            info['url'] = ("{}://{}" + info['url']).format(proto, host,
-                                                           product=product, version=version)
+            url = "{}://{}" + info['url']
+            info['url'] = url.format(proto, host, product=product, version=version)
             checks.append(info)
 
     return web.json_response({
