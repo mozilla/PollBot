@@ -21,15 +21,13 @@ def status_response(task):
             }, status=404)
 
         try:
-            status = await task(product, version)
+            response = await task(product, version)
         except TaskError as e:
             return web.json_response({
                 'status': 'error',
                 'message': str(e)
             })
-        return web.json_response({
-            "status": status and "exists" or "missing"
-        })
+        return web.json_response(response)
     return wrapped
 
 

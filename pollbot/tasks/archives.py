@@ -11,24 +11,42 @@ async def archives(product, version):
         else:
             url = 'https://archive.mozilla.org/pub/{}/releases/{}/'.format(product, version)
             async with session.get(url) as resp:
-                return resp.status != 404
+                status = resp.status != 404
+                return {
+                    "status":  status and "exists" or "missing",
+                    "message": "Checking archive.mozilla.org release publication",
+                    "link": url
+                }
 
 
 async def check_nightly_archives(url, product, version):
     with get_session() as session:
         channel = get_version_channel(version)
+        url = url.format(product)
         if channel is Channel.NIGHTLY:
-            url = url.format(product)
             async with session.get(url, headers={"Accept": "application/json"}) as resp:
                 if resp.status != 200:
-                    return False
-                body = await resp.json()
-                files = sorted([(r["last_modified"], r["name"]) for r in body["files"]
-                                if r["name"].startswith("{}-".format(product))],
-                               key=lambda x: x[0],
-                               reverse=True)
-                last_release = get_version_from_filename(files[0][1])
-                return build_version_id(last_release) >= build_version_id(version)
+                    status = False
+                else:
+                    body = await resp.json()
+                    files = sorted([(r["last_modified"], r["name"]) for r in body["files"]
+                                    if r["name"].startswith("{}-".format(product))],
+                                   key=lambda x: x[0],
+                                   reverse=True)
+                    last_release = get_version_from_filename(files[0][1])
+                    status = build_version_id(last_release) >= build_version_id(version)
+
+                return {
+                    "status":  status and "exists" or "missing",
+                    "message": "Checking archive.mozilla.org nightly publication",
+                    "link": url
+                }
+        else:
+            return {
+                "status": "missing",
+                "message": "No archive-date checks for {} releases".format(channel.value.lower()),
+                "link": url
+            }
 
 
 archives_date = partial(check_nightly_archives,

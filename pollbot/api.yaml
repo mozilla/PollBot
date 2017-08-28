@@ -316,3 +316,6 @@ definitions:
       message:
         type: "string"
         description: "error message"
+      link:
+        type: "string"
+        description: "URL used for the check."

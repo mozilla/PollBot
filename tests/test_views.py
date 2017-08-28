@@ -229,59 +229,74 @@ async def test_get_checks_response_validates_product_name(cli):
 # This is currently a functional test.
 async def test_release_archive_date(cli):
     await check_response(cli, "/v1/firefox/57.0a1/archive-date", body={
-        "status": "exists"
+        "status": "exists",
+        "message": "Checking archive.mozilla.org nightly publication",
+        "link": "https://archive.mozilla.org/pub/firefox/nightly/latest-date/"
     })
 
 
 async def test_release_archive_date_with_wrong_version_number(cli):
     await check_response(cli, "/v1/firefox/56.0b1/archive-date", body={
-        "status": "missing"
+        "status": "missing",
+        "message": "No archive-date checks for beta releases",
+        "link": "https://archive.mozilla.org/pub/firefox/nightly/latest-date/"
     })
 
 
 async def test_release_archive_date_l10n(cli):
     await check_response(cli, "/v1/firefox/57.0a1/archive-date-l10n", body={
-        "status": "exists"
+        "status": "exists",
+        "message": "Checking archive.mozilla.org nightly publication",
+        "link": "https://archive.mozilla.org/pub/firefox/nightly/latest-date-l10n/"
     })
 
 
 async def test_release_archive_date_l10n_with_wrong_version_number(cli):
     await check_response(cli, "/v1/firefox/56.0b1/archive-date-l10n", body={
-        "status": "missing"
+        "status": "missing",
+        "message": "No archive-date checks for beta releases",
+        "link": "https://archive.mozilla.org/pub/firefox/nightly/latest-date-l10n/"
     })
 
 
 async def test_release_archive(cli):
     await check_response(cli, "/v1/firefox/54.0/archive", body={
-        "status": "exists"
+        "status": "exists",
+        "message": "Checking archive.mozilla.org release publication",
+        "link": "https://archive.mozilla.org/pub/firefox/releases/54.0/"
     })
 
 
 async def test_release_bedrock_release_notes(cli):
     await check_response(cli, "/v1/firefox/54.0/bedrock/release-notes", body={
-        "status": "exists"
+        "status": "exists",
+        "message": "Checking bedrock for release note publication",
+        "link": "https://www.mozilla.org/en-US/firefox/54.0/releasenotes/"
     })
 
 
 async def test_release_bedrock_security_advisories(cli):
-    await check_response(cli, "/v1/firefox/54.0/bedrock/security-advisories",
-                         body={
-                             "status": "exists"
-                         })
+    await check_response(cli, "/v1/firefox/54.0/bedrock/security-advisories", body={
+        "status": "exists",
+        "message": "Checking bedrock for security advisories publication",
+        "link": "https://www.mozilla.org/en-US/security/known-vulnerabilities/firefox/"
+    })
 
 
 async def test_release_bedrock_download_links(cli):
-    await check_response(cli, "/v1/firefox/54.0/bedrock/download-links",
-                         body={
-                             "status": "exists"
-                         })
+    await check_response(cli, "/v1/firefox/54.0/bedrock/download-links", body={
+        "status": "exists",
+        "message": "Checking bedrock for download links publication",
+        "link": "https://www.mozilla.org/en-US/firefox/all/"
+    })
 
 
 async def test_release_product_details(cli):
-    await check_response(cli, "/v1/firefox/54.0/product-details",
-                         body={
-                             "status": "exists"
-                         })
+    await check_response(cli, "/v1/firefox/54.0/product-details", body={
+        "status": "exists",
+        "message": "Checking product-details for the release version",
+        "link": "https://product-details.mozilla.org/1.0/firefox.json"
+    })
 
 
 async def test_releases_list(cli):
