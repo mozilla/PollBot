@@ -3,7 +3,7 @@ from collections import OrderedDict
 from pollbot import PRODUCTS
 
 from ..exceptions import TaskError
-from ..tasks.archives import archives
+from ..tasks.archives import archives, archives_date, archives_date_l10n
 from ..tasks.bedrock import release_notes, security_advisories, download_links, get_releases
 from ..tasks.product_details import product_details
 from ..utils import Channel, get_version_channel
@@ -34,6 +34,8 @@ def status_response(task):
 
 
 archive = status_response(archives)
+archive_date = status_response(archives_date)
+archive_date_l10n = status_response(archives_date_l10n)
 bedrock_release_notes = status_response(release_notes)
 bedrock_security_advisories = status_response(security_advisories)
 bedrock_download_links = status_response(download_links)

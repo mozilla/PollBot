@@ -48,6 +48,10 @@ def get_app(loop=None):
                                 release.view_get_checks))
     cors.add(app.router.add_get('/v1/{product}/{version}/archive',
                                 release.archive))
+    cors.add(app.router.add_get('/v1/{product}/{version}/archive-date',
+                                release.archive_date))
+    cors.add(app.router.add_get('/v1/{product}/{version}/archive-date-l10n',
+                                release.archive_date_l10n))
     cors.add(app.router.add_get('/v1/{product}/{version}/bedrock/release-notes',
                                 release.bedrock_release_notes))
     cors.add(app.router.add_get('/v1/{product}/{version}/bedrock/security-advisories',

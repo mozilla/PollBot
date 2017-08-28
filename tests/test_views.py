@@ -221,8 +221,19 @@ async def test_get_checks_response_validates_product_name(cli):
     }, status=404)
 
 
-
 # This is currently a functional test.
+async def test_release_archive_date(cli):
+    await check_response(cli, "/v1/firefox/57.0a1/archive-date", body={
+        "status": "exists"
+    })
+
+
+async def test_release_archive_date_l10n(cli):
+    await check_response(cli, "/v1/firefox/57.0a1/archive-date-l10n", body={
+        "status": "exists"
+    })
+
+
 async def test_release_archive(cli):
     await check_response(cli, "/v1/firefox/54.0/archive", body={
         "status": "exists"
