@@ -196,7 +196,7 @@ paths:
 
   /{product}/{version}/archive-date:
     get:
-      summary: "checks if the product version archive is downloadable for nightly date."
+      summary: "checks if the product version package is available from the nightly latest-date archive"
       operationId: "checkArchiveExistanceNightlyDate"
       produces:
       - "application/json"
@@ -213,7 +213,7 @@ paths:
 
   /{product}/{version}/archive-date-l10n:
     get:
-      summary: "checks if the product version archive is downloadable for nightly date-l10n."
+      summary: "checks if the product version package is available from the nightly latest-date-l10n archive"
       operationId: "checkArchiveExistanceNightlyDateL10n"
       produces:
       - "application/json"
