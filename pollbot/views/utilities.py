@@ -35,6 +35,10 @@ async def contribute_json(request):
     return render_yaml_file("contribute.yaml")
 
 
+async def contribute_redirect(request):
+    return web.HTTPFound('/v1/contribute.json')
+
+
 async def lbheartbeat(request):
     return web.json_response({"status": "running"})
 
