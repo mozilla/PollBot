@@ -35,8 +35,11 @@ def cli(loop, test_client):
 async def check_response(cli, url, *, status=200, body=None, method="get", **kwargs):
     resp = await getattr(cli, method)(url, **kwargs)
     assert resp.status == status
+    text = json.dumps(body)
+    text = text.replace('http://localhost/', '{}://{}:{}/'.format(
+        resp.url.scheme, resp.url.host, resp.url.port))
     if body is not None:
-        assert await resp.json() == body
+        assert await resp.json() == json.loads(text)
     return resp
 
 
@@ -135,6 +138,88 @@ async def test_500_pages_are_json_responses(cli):
         "status": 503,
         "message": "Service currently unavailable"
     }, status=503)
+
+
+async def test_get_checks_for_nightly(cli):
+    await check_response(cli, "/v1/firefox/57.0a1", body={
+        "product": "firefox",
+        "version": "57.0a1",
+        "channel": "nightly",
+        "checks": [
+            {"url": "http://localhost/v1/firefox/57.0a1/archive-date", "title": "Archive Date"},
+            {"url": "http://localhost/v1/firefox/57.0a1/archive-date-l10n",
+             "title": "Archive Date l10n"},
+            {"url": "http://localhost/v1/firefox/57.0a1/bedrock/download-links",
+             "title": "Download links"},
+            {"url": "http://localhost/v1/firefox/57.0a1/product-details",
+             "title": "Product details"},
+            {"url": "http://localhost/v1/firefox/57.0a1/bedrock/release-notes",
+             "title": "Release notes"}
+        ]
+    })
+
+
+async def test_get_checks_for_beta(cli):
+    await check_response(cli, "/v1/firefox/56.0b6", body={
+        "product": "firefox",
+        "version": "56.0b6",
+        "channel": "beta",
+        "checks": [
+            {"url": "http://localhost/v1/firefox/56.0b6/archive", "title": "Archive Release"},
+            {"url": "http://localhost/v1/firefox/56.0b6/bedrock/download-links",
+             "title": "Download links"},
+            {"url": "http://localhost/v1/firefox/56.0b6/product-details",
+             "title": "Product details"},
+            {"url": "http://localhost/v1/firefox/56.0b6/bedrock/release-notes",
+             "title": "Release notes"},
+        ]
+    })
+
+
+async def test_get_checks_for_release(cli):
+    await check_response(cli, "/v1/firefox/54.0", body={
+        "product": "firefox",
+        "version": "54.0",
+        "channel": "release",
+        "checks": [
+            {"url": "http://localhost/v1/firefox/54.0/archive", "title": "Archive Release"},
+            {"url": "http://localhost/v1/firefox/54.0/bedrock/download-links",
+             "title": "Download links"},
+            {"url": "http://localhost/v1/firefox/54.0/product-details",
+             "title": "Product details"},
+            {"url": "http://localhost/v1/firefox/54.0/bedrock/release-notes",
+             "title": "Release notes"},
+            {"url": "http://localhost/v1/firefox/54.0/bedrock/security-advisories",
+             "title": "Security advisories"},
+        ]
+    })
+
+
+async def test_get_checks_for_esr(cli):
+    await check_response(cli, "/v1/firefox/52.3.0esr", body={
+        "product": "firefox",
+        "version": "52.3.0esr",
+        "channel": "esr",
+        "checks": [
+            {"url": "http://localhost/v1/firefox/52.3.0esr/archive", "title": "Archive Release"},
+            {"url": "http://localhost/v1/firefox/52.3.0esr/bedrock/download-links",
+             "title": "Download links"},
+            {"url": "http://localhost/v1/firefox/52.3.0esr/product-details",
+             "title": "Product details"},
+            {"url": "http://localhost/v1/firefox/52.3.0esr/bedrock/release-notes",
+             "title": "Release notes"},
+            {"url": "http://localhost/v1/firefox/52.3.0esr/bedrock/security-advisories",
+             "title": "Security advisories"},
+        ]
+    })
+
+
+async def test_get_checks_response_validates_product_name(cli):
+    await check_response(cli, "/v1/invalid-product/56.0", body={
+        "status": 404,
+        "message": "Invalid product: invalid-product not in ['firefox']"
+    }, status=404)
+
 
 
 # This is currently a functional test.

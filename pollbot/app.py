@@ -44,6 +44,8 @@ def get_app(loop=None):
                                 release.view_get_releases))
     cors.add(app.router.add_get('/v1/{product}/ongoing-versions',
                                 product.get_ongoing_versions))
+    cors.add(app.router.add_get('/v1/{product}/{version}',
+                                release.view_get_checks))
     cors.add(app.router.add_get('/v1/{product}/{version}/archive',
                                 release.archive))
     cors.add(app.router.add_get('/v1/{product}/{version}/bedrock/release-notes',
