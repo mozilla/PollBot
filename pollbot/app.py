@@ -47,19 +47,19 @@ def get_app(loop=None):
     cors.add(app.router.add_get('/v1/{product}/{version}',
                                 release.view_get_checks))
     cors.add(app.router.add_get('/v1/{product}/{version}/archive',
-                                release.archive))
+                                release.archive, name="archive"))
     cors.add(app.router.add_get('/v1/{product}/{version}/archive-date',
-                                release.archive_date))
+                                release.archive_date, name="archive-date"))
     cors.add(app.router.add_get('/v1/{product}/{version}/archive-date-l10n',
-                                release.archive_date_l10n))
+                                release.archive_date_l10n, name="archive-date-l10n"))
     cors.add(app.router.add_get('/v1/{product}/{version}/bedrock/release-notes',
-                                release.bedrock_release_notes))
+                                release.bedrock_release_notes, name="release-notes"))
     cors.add(app.router.add_get('/v1/{product}/{version}/bedrock/security-advisories',
-                                release.bedrock_security_advisories))
+                                release.bedrock_security_advisories, name="security-advisories"))
     cors.add(app.router.add_get('/v1/{product}/{version}/bedrock/download-links',
-                                release.bedrock_download_links))
+                                release.bedrock_download_links, name="download-links"))
     cors.add(app.router.add_get('/v1/{product}/{version}/product-details',
-                                release.product_details))
+                                release.product_details, name="product-details"))
 
     # Swagger UI and documentation
     setup_swagger(app,

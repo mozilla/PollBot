@@ -56,19 +56,14 @@ async def view_get_releases(request):
     })
 
 
-CHECKS_INFO = {
-    "archive-date": {"url": "/v1/{product}/{version}/archive-date", "title": "Archive Date"},
-    "archive-date-l10n": {"url": "/v1/{product}/{version}/archive-date-l10n",
-                          "title": "Archive Date l10n"},
-    "archive": {"url": "/v1/{product}/{version}/archive", "title": "Archive Release"},
-    "release-notes": {"url": "/v1/{product}/{version}/bedrock/release-notes",
-                      "title": "Release notes"},
-    "security-advisories": {"url": "/v1/{product}/{version}/bedrock/security-advisories",
-                            "title": "Security advisories"},
-    "download-links": {"url": "/v1/{product}/{version}/bedrock/download-links",
-                       "title": "Download links"},
-    "product-details": {"url": "/v1/{product}/{version}/product-details",
-                        "title": "Product details"},
+CHECKS_TITLE = {
+    "archive-date": "Archive Date",
+    "archive-date-l10n": "Archive Date l10n",
+    "archive": "Archive Release",
+    "release-notes": "Release notes",
+    "security-advisories": "Security advisories",
+    "download-links": "Download links",
+    "product-details": "Product details",
 }
 
 
@@ -100,12 +95,16 @@ async def view_get_checks(request):
     host = request.headers['Host']
 
     checks = []
+    router = request.app.router
 
     for check_name, channels in CHECKS.items():
         if channel in channels:
-            info = CHECKS_INFO[check_name].copy()
-            url = "{}://{}" + info['url']
-            info['url'] = url.format(proto, host, product=product, version=version)
+            prefix = "{}://{}".format(proto, host)
+            url = router[check_name].url_for(product=product, version=version)
+            info = {
+                "title": CHECKS_TITLE[check_name],
+                "url": "{}{}".format(prefix, url)
+            }
             checks.append(info)
 
     return web.json_response({
