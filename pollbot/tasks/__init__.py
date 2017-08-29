@@ -23,3 +23,19 @@ def heartbeat_factory(url):
                     return True
                 return False
     return heartbeat
+
+
+def build_task_response(status, exists_message, missing_message, link):
+    if status:
+        # Exists
+        return {
+            "status": "exists",
+            "message": exists_message,
+            "link": link
+        }
+    else:
+        return {
+            "status": "missing",
+            "message": missing_message,
+            "link": link
+        }

@@ -1,6 +1,6 @@
 from functools import partial
 from pollbot.utils import build_version_id, Channel, get_version_channel, get_version_from_filename
-from . import get_session, heartbeat_factory
+from . import get_session, heartbeat_factory, build_task_response
 
 
 async def archives(product, version):
@@ -12,11 +12,10 @@ async def archives(product, version):
             url = 'https://archive.mozilla.org/pub/{}/releases/{}/'.format(product, version)
             async with session.get(url) as resp:
                 status = resp.status != 404
-                return {
-                    "status":  status and "exists" or "missing",
-                    "message": "Checking archive.mozilla.org release publication",
-                    "link": url
-                }
+                exists_message = "An archive for version {} exists at {}".format(version, url)
+                missing_message = ("No archive found for this version number at "
+                                   "https://archive.mozilla.org/pub/{}/releases/".format(product))
+                return build_task_response(status, exists_message, missing_message, url)
 
 
 async def check_nightly_archives(url, product, version):
@@ -36,11 +35,9 @@ async def check_nightly_archives(url, product, version):
                     last_release = get_version_from_filename(files[0][1])
                     status = build_version_id(last_release) >= build_version_id(version)
 
-                return {
-                    "status":  status and "exists" or "missing",
-                    "message": "Checking archive.mozilla.org nightly publication",
-                    "link": url
-                }
+                exists_message = "The archive exists at {}".format(url)
+                missing_message = "No archive exists at {}".format(url)
+                return build_task_response(status, exists_message, missing_message, url)
         else:
             return {
                 "status": "missing",

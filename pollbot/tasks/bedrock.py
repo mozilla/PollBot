@@ -6,7 +6,7 @@ from urllib.parse import urlparse, parse_qs
 
 from pollbot.exceptions import TaskError
 from pollbot.utils import build_version_id, Channel, get_version_channel, get_version_from_filename
-from . import get_session, heartbeat_factory
+from . import get_session, heartbeat_factory, build_task_response
 
 
 async def get_releases(product):
@@ -36,11 +36,9 @@ async def release_notes(product, version):
     with get_session() as session:
         async with session.get(url) as resp:
             status = resp.status != 404
-            return {
-                "status":  status and "exists" or "missing",
-                "message": "Checking bedrock for release note publication",
-                "link": url
-            }
+            exists_message = "Release notes were found for version {}".format(version)
+            missing_message = "No release notes were published for version {}".format(version)
+            return build_task_response(status, exists_message, missing_message, url)
 
 
 async def security_advisories(product, version):
@@ -51,7 +49,8 @@ async def security_advisories(product, version):
     if channel in (Channel.BETA, Channel.NIGHTLY):
         return {
             "status": "missing",
-            "message": "No security advisories for {} releases".format(channel.value.lower()),
+            "message": "Security advisories are never published for {} releases".format(
+                channel.value.lower()),
             "link": url
         }
 
@@ -70,11 +69,9 @@ async def security_advisories(product, version):
             else:
                 last_release = d("html").attr('data-latest-firefox')
             status = build_version_id(last_release) >= build_version_id(version)
-            return {
-                "status":  status and "exists" or "missing",
-                "message": "Checking bedrock for security advisories publication",
-                "link": url
-            }
+            message = ("Security advisories for release were "
+                       "published up to version {}".format(last_release))
+            return build_task_response(status, message, message, url)
 
 
 async def download_links(product, version):
@@ -115,11 +112,9 @@ async def download_links(product, version):
                 last_release = d("html").attr('data-latest-firefox')
 
             status = build_version_id(last_release) >= build_version_id(version)
-            return {
-                "status":  status and "exists" or "missing",
-                "message": "Checking bedrock for download links publication",
-                "link": url
-            }
+            message = ("The download links for release have been published for version {}".format(
+                last_release))
+            return build_task_response(status, message, message, url)
 
 
 heartbeat = heartbeat_factory('https://www.mozilla.org/en-US/firefox/all/')

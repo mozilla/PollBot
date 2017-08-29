@@ -347,7 +347,7 @@ class DeliveryTasksTest(asynctest.TestCase):
 
         with pytest.raises(TaskError) as excinfo:
             await product_details('firefox', '54.0')
-        assert str(excinfo.value) == 'Product Details info not available  (404)'
+        assert str(excinfo.value) == 'We were unable to contact product-details (HTTP 404)'
 
     async def test_failing_heartbeat(self):
         # Archive

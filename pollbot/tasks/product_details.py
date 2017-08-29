@@ -1,6 +1,6 @@
 from pollbot.exceptions import TaskError
 from pollbot.utils import Channel, get_version_channel, build_version_id
-from . import get_session, heartbeat_factory
+from . import get_session, heartbeat_factory, build_task_response
 
 
 async def ongoing_versions(product):
@@ -33,15 +33,16 @@ async def product_details(product, version):
         url = 'https://product-details.mozilla.org/1.0/{}.json'.format(product)
         async with session.get(url) as resp:
             if resp.status != 200:
-                msg = 'Product Details info not available  ({})'.format(resp.status)
+                msg = 'We were unable to contact product-details (HTTP {})'.format(resp.status)
                 raise TaskError(msg)
             body = await resp.json()
             status = '{}-{}'.format(product, version) in body['releases']
-            return {
-                "status":  status and "exists" or "missing",
-                "message": "Checking product-details for the release version",
-                "link": url
-            }
+
+            exists_message = "We found product-details information about version {}".format(
+                version)
+            missing_message = "We did not found product-details information about version".format(
+                version)
+            return build_task_response(status, exists_message, missing_message, url)
 
 
 heartbeat = heartbeat_factory('https://product-details.mozilla.org/1.0/firefox.json')
