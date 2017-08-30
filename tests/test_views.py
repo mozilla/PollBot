@@ -320,7 +320,7 @@ async def test_release_product_details_devedition_and_beta_versions_matches(cli)
         "link": "https://product-details.mozilla.org/1.0/firefox_versions.json"
     })
 
-    
+
 async def test_releases_list(cli):
     resp = await check_response(cli, "/v1/firefox")
     body = await resp.json()
