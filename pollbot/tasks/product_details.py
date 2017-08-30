@@ -1,6 +1,6 @@
 from pollbot.exceptions import TaskError
 from pollbot.utils import Channel, get_version_channel, build_version_id
-from . import get_session, heartbeat_factory, build_task_response_from_bool
+from . import get_session, heartbeat_factory, build_task_response
 
 
 async def ongoing_versions(product):
@@ -25,7 +25,7 @@ async def product_details(product, version):
         status = build_version_id(versions["nightly"]) >= build_version_id(version)
         message = "Last nightly version is {}".format(versions["nightly"])
         url = "https://product-details.mozilla.org/1.0/{}_versions.json".format(product)
-        return build_task_response_from_bool(status, message, message, url)
+        return build_task_response(status, url, message)
 
     with get_session() as session:
         url = 'https://product-details.mozilla.org/1.0/{}.json'.format(product)
@@ -40,7 +40,7 @@ async def product_details(product, version):
                 version)
             missing_message = "We did not found product-details information about version".format(
                 version)
-            return build_task_response_from_bool(status, exists_message, missing_message, url)
+            return build_task_response(status, url, exists_message, missing_message)
 
 
 heartbeat = heartbeat_factory('https://product-details.mozilla.org/1.0/firefox.json')

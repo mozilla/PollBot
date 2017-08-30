@@ -1,7 +1,7 @@
 from functools import partial
 from pollbot.utils import (build_version_id, Channel, Status, get_version_channel,
                            get_version_from_filename)
-from . import get_session, heartbeat_factory, build_task_response, build_task_response_from_bool
+from . import get_session, heartbeat_factory, build_task_response
 
 
 async def archives(product, version):
@@ -16,7 +16,7 @@ async def archives(product, version):
                 exists_message = "An archive for version {} exists at {}".format(version, url)
                 missing_message = ("No archive found for this version number at "
                                    "https://archive.mozilla.org/pub/{}/releases/".format(product))
-                return build_task_response_from_bool(status, exists_message, missing_message, url)
+                return build_task_response(status, url, exists_message, missing_message)
 
 
 async def check_nightly_archives(url, product, version):
@@ -38,12 +38,12 @@ async def check_nightly_archives(url, product, version):
 
                 exists_message = "The archive exists at {}".format(url)
                 missing_message = "No archive found at {}".format(url)
-                return build_task_response_from_bool(status, exists_message, missing_message, url)
-        else:
-            return build_task_response(
-                status=Status.MISSING,
-                message="No archive-date checks for {} releases".format(channel.value.lower()),
-                link=url)
+                return build_task_response(status, url, exists_message, missing_message)
+
+        return build_task_response(
+            status=Status.MISSING,
+            link=url,
+            message="No archive-date checks for {} releases".format(channel.value.lower()))
 
 
 archives_date = partial(check_nightly_archives,

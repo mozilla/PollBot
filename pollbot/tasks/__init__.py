@@ -26,17 +26,13 @@ def heartbeat_factory(url):
     return heartbeat
 
 
-def build_task_response(status, message, link):
+def build_task_response(status, link, message, fail_message=None):
+    if isinstance(status, bool):
+        status = Status.EXISTS if status else Status.MISSING
+        message = message if status else fail_message or message
+
     return {
         "status": status.value,
         "message": message,
-        "link": link
-    }
-
-
-def build_task_response_from_bool(status, exists_message, missing_message, link):
-    return {
-        "status": Status.EXISTS.value if status else Status.MISSING.value,
-        "message": exists_message if status else missing_message,
         "link": link
     }
