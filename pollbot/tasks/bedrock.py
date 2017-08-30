@@ -5,8 +5,9 @@ from pyquery import PyQuery as pq
 from urllib.parse import urlparse, parse_qs
 
 from pollbot.exceptions import TaskError
-from pollbot.utils import build_version_id, Channel, get_version_channel, get_version_from_filename
-from . import get_session, heartbeat_factory, build_task_response
+from pollbot.utils import (build_version_id, Channel, Status, get_version_channel,
+                           get_version_from_filename)
+from . import get_session, heartbeat_factory, build_task_response, build_task_response_from_bool
 
 
 async def get_releases(product):
@@ -38,7 +39,7 @@ async def release_notes(product, version):
             status = resp.status != 404
             exists_message = "Release notes were found for version {}".format(version)
             missing_message = "No release notes were published for version {}".format(version)
-            return build_task_response(status, exists_message, missing_message, url)
+            return build_task_response_from_bool(status, exists_message, missing_message, url)
 
 
 async def security_advisories(product, version):
@@ -47,12 +48,11 @@ async def security_advisories(product, version):
     # Security advisories are always present for BETA and NIGHTLY
     # because we don't publish any.
     if channel in (Channel.BETA, Channel.NIGHTLY):
-        return {
-            "status": "missing",
-            "message": "Security advisories are never published for {} releases".format(
+        return build_task_response(
+            status=Status.MISSING,
+            message="Security advisories are never published for {} releases".format(
                 channel.value.lower()),
-            "link": url
-        }
+            link=url)
 
     with get_session() as session:
         async with session.get(url) as resp:
@@ -71,7 +71,7 @@ async def security_advisories(product, version):
             status = build_version_id(last_release) >= build_version_id(version)
             message = ("Security advisories for release were "
                        "published up to version {}".format(last_release))
-            return build_task_response(status, message, message, url)
+            return build_task_response_from_bool(status, message, message, url)
 
 
 async def download_links(product, version):
@@ -114,7 +114,7 @@ async def download_links(product, version):
             status = build_version_id(last_release) >= build_version_id(version)
             message = ("The download links for release have been published for version {}".format(
                 last_release))
-            return build_task_response(status, message, message, url)
+            return build_task_response_from_bool(status, message, message, url)
 
 
 heartbeat = heartbeat_factory('https://www.mozilla.org/en-US/firefox/all/')

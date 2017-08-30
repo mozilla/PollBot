@@ -8,6 +8,13 @@ class Channel(Enum):
     NIGHTLY = "NIGHTLY"
 
 
+class Status(Enum):
+    ERROR = "error"
+    INCOMPLETE = "incomplete"
+    MISSING = "missing"
+    EXISTS = "exists"
+
+
 def version_parts(parts):
     patch = '0'
     major = parts[0]

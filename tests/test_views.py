@@ -10,6 +10,7 @@ from pollbot import __version__ as pollbot_version, HTTP_API_VERSION
 from pollbot.app import get_app
 from pollbot.exceptions import TaskError
 from pollbot.views.release import status_response
+from pollbot.utils import Status
 
 HERE = os.path.dirname(__file__)
 
@@ -91,7 +92,7 @@ async def test_status_response_handle_task_errors(cli):
     request.match_info = {"product": "firefox", "version": "57.0"}
     resp = await error_endpoint(request)
     assert json.loads(resp.body.decode()) == {
-        "status": "error",
+        "status": Status.ERROR.value,
         "message": "Error message",
     }
 
@@ -229,7 +230,7 @@ async def test_get_checks_response_validates_product_name(cli):
 # This is currently a functional test.
 async def test_release_archive_date(cli):
     await check_response(cli, "/v1/firefox/57.0a1/archive-date", body={
-        "status": "exists",
+        "status": Status.EXISTS.value,
         "message": "The archive exists at "
         "https://archive.mozilla.org/pub/firefox/nightly/latest-date/",
         "link": "https://archive.mozilla.org/pub/firefox/nightly/latest-date/"
@@ -238,7 +239,7 @@ async def test_release_archive_date(cli):
 
 async def test_release_archive_date_with_wrong_version_number(cli):
     await check_response(cli, "/v1/firefox/56.0b1/archive-date", body={
-        "status": "missing",
+        "status": Status.MISSING.value,
         "message": "No archive-date checks for beta releases",
         "link": "https://archive.mozilla.org/pub/firefox/nightly/latest-date/"
     })
@@ -246,7 +247,7 @@ async def test_release_archive_date_with_wrong_version_number(cli):
 
 async def test_release_archive_date_l10n(cli):
     await check_response(cli, "/v1/firefox/57.0a1/archive-date-l10n", body={
-        "status": "exists",
+        "status": Status.EXISTS.value,
         "message": "The archive exists at "
         "https://archive.mozilla.org/pub/firefox/nightly/latest-date-l10n/",
         "link": "https://archive.mozilla.org/pub/firefox/nightly/latest-date-l10n/"
@@ -255,7 +256,7 @@ async def test_release_archive_date_l10n(cli):
 
 async def test_release_archive_date_l10n_with_wrong_version_number(cli):
     await check_response(cli, "/v1/firefox/56.0b1/archive-date-l10n", body={
-        "status": "missing",
+        "status": Status.MISSING.value,
         "message": "No archive-date checks for beta releases",
         "link": "https://archive.mozilla.org/pub/firefox/nightly/latest-date-l10n/"
     })
@@ -263,7 +264,7 @@ async def test_release_archive_date_l10n_with_wrong_version_number(cli):
 
 async def test_release_archive(cli):
     await check_response(cli, "/v1/firefox/54.0/archive", body={
-        "status": "exists",
+        "status": Status.EXISTS.value,
         "message": "An archive for version 54.0 exists at "
         "https://archive.mozilla.org/pub/firefox/releases/54.0/",
         "link": "https://archive.mozilla.org/pub/firefox/releases/54.0/"
@@ -272,7 +273,7 @@ async def test_release_archive(cli):
 
 async def test_release_bedrock_release_notes(cli):
     await check_response(cli, "/v1/firefox/54.0/bedrock/release-notes", body={
-        "status": "exists",
+        "status": Status.EXISTS.value,
         "message": "Release notes were found for version 54.0",
         "link": "https://www.mozilla.org/en-US/firefox/54.0/releasenotes/"
     })
@@ -280,7 +281,7 @@ async def test_release_bedrock_release_notes(cli):
 
 async def test_release_bedrock_security_advisories(cli):
     await check_response(cli, "/v1/firefox/54.0/bedrock/security-advisories", body={
-        "status": "exists",
+        "status": Status.EXISTS.value,
         "message": "Security advisories for release were published up to version 55.0.3",
         "link": "https://www.mozilla.org/en-US/security/known-vulnerabilities/firefox/"
     })
@@ -288,7 +289,7 @@ async def test_release_bedrock_security_advisories(cli):
 
 async def test_release_bedrock_download_links(cli):
     await check_response(cli, "/v1/firefox/54.0/bedrock/download-links", body={
-        "status": "exists",
+        "status": Status.EXISTS.value,
         "message": "The download links for release have been published for version 55.0.3",
         "link": "https://www.mozilla.org/en-US/firefox/all/"
     })
@@ -296,7 +297,7 @@ async def test_release_bedrock_download_links(cli):
 
 async def test_release_product_details(cli):
     await check_response(cli, "/v1/firefox/54.0/product-details", body={
-        "status": "exists",
+        "status": Status.EXISTS.value,
         "message": "We found product-details information about version 54.0",
         "link": "https://product-details.mozilla.org/1.0/firefox.json"
     })

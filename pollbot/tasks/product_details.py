@@ -1,6 +1,6 @@
 from pollbot.exceptions import TaskError
 from pollbot.utils import Channel, get_version_channel, build_version_id
-from . import get_session, heartbeat_factory, build_task_response
+from . import get_session, heartbeat_factory, build_task_response_from_bool
 
 
 async def ongoing_versions(product):
@@ -23,17 +23,15 @@ async def product_details(product, version):
     if get_version_channel(version) is Channel.NIGHTLY:
         versions = await ongoing_versions(product)
         status = build_version_id(versions["nightly"]) >= build_version_id(version)
-        return {
-            "status":  status and "exists" or "missing",
-            "message": "Checking product-details for the nightly version",
-            "link": 'https://product-details.mozilla.org/1.0/{}_versions.json'.format(product)
-        }
+        message = "Last nightly version is {}".format(versions["nightly"])
+        url = "https://product-details.mozilla.org/1.0/{}_versions.json".format(product)
+        return build_task_response_from_bool(status, message, message, url)
 
     with get_session() as session:
         url = 'https://product-details.mozilla.org/1.0/{}.json'.format(product)
         async with session.get(url) as resp:
             if resp.status != 200:
-                msg = 'We were unable to contact product-details (HTTP {})'.format(resp.status)
+                msg = 'Product Details info not available (HTTP {})'.format(resp.status)
                 raise TaskError(msg)
             body = await resp.json()
             status = '{}-{}'.format(product, version) in body['releases']
@@ -42,7 +40,7 @@ async def product_details(product, version):
                 version)
             missing_message = "We did not found product-details information about version".format(
                 version)
-            return build_task_response(status, exists_message, missing_message, url)
+            return build_task_response_from_bool(status, exists_message, missing_message, url)
 
 
 heartbeat = heartbeat_factory('https://product-details.mozilla.org/1.0/firefox.json')

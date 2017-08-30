@@ -4,6 +4,7 @@ import sys
 import aiohttp
 
 from pollbot import __version__ as pollbot_version
+from pollbot.utils import Status
 
 
 def get_session():
@@ -25,17 +26,17 @@ def heartbeat_factory(url):
     return heartbeat
 
 
-def build_task_response(status, exists_message, missing_message, link):
-    if status:
-        # Exists
-        return {
-            "status": "exists",
-            "message": exists_message,
-            "link": link
-        }
-    else:
-        return {
-            "status": "missing",
-            "message": missing_message,
-            "link": link
-        }
+def build_task_response(status, message, link):
+    return {
+        "status": status.value,
+        "message": message,
+        "link": link
+    }
+
+
+def build_task_response_from_bool(status, exists_message, missing_message, link):
+    return {
+        "status": Status.EXISTS.value if status else Status.MISSING.value,
+        "message": exists_message if status else missing_message,
+        "link": link
+    }
