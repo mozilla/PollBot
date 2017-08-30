@@ -12,6 +12,7 @@ from pollbot.tasks.archives import archives
 from pollbot.tasks.bedrock import release_notes, security_advisories, download_links, get_releases
 from pollbot.tasks.product_details import product_details, ongoing_versions
 from pollbot.views.utilities import heartbeat
+from pollbot.utils import Status
 
 
 class DeliveryTasksTest(asynctest.TestCase):
@@ -76,28 +77,28 @@ class DeliveryTasksTest(asynctest.TestCase):
         self.mocked.get(url, status=200)
 
         received = await release_notes('firefox', '56.0b2')
-        assert received is True
+        assert received["status"] == Status.EXISTS.value
 
     async def test_releasenotes_tasks_returns_true_if_present(self):
         url = 'https://www.mozilla.org/en-US/firefox/52.0.2/releasenotes/'
         self.mocked.get(url, status=200)
 
         received = await release_notes('firefox', '52.0.2')
-        assert received is True
+        assert received["status"] == Status.EXISTS.value
 
     async def test_releasenotes_tasks_strip_esr_from_version_number(self):
         url = 'https://www.mozilla.org/en-US/firefox/52.3.0/releasenotes/'
         self.mocked.get(url, status=200)
 
         received = await release_notes('firefox', '52.3.0esr')
-        assert received is True
+        assert received["status"] == Status.EXISTS.value
 
     async def test_releasenotes_tasks_returns_false_if_absent(self):
         url = 'https://www.mozilla.org/en-US/firefox/52.0.2/releasenotes/'
         self.mocked.get(url, status=404)
 
         received = await release_notes('firefox', '52.0.2')
-        assert received is False
+        assert received["status"] == Status.MISSING.value
 
     async def test_archives_tasks_returns_true_if_file_exists_nightly(self):
         url = "https://archive.mozilla.org/pub/firefox/nightly/latest-date-l10n/"
@@ -132,35 +133,35 @@ class DeliveryTasksTest(asynctest.TestCase):
             }
         self.mocked.get(url, status=200, body=json.dumps(body))
         received = await archives('firefox', '57.0a1')
-        assert received is True
+        assert received["status"] == Status.EXISTS.value
 
     async def test_archives_tasks_returns_false_if_absent_for_nightly(self):
         url = 'https://archive.mozilla.org/pub/firefox/nightly/latest-date-l10n/'
         self.mocked.get(url, status=404)
 
         received = await archives('firefox', '57.0a1')
-        assert received is False
+        assert received["status"] == Status.MISSING.value
 
     async def test_archives_tasks_returns_true_if_folder_exists(self):
         url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/'
         self.mocked.get(url, status=200)
 
         received = await archives('firefox', '52.0.2')
-        assert received is True
+        assert received["status"] == Status.EXISTS.value
 
     async def test_archives_tasks_returns_false_if_absent(self):
         url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/'
         self.mocked.get(url, status=404)
 
         received = await archives('firefox', '52.0.2')
-        assert received is False
+        assert received["status"] == Status.MISSING.value
 
     async def test_download_links_tasks_returns_true_if_version_matches(self):
         url = 'https://www.mozilla.org/en-US/firefox/all/'
         self.mocked.get(url, status=200, body='<html data-latest-firefox="52.0.2"></html>')
 
         received = await download_links('firefox', '52.0.2')
-        assert received is True
+        assert received["status"] == Status.EXISTS.value
 
     async def test_download_links_tasks_returns_true_if_version_matches_for_beta(self):
         url = 'https://www.mozilla.org/fr/firefox/channel/desktop/'
@@ -178,7 +179,7 @@ class DeliveryTasksTest(asynctest.TestCase):
         </html>''')
 
         received = await download_links('firefox', '56.0b1')
-        assert received is True
+        assert received["status"] == Status.EXISTS.value
 
     async def test_download_links_tasks_returns_true_if_version_matches_for_nightly(self):
         url = 'https://www.mozilla.org/fr/firefox/channel/desktop/'
@@ -200,7 +201,7 @@ class DeliveryTasksTest(asynctest.TestCase):
             "/latest-mozilla-central-l10n/firefox-57.0a1.en-US.linux-x86_64.tar.bz2"})
 
         received = await download_links('firefox', '57.0a1')
-        assert received is True
+        assert received["status"] == Status.EXISTS.value
 
     async def test_download_links_tasks_returns_true_if_older_version_for_beta(self):
         url = 'https://www.mozilla.org/fr/firefox/channel/desktop/'
@@ -218,28 +219,28 @@ class DeliveryTasksTest(asynctest.TestCase):
         </html>''')
 
         received = await download_links('firefox', '55.0b1')
-        assert received is True
+        assert received["status"] == Status.EXISTS.value
 
     async def test_download_links_tasks_returns_true_if_version_matches_esr(self):
-        url = 'https://www.mozilla.org/en-US/firefox/all/'
+        url = 'https://www.mozilla.org/en-US/firefox/organizations/all/'
         self.mocked.get(url, status=200, body='<html data-esr-versions="52.3.0"></html>')
 
         received = await download_links('firefox', '52.3.0esr')
-        assert received is True
+        assert received["status"] == Status.EXISTS.value
 
     async def test_download_links_tasks_returns_true_if_older_version(self):
         url = 'https://www.mozilla.org/en-US/firefox/all/'
         self.mocked.get(url, status=200, body='<html data-latest-firefox="52.0.2"></html>')
 
         received = await download_links('firefox', '52.0')
-        assert received is True
+        assert received["status"] == Status.EXISTS.value
 
     async def test_download_links_tasks_returns_false_if_newer_version(self):
         url = 'https://www.mozilla.org/en-US/firefox/all/'
         self.mocked.get(url, status=200, body='<html data-latest-firefox="52.0.2"></html>')
 
         received = await download_links('firefox', '54.0')
-        assert received is False
+        assert received["status"] == Status.MISSING.value
 
     async def test_download_links_tasks_returns_error_if_error(self):
         url = 'https://www.mozilla.org/en-US/firefox/all/'
@@ -249,41 +250,41 @@ class DeliveryTasksTest(asynctest.TestCase):
             await download_links('firefox', '54.0')
         assert str(excinfo.value) == 'Download page not available  (404)'
 
-    async def test_security_advisories_tasks_returns_true_for_beta(self):
+    async def test_security_advisories_tasks_returns_missing_for_beta(self):
         received = await security_advisories('firefox', '56.0b2')
-        assert received is True
+        assert received["status"] == Status.MISSING.value
 
-    async def test_security_advisories_tasks_returns_true_for_nightly(self):
+    async def test_security_advisories_tasks_returns_missing_for_nightly(self):
         received = await security_advisories('firefox', '56.0a2')
-        assert received is True
+        assert received["status"] == Status.MISSING.value
 
     async def test_security_advisories_tasks_returns_true_if_version_matches(self):
         url = 'https://www.mozilla.org/en-US/security/known-vulnerabilities/firefox/'
         self.mocked.get(url, status=200, body='<html data-latest-firefox="52.0.2"></html>')
 
         received = await security_advisories('firefox', '52.0.2')
-        assert received is True
+        assert received["status"] == Status.EXISTS.value
 
     async def test_security_advisories_tasks_returns_true_if_version_matches_esr(self):
         url = 'https://www.mozilla.org/en-US/security/known-vulnerabilities/firefox/'
         self.mocked.get(url, status=200, body='<html data-esr-versions="52.3.0"></html>')
 
         received = await security_advisories('firefox', '52.3.0esr')
-        assert received is True
+        assert received["status"] == Status.EXISTS.value
 
     async def test_security_advisories_tasks_returns_true_if_older_version(self):
         url = 'https://www.mozilla.org/en-US/security/known-vulnerabilities/firefox/'
         self.mocked.get(url, status=200, body='<html data-latest-firefox="52.0.2"></html>')
 
         received = await security_advisories('firefox', '52.0')
-        assert received is True
+        assert received["status"] == Status.EXISTS.value
 
     async def test_security_advisories_tasks_returns_false_if_newer_version(self):
         url = 'https://www.mozilla.org/en-US/security/known-vulnerabilities/firefox/'
         self.mocked.get(url, status=200, body='<html data-latest-firefox="52.0.2"></html>')
 
         received = await security_advisories('firefox', '54.0')
-        assert received is False
+        assert received["status"] == Status.MISSING.value
 
     async def test_security_advisories_tasks_returns_error_if_error(self):
         url = 'https://www.mozilla.org/en-US/security/known-vulnerabilities/firefox/'
@@ -308,7 +309,7 @@ class DeliveryTasksTest(asynctest.TestCase):
         self.mocked.get(url, status=200, body=json.dumps(body))
 
         received = await product_details('firefox', '57.0a1')
-        assert received is True
+        assert received["status"] == Status.EXISTS.value
 
     async def test_product_details_tasks_returns_true_if_not_present_for_nightly(self):
         url = 'https://product-details.mozilla.org/1.0/firefox_versions.json'
@@ -325,21 +326,21 @@ class DeliveryTasksTest(asynctest.TestCase):
         self.mocked.get(url, status=200, body=json.dumps(body))
 
         received = await product_details('firefox', '58.0a1')
-        assert received is False
+        assert received["status"] == Status.MISSING.value
 
     async def test_product_details_tasks_returns_true_if_present(self):
         url = 'https://product-details.mozilla.org/1.0/firefox.json'
         self.mocked.get(url, status=200, body=json.dumps({"releases": {"firefox-52.0": {}}}))
 
         received = await product_details('firefox', '52.0')
-        assert received is True
+        assert received["status"] == Status.EXISTS.value
 
     async def test_product_details_tasks_returns_false_if_absent(self):
         url = 'https://product-details.mozilla.org/1.0/firefox.json'
         self.mocked.get(url, status=200, body=json.dumps({"releases": {"firefox-52.0": {}}}))
 
         received = await product_details('firefox', '54.0')
-        assert received is False
+        assert received["status"] == Status.MISSING.value
 
     async def test_product_details_tasks_returns_error_if_error(self):
         url = 'https://product-details.mozilla.org/1.0/firefox.json'
@@ -347,7 +348,7 @@ class DeliveryTasksTest(asynctest.TestCase):
 
         with pytest.raises(TaskError) as excinfo:
             await product_details('firefox', '54.0')
-        assert str(excinfo.value) == 'Product Details info not available  (404)'
+        assert str(excinfo.value) == 'Product Details info not available (HTTP 404)'
 
     async def test_failing_heartbeat(self):
         # Archive

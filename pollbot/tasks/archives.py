@@ -1,6 +1,7 @@
 from functools import partial
-from pollbot.utils import build_version_id, Channel, get_version_channel, get_version_from_filename
-from . import get_session, heartbeat_factory
+from pollbot.utils import (build_version_id, Channel, Status, get_version_channel,
+                           get_version_from_filename)
+from . import get_session, heartbeat_factory, build_task_response
 
 
 async def archives(product, version):
@@ -11,24 +12,38 @@ async def archives(product, version):
         else:
             url = 'https://archive.mozilla.org/pub/{}/releases/{}/'.format(product, version)
             async with session.get(url) as resp:
-                return resp.status != 404
+                status = resp.status != 404
+                exists_message = "An archive for version {} exists at {}".format(version, url)
+                missing_message = ("No archive found for this version number at "
+                                   "https://archive.mozilla.org/pub/{}/releases/".format(product))
+                return build_task_response(status, url, exists_message, missing_message)
 
 
 async def check_nightly_archives(url, product, version):
     with get_session() as session:
         channel = get_version_channel(version)
+        url = url.format(product)
         if channel is Channel.NIGHTLY:
-            url = url.format(product)
             async with session.get(url, headers={"Accept": "application/json"}) as resp:
                 if resp.status != 200:
-                    return False
-                body = await resp.json()
-                files = sorted([(r["last_modified"], r["name"]) for r in body["files"]
-                                if r["name"].startswith("{}-".format(product))],
-                               key=lambda x: x[0],
-                               reverse=True)
-                last_release = get_version_from_filename(files[0][1])
-                return build_version_id(last_release) >= build_version_id(version)
+                    status = False
+                else:
+                    body = await resp.json()
+                    files = sorted([(r["last_modified"], r["name"]) for r in body["files"]
+                                    if r["name"].startswith("{}-".format(product))],
+                                   key=lambda x: x[0],
+                                   reverse=True)
+                    last_release = get_version_from_filename(files[0][1])
+                    status = build_version_id(last_release) >= build_version_id(version)
+
+                exists_message = "The archive exists at {}".format(url)
+                missing_message = "No archive found at {}".format(url)
+                return build_task_response(status, url, exists_message, missing_message)
+
+        return build_task_response(
+            status=Status.MISSING,
+            link=url,
+            message="No archive-date checks for {} releases".format(channel.value.lower()))
 
 
 archives_date = partial(check_nightly_archives,
