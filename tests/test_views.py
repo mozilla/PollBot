@@ -27,9 +27,9 @@ def cli(loop, test_client):
         raise ValueError()
 
     app = get_app(loop=loop)
-    app.router.add_get('/v1/error/', error)
-    app.router.add_get('/v1/error-403/', error403)
-    app.router.add_get('/v1/error-404/', error404)
+    app.router.add_get('/error', error)
+    app.router.add_get('/error-403', error403)
+    app.router.add_get('/error-404', error404)
     return loop.run_until_complete(test_client(app))
 
 
@@ -52,6 +52,11 @@ async def test_home_redirects_to_v1(cli):
 async def test_v1_redirects_to_v1_slash(cli):
     resp = await check_response(cli, "/v1", status=302, allow_redirects=False)
     assert resp.headers['Location'] == "/v1/"
+
+
+async def test_redirects_trailing_slashes(cli):
+    resp = await check_response(cli, "/v1/firefox/54.0/", status=302, allow_redirects=False)
+    assert resp.headers['Location'] == "/v1/firefox/54.0"
 
 
 async def check_yaml_resource(cli, url, filename):
@@ -119,28 +124,28 @@ async def test_get_releases_response_validates_product_name(cli):
 
 
 async def test_403_errors_are_json_responses(cli):
-    await check_response(cli, "/v1/error-403/", body={
+    await check_response(cli, "/error-403", body={
         "status": 403,
         "message": "Forbidden"
     }, status=403)
 
 
 async def test_404_pages_are_json_responses(cli):
-    await check_response(cli, "/v1/not-found/", body={
+    await check_response(cli, "/not-found", body={
         "status": 404,
-        "message": "Page '/v1/not-found/' not found"
+        "message": "Page '/not-found' not found"
     }, status=404)
 
 
 async def test_handle_views_that_return_404_pages_are_json_responses(cli):
-    await check_response(cli, "/v1/error-404/", body={
+    await check_response(cli, "/error-404", body={
         "status": 404,
-        "message": "Page '/v1/error-404/' not found"
+        "message": "Page '/error-404' not found"
     }, status=404)
 
 
 async def test_500_pages_are_json_responses(cli):
-    await check_response(cli, "/v1/error/", body={
+    await check_response(cli, "/error", body={
         "status": 503,
         "message": "Service currently unavailable"
     }, status=503)
