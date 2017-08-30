@@ -61,6 +61,9 @@ def get_app(loop=None):
                                 release.bedrock_download_links, name="download-links"))
     cors.add(app.router.add_get('/v1/{product}/{version}/product-details',
                                 release.product_details, name="product-details"))
+    cors.add(app.router.add_get('/v1/{product}/{version}/product-details'
+                                '/devedition-beta-versions-matches',
+                                release.devedition_beta_check, name="devedition-beta-matches"))
 
     # Swagger UI and documentation
     setup_swagger(app,

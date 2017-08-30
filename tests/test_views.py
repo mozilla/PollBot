@@ -172,6 +172,9 @@ async def test_get_checks_for_beta(cli):
         "channel": "beta",
         "checks": [
             {"url": "http://localhost/v1/firefox/56.0b6/archive", "title": "Archive Release"},
+            {"url": "http://localhost/v1/firefox/56.0b6/product-details"
+             "/devedition-beta-versions-matches",
+             "title": "Devedition and Beta versions matches"},
             {"url": "http://localhost/v1/firefox/56.0b6/bedrock/download-links",
              "title": "Download links"},
             {"url": "http://localhost/v1/firefox/56.0b6/product-details",
@@ -303,6 +306,21 @@ async def test_release_product_details(cli):
     })
 
 
+async def test_beta_product_details_devedition_and_beta_versions_matches(cli):
+    await check_response(cli,
+                         "/v1/firefox/56.0b7/product-details/devedition-beta-versions-matches",
+                         status=200)
+
+
+async def test_release_product_details_devedition_and_beta_versions_matches(cli):
+    url = "/v1/firefox/54.0/product-details/devedition-beta-versions-matches"
+    await check_response(cli, url, body={
+        "status": Status.MISSING.value,
+        "message": "No devedition and beta check for release releases",
+        "link": "https://product-details.mozilla.org/1.0/firefox_versions.json"
+    })
+
+    
 async def test_releases_list(cli):
     resp = await check_response(cli, "/v1/firefox")
     body = await resp.json()
