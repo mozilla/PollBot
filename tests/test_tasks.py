@@ -10,7 +10,8 @@ from pollbot.exceptions import TaskError
 from pollbot.tasks import get_session
 from pollbot.tasks.archives import archives
 from pollbot.tasks.bedrock import release_notes, security_advisories, download_links, get_releases
-from pollbot.tasks.product_details import product_details, ongoing_versions
+from pollbot.tasks.product_details import (product_details, ongoing_versions,
+                                           devedition_and_beta_in_sync)
 from pollbot.views.utilities import heartbeat
 from pollbot.utils import Status
 
@@ -302,6 +303,7 @@ class DeliveryTasksTest(asynctest.TestCase):
             "FIREFOX_ESR": "52.3.0esr",
             "FIREFOX_ESR_NEXT": "",
             "LATEST_FIREFOX_DEVEL_VERSION": "55.0b13",
+            "FIREFOX_DEVEDITION": "55.0b13",
             "LATEST_FIREFOX_OLDER_VERSION": "3.6.28",
             "LATEST_FIREFOX_RELEASED_DEVEL_VERSION": "55.0b14",
             "LATEST_FIREFOX_VERSION": "55.0"
@@ -319,6 +321,7 @@ class DeliveryTasksTest(asynctest.TestCase):
             "FIREFOX_ESR": "52.3.0esr",
             "FIREFOX_ESR_NEXT": "",
             "LATEST_FIREFOX_DEVEL_VERSION": "55.0b13",
+            "FIREFOX_DEVEDITION": "55.0b13",
             "LATEST_FIREFOX_OLDER_VERSION": "3.6.28",
             "LATEST_FIREFOX_RELEASED_DEVEL_VERSION": "55.0b14",
             "LATEST_FIREFOX_VERSION": "55.0"
@@ -350,6 +353,55 @@ class DeliveryTasksTest(asynctest.TestCase):
             await product_details('firefox', '54.0')
         assert str(excinfo.value) == 'Product Details info not available (HTTP 404)'
 
+    async def test_devedition_version_tasks_returns_false_if_not_in_sync(self):
+        url = 'https://product-details.mozilla.org/1.0/firefox_versions.json'
+        body = {
+            "FIREFOX_NIGHTLY": "57.0a1",
+            "FIREFOX_AURORA": "54.0a2",
+            "FIREFOX_ESR": "52.3.0esr",
+            "FIREFOX_ESR_NEXT": "",
+            "LATEST_FIREFOX_DEVEL_VERSION": "55.0b14",
+            "FIREFOX_DEVEDITION": "55.0rc1",
+            "LATEST_FIREFOX_OLDER_VERSION": "3.6.28",
+            "LATEST_FIREFOX_RELEASED_DEVEL_VERSION": "55.0b14",
+            "LATEST_FIREFOX_VERSION": "55.0"
+        }
+        self.mocked.get(url, status=200, body=json.dumps(body))
+
+        received = await devedition_and_beta_in_sync('firefox', '55.0b14')
+        assert received["status"] == Status.MISSING.value
+
+    async def test_devedition_version_tasks_returns_true_if_in_sync(self):
+        url = 'https://product-details.mozilla.org/1.0/firefox_versions.json'
+        body = {
+            "FIREFOX_NIGHTLY": "57.0a1",
+            "FIREFOX_AURORA": "54.0a2",
+            "FIREFOX_ESR": "52.3.0esr",
+            "FIREFOX_ESR_NEXT": "",
+            "LATEST_FIREFOX_DEVEL_VERSION": "56.0b7",
+            "FIREFOX_DEVEDITION": "56.0b7",
+            "LATEST_FIREFOX_OLDER_VERSION": "3.6.28",
+            "LATEST_FIREFOX_RELEASED_DEVEL_VERSION": "55.0b14",
+            "LATEST_FIREFOX_VERSION": "55.0"
+        }
+        self.mocked.get(url, status=200, body=json.dumps(body))
+
+        received = await devedition_and_beta_in_sync('firefox', '56.0b7')
+        assert received["status"] == Status.EXISTS.value
+
+    async def test_devedition_version_tasks_returns_error_if_error(self):
+        url = 'https://product-details.mozilla.org/1.0/firefox_versions.json'
+        self.mocked.get(url, status=404)
+
+        with pytest.raises(TaskError) as excinfo:
+            await devedition_and_beta_in_sync('firefox', '56.0b7')
+        assert str(excinfo.value) == 'Product Details info not available (HTTP 404)'
+
+    async def test_devedition_version_tasks_returns_missing_for_other_channels(self):
+        received = await devedition_and_beta_in_sync('firefox', '54.0')
+        assert received["status"] == Status.MISSING.value
+        assert received["message"] == 'No devedition and beta check for release releases'
+
     async def test_failing_heartbeat(self):
         # Archive
         url = 'https://archive.mozilla.org/pub/firefox/releases/'
@@ -379,6 +431,7 @@ class DeliveryTasksTest(asynctest.TestCase):
             "FIREFOX_ESR": "52.3.0esr",
             "FIREFOX_ESR_NEXT": "",
             "LATEST_FIREFOX_DEVEL_VERSION": "55.0b13",
+            "FIREFOX_DEVEDITION": "55.0b13",
             "LATEST_FIREFOX_OLDER_VERSION": "3.6.28",
             "LATEST_FIREFOX_RELEASED_DEVEL_VERSION": "55.0b14",
             "LATEST_FIREFOX_VERSION": "55.0"
@@ -389,6 +442,7 @@ class DeliveryTasksTest(asynctest.TestCase):
             "esr": "52.3.0esr",
             "release": "55.0",
             "beta": "55.0b13",
+            "devedition": "55.0b13",
             "nightly": "57.0a1",
         }
 
@@ -398,4 +452,4 @@ class DeliveryTasksTest(asynctest.TestCase):
 
         with pytest.raises(TaskError) as excinfo:
             await ongoing_versions('firefox')
-        assert str(excinfo.value) == 'Product Details info not available  (404)'
+        assert str(excinfo.value) == 'Product Details info not available (HTTP 404)'
