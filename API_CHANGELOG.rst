@@ -12,9 +12,10 @@ API Changelog
 - archive-date and archive-date-l10n return a missing status for
   anything else than nightly versions.
 - Add the devedition-beta-versions-matches endpoint and task.
+- Add Cache-Control headers.
 
 
 1.0 (2017-08-08)
 ----------------
 
-- First version of PollBot
+- First version of PollBot.
