@@ -13,6 +13,7 @@ CHANGELOG
 - Fix the ESR download links task url (#66)
 - Add a task to validate if devedition and beta version matches (#78)
 - Redirects URL ending by a / to URL without the / in case of 404. (#54)
+- Add Cache-Control headers (#43)
 
 
 0.1.0 (2017-08-08)

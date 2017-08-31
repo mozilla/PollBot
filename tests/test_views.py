@@ -8,6 +8,7 @@ from aiohttp import web
 
 from pollbot import __version__ as pollbot_version, HTTP_API_VERSION
 from pollbot.app import get_app
+from pollbot.middlewares import NO_CACHE_ENDPOINTS
 from pollbot.exceptions import TaskError
 from pollbot.views.release import status_response
 from pollbot.utils import Status
@@ -380,3 +381,23 @@ async def test_ongoing_versions_view(cli):
     assert "release" in body
     assert "beta" in body
     assert "nightly" in body
+
+
+@pytest.mark.parametrize("endpoint", NO_CACHE_ENDPOINTS)
+async def test_endpoint_have_got_cache_control_headers(cli, endpoint):
+    resp = await cli.get(endpoint)
+    assert "Cache-Control" in resp.headers
+    assert resp.headers["Cache-Control"] == "no-cache"
+
+
+async def test_product_endpoint_have_got_cache_control_headers(cli):
+    resp = await cli.get("/v1/firefox/54.0")
+    assert "Cache-Control" in resp.headers
+    assert resp.headers["Cache-Control"] == "public; max-age=30"
+
+
+async def test_cache_control_header_max_age_can_be_parametrized(cli):
+    with mock.patch("pollbot.middlewares.CACHE_MAX_AGE", 10):
+        resp = await cli.get("/v1/firefox/54.0")
+        assert "Cache-Control" in resp.headers
+        assert resp.headers["Cache-Control"] == "public; max-age=10"

@@ -1,5 +1,6 @@
 import logging
 from aiohttp import web
+import os
 
 logger = logging.getLogger(__package__)
 
@@ -8,8 +9,26 @@ def setup_middlewares(app):
     error_middleware = error_pages({404: handle_404,
                                     500: handle_500})
     app.middlewares.append(error_middleware)
+    app.middlewares.append(cache_control_middleware)
 
 
+# Cache-Control middleware
+CACHE_MAX_AGE = int(os.getenv("CACHE_MAX_AGE", "30"))
+NO_CACHE_ENDPOINTS = ['/v1/', '/v1/__version__', '/v1/__heartbeat__', '/v1/__lbheartbeat__']
+
+
+async def cache_control_middleware(app, handler):
+    async def middleware_handler(request):
+        response = await handler(request)
+        cache_control_value = "public; max-age={}".format(CACHE_MAX_AGE)
+        if request.path in NO_CACHE_ENDPOINTS or CACHE_MAX_AGE <= 0:
+            cache_control_value = "no-cache"
+        response.headers.setdefault("Cache-Control", cache_control_value)
+        return response
+    return middleware_handler
+
+
+# Error page middlewares
 def error_pages(overrides):
     async def middleware(app, handler):
         async def middleware_handler(request):
