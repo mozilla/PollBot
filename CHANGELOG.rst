@@ -4,13 +4,14 @@ CHANGELOG
 0.2.0 (unreleased)
 ------------------
 
-- Add a /v1/firefox endpoint (#47)
-- Add a /v1/firefox/ongoing-versions endpoint (#52)
+- Add a /v1/{product} endpoint (#47)
+- Add a /v1/{product}/ongoing-versions endpoint (#52)
 - Add a /v1/{product}/{version} that lists all checks (#62)
 - Add a nightly specific task and endpoint for latest-date publication (#68)
 - Add a nightly specific task and endpoint for latest-date-l10n publication (#68)
 - Add more context about what the task have been checking (#58)
 - Fix the ESR download links task url (#66)
+- Add a task to validate if devedition and beta version matches (#78)
 
 
 0.1.0 (2017-08-08)

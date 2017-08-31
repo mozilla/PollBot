@@ -1,5 +1,5 @@
 from pollbot.exceptions import TaskError
-from pollbot.utils import Channel, get_version_channel, build_version_id
+from pollbot.utils import Channel, get_version_channel, build_version_id, Status
 from . import get_session, heartbeat_factory, build_task_response
 
 
@@ -8,7 +8,7 @@ async def ongoing_versions(product):
         url = 'https://product-details.mozilla.org/1.0/{}_versions.json'.format(product)
         async with session.get(url) as resp:
             if resp.status != 200:
-                msg = 'Product Details info not available  ({})'.format(resp.status)
+                msg = 'Product Details info not available (HTTP {})'.format(resp.status)
                 raise TaskError(msg)
             body = await resp.json()
             return {
@@ -16,6 +16,7 @@ async def ongoing_versions(product):
                 "release": body["LATEST_FIREFOX_VERSION"],
                 "beta": body["LATEST_FIREFOX_DEVEL_VERSION"],
                 "nightly": body["FIREFOX_NIGHTLY"],
+                "devedition": body["FIREFOX_DEVEDITION"],
             }
 
 
@@ -41,6 +42,24 @@ async def product_details(product, version):
             missing_message = "We did not found product-details information about version".format(
                 version)
             return build_task_response(status, url, exists_message, missing_message)
+
+
+async def devedition_and_beta_in_sync(product, version):
+    channel = get_version_channel(version)
+    url = "https://product-details.mozilla.org/1.0/{}_versions.json".format(product)
+    if channel is Channel.BETA:
+        versions = await ongoing_versions(product)
+        beta = versions["beta"]
+        devedition = versions["devedition"]
+        status = beta == devedition
+        message = "Last beta version is {} and last devedition is {}".format(beta, devedition)
+        return build_task_response(status, url, message)
+
+    # Ignore other channels
+    return build_task_response(
+        status=Status.MISSING,
+        link=url,
+        message="No devedition and beta check for '{}' releases".format(channel.value.lower()))
 
 
 heartbeat = heartbeat_factory('https://product-details.mozilla.org/1.0/firefox.json')
