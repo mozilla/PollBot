@@ -4,7 +4,7 @@ import pytest
 import os.path
 import ruamel.yaml as yaml
 
-from aiohttp import web
+from aiohttp import web, ClientError
 
 from pollbot import __version__ as pollbot_version, HTTP_API_VERSION
 from pollbot.app import get_app
@@ -93,6 +93,19 @@ async def test_home_body(cli):
 async def test_status_response_handle_task_errors(cli):
     async def error_task(product, version):
         raise TaskError('Error message')
+    error_endpoint = status_response(error_task)
+    request = mock.MagicMock()
+    request.match_info = {"product": "firefox", "version": "57.0"}
+    resp = await error_endpoint(request)
+    assert json.loads(resp.body.decode()) == {
+        "status": Status.ERROR.value,
+        "message": "Error message",
+    }
+
+
+async def test_status_response_handle_client_errors(cli):
+    async def error_task(product, version):
+        raise ClientError('Error message')
     error_endpoint = status_response(error_task)
     request = mock.MagicMock()
     request.match_info = {"product": "firefox", "version": "57.0"}

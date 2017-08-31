@@ -1,4 +1,4 @@
-from aiohttp import web
+from aiohttp import web, ClientError
 from collections import OrderedDict
 from pollbot import PRODUCTS
 
@@ -22,7 +22,7 @@ def status_response(task):
 
         try:
             response = await task(product, version)
-        except TaskError as e:
+        except (TaskError, ClientError) as e:
             return web.json_response({
                 'status': 'error',
                 'message': str(e)
