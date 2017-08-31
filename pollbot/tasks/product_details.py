@@ -59,7 +59,7 @@ async def devedition_and_beta_in_sync(product, version):
     return build_task_response(
         status=Status.MISSING,
         link=url,
-        message="No devedition and beta check for {} releases".format(channel.value.lower()))
+        message="No devedition and beta check for '{}' releases".format(channel.value.lower()))
 
 
 heartbeat = heartbeat_factory('https://product-details.mozilla.org/1.0/firefox.json')

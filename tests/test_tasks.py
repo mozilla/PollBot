@@ -400,7 +400,7 @@ class DeliveryTasksTest(asynctest.TestCase):
     async def test_devedition_version_tasks_returns_missing_for_other_channels(self):
         received = await devedition_and_beta_in_sync('firefox', '54.0')
         assert received["status"] == Status.MISSING.value
-        assert received["message"] == 'No devedition and beta check for release releases'
+        assert received["message"] == "No devedition and beta check for 'release' releases"
 
     async def test_failing_heartbeat(self):
         # Archive

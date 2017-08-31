@@ -316,7 +316,7 @@ async def test_release_product_details_devedition_and_beta_versions_matches(cli)
     url = "/v1/firefox/54.0/product-details/devedition-beta-versions-matches"
     await check_response(cli, url, body={
         "status": Status.MISSING.value,
-        "message": "No devedition and beta check for release releases",
+        "message": "No devedition and beta check for 'release' releases",
         "link": "https://product-details.mozilla.org/1.0/firefox_versions.json"
     })
 
