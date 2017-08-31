@@ -48,7 +48,7 @@ Configuration
 PollBot is a currently a stateless service, which means there are no
 database services to configure.
 
-However you can configure everything using environment variables.
+However you can configure the following parameters using environment variables:
 
 +-------------------+--------------------------------------------------+
 | **VARIABLE**      | **Description**                                  |
@@ -57,6 +57,6 @@ However you can configure everything using environment variables.
 +-------------------+--------------------------------------------------+
 | ``VERSION_FILE``  | The JSON version file, default PWD/version.json  |
 +-------------------+--------------------------------------------------+
-| ``CACHE_MAX_AGE`` | The Cache-Control max-age value, default to 30.  |
-|                   | Set it to 0 or -1 to set Cache-Control: no-cache |
+| ``CACHE_MAX_AGE`` | The Cache-Control max-age value, default to 30   |
+|                   | seconds. Set it to 0 to set it to no-cache       |
 +-------------------+--------------------------------------------------+
