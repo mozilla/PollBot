@@ -145,6 +145,54 @@ paths:
       tags:
       - Status
 
+  /{product}/{version}:
+    get:
+      summary: "Return version information and its list of checks."
+      operationId: "getReleaseInfoAndChecks"
+      produces:
+      - "application/json"
+      parameters:
+      - $ref: "#/parameters/product"
+      - $ref: "#/parameters/version"
+      responses:
+        "200":
+          description: "Return the list of checks and the channel of a release."
+          schema:
+            type: "object"
+            required:
+            - "product"
+            - "version"
+            - "channel"
+            - "checks"
+            properties:
+              product:
+                type: "string"
+                description: "Product name"
+              version:
+                type: "string"
+                description: "Product version"
+              channel:
+                type: "string"
+                description: "Product release channel"
+              checks:
+                type: "array"
+                description: The list of tasks to run
+                items:
+                  title: Task to run
+                  type: object
+                  required:
+                  - url
+                  - title
+                  properties:
+                    url:
+                      type: "string"
+                      description: "The URL to call to run the task"
+                    title:
+                      type: "string"
+                      description: "The task title"
+      tags:
+      - Status
+
 
   /{product}/ongoing-versions:
     get:
