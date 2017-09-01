@@ -1,4 +1,5 @@
 from functools import partial
+from pollbot.exceptions import TaskError
 from pollbot.utils import (build_version_id, Channel, Status, get_version_channel,
                            get_version_from_filename)
 from . import get_session, heartbeat_factory, build_task_response
@@ -12,7 +13,10 @@ async def archives(product, version):
         else:
             url = 'https://archive.mozilla.org/pub/{}/releases/{}/'.format(product, version)
             async with session.get(url) as resp:
-                status = resp.status != 404
+                if resp.status >= 500:
+                    msg = 'Archive CDN not available (HTTP {})'.format(resp.status)
+                    raise TaskError(msg)
+                status = resp.status < 400
                 exists_message = "An archive for version {} exists at {}".format(version, url)
                 missing_message = ("No archive found for this version number at "
                                    "https://archive.mozilla.org/pub/{}/releases/".format(product))

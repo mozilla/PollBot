@@ -157,6 +157,14 @@ class DeliveryTasksTest(asynctest.TestCase):
         received = await archives('firefox', '52.0.2')
         assert received["status"] == Status.MISSING.value
 
+    async def test_archives_tasks_returns_error_in_case_of_CDN_errors(self):
+        url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/'
+        self.mocked.get(url, status=502)
+
+        with pytest.raises(TaskError) as excinfo:
+            await archives('firefox', '52.0.2')
+        assert str(excinfo.value) == 'Archive CDN not available (HTTP 502)'
+
     async def test_download_links_tasks_returns_true_if_version_matches(self):
         url = 'https://www.mozilla.org/en-US/firefox/all/'
         self.mocked.get(url, status=200, body='<html data-latest-firefox="52.0.2"></html>')
