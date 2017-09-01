@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-0.2.0 (unreleased)
+0.2.0 (2017-09-01)
 ------------------
 
 - Add a /v1/{product} endpoint (#47)
