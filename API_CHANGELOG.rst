@@ -1,7 +1,7 @@
 API Changelog
 =============
 
-1.1 (unreleased)
+1.1 (2017-09-01)
 ----------------
 
 - Add multi channel handling.
