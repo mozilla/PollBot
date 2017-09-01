@@ -176,9 +176,9 @@ paths:
                 description: "Product release channel"
               checks:
                 type: "array"
-                description: The list of tasks to run
+                description: The list of checks to run
                 items:
-                  title: Task to run
+                  title: Check to be run
                   type: object
                   required:
                   - url
@@ -186,10 +186,10 @@ paths:
                   properties:
                     url:
                       type: "string"
-                      description: "The URL to call to run the task"
+                      description: "The URL to call to run the check"
                     title:
                       type: "string"
-                      description: "The task title"
+                      description: "The check title"
       tags:
       - Status
 
