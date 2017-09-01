@@ -1,8 +1,7 @@
-from aiohttp import web, ClientError
+from aiohttp import web
 from collections import OrderedDict
 from pollbot import PRODUCTS
 
-from ..exceptions import TaskError
 from ..tasks.archives import archives, archives_date, archives_date_l10n
 from ..tasks.bedrock import release_notes, security_advisories, download_links, get_releases
 from ..tasks.product_details import product_details, devedition_and_beta_in_sync
@@ -22,7 +21,7 @@ def status_response(task):
 
         try:
             response = await task(product, version)
-        except (TaskError, ClientError) as e:
+        except Exception as e:  # In case something went bad, we return an error status message
             return web.json_response({
                 'status': 'error',
                 'message': str(e)
