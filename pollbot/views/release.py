@@ -1,3 +1,4 @@
+import logging
 from aiohttp import web
 from collections import OrderedDict
 from pollbot import PRODUCTS
@@ -6,6 +7,8 @@ from ..tasks.archives import archives, archives_date, archives_date_l10n
 from ..tasks.bedrock import release_notes, security_advisories, download_links, get_releases
 from ..tasks.product_details import product_details, devedition_and_beta_in_sync
 from ..utils import Channel, get_version_channel
+
+logger = logging.getLogger(__package__)
 
 
 def status_response(task):
@@ -22,6 +25,7 @@ def status_response(task):
         try:
             response = await task(product, version)
         except Exception as e:  # In case something went bad, we return an error status message
+            logger.exception(e)
             return web.json_response({
                 'status': 'error',
                 'message': str(e)
