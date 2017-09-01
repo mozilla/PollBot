@@ -15,6 +15,7 @@ CHANGELOG
 - Redirects URL ending by a / to URL without the / in case of 404. (#54)
 - Add Cache-Control headers (#43)
 - Handle aiohttp.ClientError as tasks errors (#76)
+- Handle Archive CDN errors (#75)
 
 
 0.1.0 (2017-08-08)
