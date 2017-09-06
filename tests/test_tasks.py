@@ -129,6 +129,11 @@ class DeliveryTasksTest(asynctest.TestCase):
                     "last_modified": "2017-08-11T05:29:19Z",
                     "name": "mozharness.zip",
                     "size": 650385
+                },
+                {
+                    "last_modified": "2017-08-11T05:30:19Z",
+                    "name": "firefox-date-57.0a1-linux-x86_64-de-partial.mar",
+                    "size": 650385
                 }
              ]
             }

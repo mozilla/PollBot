@@ -34,7 +34,8 @@ async def check_nightly_archives(url, product, version):
                 else:
                     body = await resp.json()
                     files = sorted([(r["last_modified"], r["name"]) for r in body["files"]
-                                    if r["name"].startswith("{}-".format(product))],
+                                    if r["name"].startswith("{}-".format(product)) and
+                                    not r["name"].endswith('mar')],
                                    key=lambda x: x[0],
                                    reverse=True)
                     last_release = get_version_from_filename(files[0][1])

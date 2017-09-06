@@ -1,5 +1,5 @@
 import pytest
-from pollbot.utils import build_version_id
+from pollbot.utils import build_version_id, get_version_from_filename
 
 
 VERSIONS = [
@@ -19,5 +19,15 @@ VERSIONS = [
 
 
 @pytest.mark.parametrize("arg,output", VERSIONS)
-def test_parse_nightly_filename_raise_a_value_error(arg, output):
+def test_parse_nightly_filename(arg, output):
     assert build_version_id(arg) == output
+
+
+FILENAMES = [
+    ('firefox-57.0a1.zh-TW.win64.zip', '57.0a1'),
+]
+
+
+@pytest.mark.parametrize("filename,version", FILENAMES)
+def test_get_version_from_filename(filename, version):
+    assert get_version_from_filename(filename) == version
