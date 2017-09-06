@@ -1,10 +1,10 @@
 CHANGELOG
 =========
 
-0.3.0 (unreleased)
+0.2.1 (2017-09-06)
 ------------------
 
-- Nothing changed yet.
+- Fixes archive-l10n checks for nightly with new MAR files.
 
 
 0.2.0 (2017-09-01)
