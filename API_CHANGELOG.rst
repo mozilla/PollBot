@@ -5,6 +5,7 @@ API Changelog
 ----------------
 
 - Add balrog checks and endpoints.
+- Remove multiple nightly archive checks.
 
 
 1.1 (2017-09-01)

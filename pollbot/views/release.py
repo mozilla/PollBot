@@ -2,7 +2,7 @@ import logging
 from aiohttp import web
 from collections import OrderedDict
 
-from ..tasks.archives import archives, archives_date, archives_date_l10n
+from ..tasks.archives import archives
 from ..tasks import balrog
 from ..tasks.bedrock import release_notes, security_advisories, download_links, get_releases
 from ..tasks.product_details import product_details, devedition_and_beta_in_sync
@@ -28,8 +28,6 @@ def status_response(task):
 
 
 archive = status_response(archives)
-archive_date = status_response(archives_date)
-archive_date_l10n = status_response(archives_date_l10n)
 bedrock_release_notes = status_response(release_notes)
 bedrock_security_advisories = status_response(security_advisories)
 bedrock_download_links = status_response(download_links)
@@ -46,8 +44,6 @@ async def view_get_releases(request, product):
 
 
 CHECKS_TITLE = {
-    "archive-date": "Archive Date",
-    "archive-date-l10n": "Archive Date l10n",
     "archive": "Archive Release",
     "release-notes": "Release notes",
     "security-advisories": "Security advisories",
@@ -60,9 +56,7 @@ CHECKS_TITLE = {
 
 CHECKS = OrderedDict(
     sorted({
-        "archive-date": [Channel.NIGHTLY],
-        "archive-date-l10n": [Channel.NIGHTLY],
-        "archive": [Channel.ESR, Channel.RELEASE, Channel.BETA],
+        "archive": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
         "release-notes": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
         "security-advisories": [Channel.ESR, Channel.RELEASE],
         "download-links": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
