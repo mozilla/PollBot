@@ -1,3 +1,5 @@
+import re
+
 from pollbot.exceptions import TaskError
 from pollbot.utils import Channel, get_version_channel, build_version_id
 from . import get_session, build_task_response, heartbeat_factory
@@ -50,10 +52,11 @@ async def balrog_rules(product, version):
 
     elif channel is Channel.BETA:
         url = 'https://aus-api.mozilla.org/api/v1/rules/firefox-beta'
+    elif channel is Channel.ESR:
+        version = re.sub('esr$', '', version)
+        url = 'https://aus-api.mozilla.org/api/v1/rules/esr{}'.format(version.split('.')[0])
     else:
         url = 'https://aus-api.mozilla.org/api/v1/rules/firefox-release'
-    # elif channel is Channel.ESR: XXX: Fix ESR rule URL
-    #     url = 'https://aus-api.mozilla.org/api/v1/rules/firefox-esr'
 
     with get_session() as session:
         async with session.get(url) as resp:

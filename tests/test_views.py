@@ -354,6 +354,14 @@ async def test_release_product_details_devedition_and_beta_versions_matches(cli)
     })
 
 
+async def test_esr_balrog_rules(cli):
+    resp = await check_response(cli, "/v1/firefox/52.3.0esr/balrog-rules")
+    body = await resp.json()
+    assert body["status"] == Status.EXISTS.value
+    assert "Balrog rule has been updated" in body["message"]
+    assert body["link"] == "https://aus-api.mozilla.org/api/v1/rules/esr52"
+
+
 async def test_beta_balrog_rules(cli):
     resp = await check_response(cli, "/v1/firefox/56.0b7/balrog-rules")
     body = await resp.json()
