@@ -5,6 +5,7 @@ CHANGELOG
 ------------------
 
 - Add a task and endpoint to check the channel balrog rule (#72)
+- Validate version number to avoid calling tasks with gibberish (#92)
 
 
 0.2.1 (2017-09-06)
