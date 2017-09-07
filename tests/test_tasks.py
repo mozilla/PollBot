@@ -103,7 +103,7 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert received["status"] == Status.MISSING.value
 
     async def test_archives_tasks_returns_true_if_file_exists_nightly(self):
-        url = "https://archive.mozilla.org/pub/firefox/nightly/latest-date-l10n/"
+        url = "https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central-l10n/"
         body = {
             "files": [
                 {
@@ -143,7 +143,7 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert received["status"] == Status.EXISTS.value
 
     async def test_archives_tasks_returns_false_if_absent_for_nightly(self):
-        url = 'https://archive.mozilla.org/pub/firefox/nightly/latest-date-l10n/'
+        url = 'https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central-l10n/'
         self.mocked.get(url, status=404)
 
         received = await archives('firefox', '57.0a1')

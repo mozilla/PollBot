@@ -192,9 +192,7 @@ async def test_get_checks_for_nightly(cli):
         "version": "57.0a1",
         "channel": "nightly",
         "checks": [
-            {"url": "http://localhost/v1/firefox/57.0a1/archive-date", "title": "Archive Date"},
-            {"url": "http://localhost/v1/firefox/57.0a1/archive-date-l10n",
-             "title": "Archive Date l10n"},
+            {"url": "http://localhost/v1/firefox/57.0a1/archive", "title": "Archive Release"},
             {"url": "http://localhost/v1/firefox/57.0a1/balrog-rules",
              "title": "Balrog update rules"},
             {"url": "http://localhost/v1/firefox/57.0a1/bedrock/download-links",
@@ -279,37 +277,12 @@ async def test_get_checks_response_validates_product_name(cli):
 
 
 # This is currently a functional test.
-async def test_release_archive_date(cli):
-    await check_response(cli, "/v1/firefox/57.0a1/archive-date", body={
+async def test_nightly_archive(cli):
+    await check_response(cli, "/v1/firefox/57.0a1/archive", body={
         "status": Status.EXISTS.value,
         "message": "The archive exists at "
-        "https://archive.mozilla.org/pub/firefox/nightly/latest-date/",
-        "link": "https://archive.mozilla.org/pub/firefox/nightly/latest-date/"
-    })
-
-
-async def test_release_archive_date_with_wrong_version_number(cli):
-    await check_response(cli, "/v1/firefox/56.0b1/archive-date", body={
-        "status": Status.MISSING.value,
-        "message": "No archive-date checks for beta releases",
-        "link": "https://archive.mozilla.org/pub/firefox/nightly/latest-date/"
-    })
-
-
-async def test_release_archive_date_l10n(cli):
-    await check_response(cli, "/v1/firefox/57.0a1/archive-date-l10n", body={
-        "status": Status.EXISTS.value,
-        "message": "The archive exists at "
-        "https://archive.mozilla.org/pub/firefox/nightly/latest-date-l10n/",
-        "link": "https://archive.mozilla.org/pub/firefox/nightly/latest-date-l10n/"
-    })
-
-
-async def test_release_archive_date_l10n_with_wrong_version_number(cli):
-    await check_response(cli, "/v1/firefox/56.0b1/archive-date-l10n", body={
-        "status": Status.MISSING.value,
-        "message": "No archive-date checks for beta releases",
-        "link": "https://archive.mozilla.org/pub/firefox/nightly/latest-date-l10n/"
+        "https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central-l10n/",
+        "link": "https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central-l10n/"
     })
 
 
