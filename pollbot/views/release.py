@@ -6,7 +6,7 @@ from pollbot import PRODUCTS
 from ..tasks.archives import archives, archives_date, archives_date_l10n
 from ..tasks.bedrock import release_notes, security_advisories, download_links, get_releases
 from ..tasks.product_details import product_details, devedition_and_beta_in_sync
-from ..utils import Channel, get_version_channel
+from ..utils import Channel, get_version_channel, is_valid_version
 
 logger = logging.getLogger(__package__)
 
@@ -20,6 +20,12 @@ def status_response(task):
             return web.json_response({
                 'status': 404,
                 'message': 'Invalid product: {} not in {}'.format(product, PRODUCTS)
+            }, status=404)
+
+        if not is_valid_version(version):
+            return web.json_response({
+                'status': 404,
+                'message': 'Invalid version number: {}'.format(version)
             }, status=404)
 
         try:
@@ -93,6 +99,13 @@ async def view_get_checks(request):
         }, status=404)
 
     version = request.match_info['version']
+
+    if not is_valid_version(version):
+        return web.json_response({
+            'status': 404,
+            'message': 'Invalid version number: {}'.format(version)
+        }, status=404)
+
     channel = get_version_channel(version)
 
     proto = request.headers.get('X-Forwarded-Proto', 'http')

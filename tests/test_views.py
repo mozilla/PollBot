@@ -130,10 +130,31 @@ async def test_status_response_validates_product_name(cli):
     }
 
 
+async def test_status_response_validates_version(cli):
+    async def dummy_task(product, version):
+        return True
+    error_endpoint = status_response(dummy_task)
+    request = mock.MagicMock()
+    request.match_info = {"product": "firefox", "version": "invalid-version"}
+    resp = await error_endpoint(request)
+    assert resp.status == 404
+    assert json.loads(resp.body.decode()) == {
+        "status": 404,
+        "message": "Invalid version number: invalid-version",
+    }
+
+
 async def test_get_releases_response_validates_product_name(cli):
     await check_response(cli, "/v1/invalid-product", body={
         "status": 404,
         "message": "Invalid product: invalid-product not in ['firefox']"
+    }, status=404)
+
+
+async def test_get_releases_response_validates_version(cli):
+    await check_response(cli, "/v1/firefox/invalid-version", body={
+        "status": 404,
+        "message": "Invalid version number: invalid-version"
     }, status=404)
 
 
