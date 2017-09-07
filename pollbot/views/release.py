@@ -3,6 +3,7 @@ from aiohttp import web
 from collections import OrderedDict
 
 from ..tasks.archives import archives, archives_date, archives_date_l10n
+from ..tasks import balrog
 from ..tasks.bedrock import release_notes, security_advisories, download_links, get_releases
 from ..tasks.product_details import product_details, devedition_and_beta_in_sync
 from ..utils import Channel, get_version_channel
@@ -34,6 +35,7 @@ bedrock_security_advisories = status_response(security_advisories)
 bedrock_download_links = status_response(download_links)
 product_details = status_response(product_details)
 devedition_beta_check = status_response(devedition_and_beta_in_sync)
+balrog_rules = status_response(balrog.balrog_rules)
 
 
 @validate_product_version
@@ -52,6 +54,7 @@ CHECKS_TITLE = {
     "download-links": "Download links",
     "product-details": "Product details",
     "devedition-beta-matches": "Devedition and Beta versions matches",
+    "balrog-rules": "Balrog update rules",
 }
 
 
@@ -65,6 +68,7 @@ CHECKS = OrderedDict(
         "download-links": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
         "product-details": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
         "devedition-beta-matches": [Channel.BETA],
+        "balrog-rules": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
     }.items(), key=lambda t: t[0]))
 
 

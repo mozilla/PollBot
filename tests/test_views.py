@@ -195,6 +195,8 @@ async def test_get_checks_for_nightly(cli):
             {"url": "http://localhost/v1/firefox/57.0a1/archive-date", "title": "Archive Date"},
             {"url": "http://localhost/v1/firefox/57.0a1/archive-date-l10n",
              "title": "Archive Date l10n"},
+            {"url": "http://localhost/v1/firefox/57.0a1/balrog-rules",
+             "title": "Balrog update rules"},
             {"url": "http://localhost/v1/firefox/57.0a1/bedrock/download-links",
              "title": "Download links"},
             {"url": "http://localhost/v1/firefox/57.0a1/product-details",
@@ -212,6 +214,8 @@ async def test_get_checks_for_beta(cli):
         "channel": "beta",
         "checks": [
             {"url": "http://localhost/v1/firefox/56.0b6/archive", "title": "Archive Release"},
+            {"url": "http://localhost/v1/firefox/56.0b6/balrog-rules",
+             "title": "Balrog update rules"},
             {"url": "http://localhost/v1/firefox/56.0b6/product-details"
              "/devedition-beta-versions-matches",
              "title": "Devedition and Beta versions matches"},
@@ -232,6 +236,8 @@ async def test_get_checks_for_release(cli):
         "channel": "release",
         "checks": [
             {"url": "http://localhost/v1/firefox/54.0/archive", "title": "Archive Release"},
+            {"url": "http://localhost/v1/firefox/54.0/balrog-rules",
+             "title": "Balrog update rules"},
             {"url": "http://localhost/v1/firefox/54.0/bedrock/download-links",
              "title": "Download links"},
             {"url": "http://localhost/v1/firefox/54.0/product-details",
@@ -251,6 +257,8 @@ async def test_get_checks_for_esr(cli):
         "channel": "esr",
         "checks": [
             {"url": "http://localhost/v1/firefox/52.3.0esr/archive", "title": "Archive Release"},
+            {"url": "http://localhost/v1/firefox/52.3.0esr/balrog-rules",
+             "title": "Balrog update rules"},
             {"url": "http://localhost/v1/firefox/52.3.0esr/bedrock/download-links",
              "title": "Download links"},
             {"url": "http://localhost/v1/firefox/52.3.0esr/product-details",
@@ -314,6 +322,14 @@ async def test_release_archive(cli):
     })
 
 
+async def test_release_balrog_rules(cli):
+    resp = await check_response(cli, "/v1/firefox/54.0/balrog-rules")
+    body = await resp.json()
+    assert body["status"] == Status.EXISTS.value
+    assert "Balrog rule has been updated" in body["message"]
+    assert body["link"] == "https://aus-api.mozilla.org/api/v1/rules/firefox-release"
+
+
 async def test_release_bedrock_release_notes(cli):
     await check_response(cli, "/v1/firefox/54.0/bedrock/release-notes", body={
         "status": Status.EXISTS.value,
@@ -361,6 +377,30 @@ async def test_release_product_details_devedition_and_beta_versions_matches(cli)
     })
 
 
+async def test_esr_balrog_rules(cli):
+    resp = await check_response(cli, "/v1/firefox/52.3.0esr/balrog-rules")
+    body = await resp.json()
+    assert body["status"] == Status.EXISTS.value
+    assert "Balrog rule has been updated" in body["message"]
+    assert body["link"] == "https://aus-api.mozilla.org/api/v1/rules/esr52"
+
+
+async def test_beta_balrog_rules(cli):
+    resp = await check_response(cli, "/v1/firefox/56.0b7/balrog-rules")
+    body = await resp.json()
+    assert body["status"] == Status.EXISTS.value
+    assert "Balrog rule has been updated" in body["message"]
+    assert body["link"] == "https://aus-api.mozilla.org/api/v1/rules/firefox-beta"
+
+
+async def test_nightly_balrog_rules(cli):
+    resp = await check_response(cli, "/v1/firefox/57.0a1/balrog-rules")
+    body = await resp.json()
+    assert body["status"] in (Status.EXISTS.value, Status.MISSING.value)
+    assert "Balrog rule is configured" in body["message"]
+    assert body["link"] == "https://aus-api.mozilla.org/api/v1/rules/firefox-nightly"
+
+
 async def test_releases_list(cli):
     resp = await check_response(cli, "/v1/firefox")
     body = await resp.json()
@@ -380,6 +420,7 @@ async def test_heartbeat(cli):
     await check_response(cli, "/v1/__heartbeat__",
                          body={
                              "archive": True,
+                             "balrog": True,
                              "bedrock": True,
                              "product-details": True,
                          })
