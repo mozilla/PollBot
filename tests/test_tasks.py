@@ -9,6 +9,7 @@ from aioresponses import aioresponses
 from pollbot.exceptions import TaskError
 from pollbot.tasks import get_session
 from pollbot.tasks.archives import archives
+from pollbot.tasks.balrog import balrog_rules
 from pollbot.tasks.bedrock import release_notes, security_advisories, download_links, get_releases
 from pollbot.tasks.product_details import (product_details, ongoing_versions,
                                            devedition_and_beta_in_sync)
@@ -428,11 +429,16 @@ class DeliveryTasksTest(asynctest.TestCase):
         url = 'https://product-details.mozilla.org/1.0/firefox.json'
         self.mocked.get(url, status=404)
 
+        # Balrog
+        url = 'https://aus-api.mozilla.org/__heartbeat__'
+        self.mocked.get(url, status=404)
+
         resp = await heartbeat(None)
         assert json.loads(resp.body.decode()) == {
             "archive": False,
             "bedrock": False,
-            "product-details": False
+            "product-details": False,
+            "balrog": False,
         }
         assert resp.status == 503
 
@@ -466,3 +472,15 @@ class DeliveryTasksTest(asynctest.TestCase):
         with pytest.raises(TaskError) as excinfo:
             await ongoing_versions('firefox')
         assert str(excinfo.value) == 'Product Details info not available (HTTP 404)'
+
+    async def test_balrog_rules_tasks_returns_error_if_platform_is_missing(self):
+        url = 'https://aus-api.mozilla.org/api/v1/rules/firefox-nightly'
+        self.mocked.get(url, status=200, body=json.dumps({
+            'mapping': 'Firefox-mozilla-central-nightly-latest'
+        }))
+        url = 'https://aus-api.mozilla.org/api/v1/releases/Firefox-mozilla-central-nightly-latest'
+        self.mocked.get(url, status=200, body=json.dumps({'platforms': {}}))
+
+        with pytest.raises(TaskError) as excinfo:
+            await balrog_rules('firefox', '57.0a1')
+        assert str(excinfo.value) == 'Linux x86_64 platform not found in []'

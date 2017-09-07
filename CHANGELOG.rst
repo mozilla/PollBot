@@ -4,13 +4,13 @@ CHANGELOG
 0.3.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add a task and endpoint to check the channel balrog rule (#72)
 
 
 0.2.1 (2017-09-06)
 ------------------
 
-- Fixes archive-l10n checks for nightly with new MAR files.
+- Fixes archive-l10n checks for nightly with new MAR files. (#91)
 
 
 0.2.0 (2017-09-01)

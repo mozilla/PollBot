@@ -64,6 +64,8 @@ def get_app(loop=None):
     cors.add(app.router.add_get('/v1/{product}/{version}/product-details'
                                 '/devedition-beta-versions-matches',
                                 release.devedition_beta_check, name="devedition-beta-matches"))
+    cors.add(app.router.add_get('/v1/{product}/{version}/balrog-rules',
+                                release.balrog_rules, name="balrog-rules"))
 
     # Swagger UI and documentation
     setup_swagger(app,
