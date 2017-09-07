@@ -5,7 +5,7 @@ from pollbot.utils import Channel, get_version_channel, build_version_id
 from . import get_session, build_task_response, heartbeat_factory
 
 
-async def get_build_info(release_mapping):
+async def get_release_info(release_mapping):
     release_url = 'https://aus-api.mozilla.org/api/v1/releases/{}'.format(release_mapping)
     with get_session() as session:
             async with session.get(release_url) as resp:
@@ -37,16 +37,15 @@ async def balrog_rules(product, version):
                 rule = await resp.json()
                 status = rule['mapping'] == 'Firefox-mozilla-central-nightly-latest'
 
-                buildID, appVersion = await get_build_info(rule['mapping'])
+                buildID, appVersion = await get_release_info(rule['mapping'])
 
                 exists_message = (
                     'Balrog rule is configured for the latest Nightly {} build ({}) '
                     'with an update rate of {}%').format(
                         appVersion, buildID, rule['backgroundRate'])
                 missing_message = (
-                    'Balrog rule is configured for {} {} ({}) '
-                    'with an update rate of {}%').format(
-                        rule['mapping'], appVersion, buildID, rule['backgroundRate'])
+                    'Balrog rule is configured for {} ({}) instead of '
+                    '"Firefox-mozilla-central-nightly-latest"').format(rule['mapping'], buildID)
 
                 return build_task_response(status, url, exists_message, missing_message)
 
@@ -61,14 +60,13 @@ async def balrog_rules(product, version):
     with get_session() as session:
         async with session.get(url) as resp:
             rule = await resp.json()
-            buildID, appVersion = await get_build_info(rule['mapping'])
+            buildID, appVersion = await get_release_info(rule['mapping'])
             status = build_version_id(appVersion) >= build_version_id(version)
             exists_message = (
                 'Balrog rule has been updated for {} ({}) with an update rate of {}%'
             ).format(rule['mapping'], buildID, rule['backgroundRate'])
-            missing_message = (
-                'Balrog rule is set for {} ({}) with an update rate of {}%'
-            ).format(rule['mapping'], buildID, rule['backgroundRate'])
+            missing_message = 'Balrog rule is set for {} ({}) which is lower than {}'.format(
+                rule['mapping'], buildID, version)
             return build_task_response(status, url, exists_message, missing_message)
 
 
