@@ -83,7 +83,7 @@ CHECKS = OrderedDict(
         "download-links": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
         "product-details": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
         "devedition-beta-matches": [Channel.BETA],
-        "balrog-rules": [Channel.NIGHTLY, Channel.BETA, Channel.RELEASE],  # XXX: ESR
+        "balrog-rules": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
     }.items(), key=lambda t: t[0]))
 
 

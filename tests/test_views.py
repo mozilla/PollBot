@@ -236,6 +236,8 @@ async def test_get_checks_for_esr(cli):
         "channel": "esr",
         "checks": [
             {"url": "http://localhost/v1/firefox/52.3.0esr/archive", "title": "Archive Release"},
+            {"url": "http://localhost/v1/firefox/52.3.0esr/balrog-rules",
+             "title": "Balrog update rules"},
             {"url": "http://localhost/v1/firefox/52.3.0esr/bedrock/download-links",
              "title": "Download links"},
             {"url": "http://localhost/v1/firefox/52.3.0esr/product-details",

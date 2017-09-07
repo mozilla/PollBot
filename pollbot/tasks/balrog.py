@@ -11,13 +11,13 @@ async def get_build_info(release_mapping):
             async with session.get(release_url) as resp:
                 body = await resp.json()
                 platforms = body['platforms']
-                linux_x64_platform = [x for x in platforms.keys()
-                                      if 'linux' in x.lower() and 'x86_64' in x.lower()]
-                if not linux_x64_platform:
+                darwin_x64_platform = [x for x in platforms.keys()
+                                       if 'darwin' in x.lower() and 'locales' in platforms[x]]
+                if not darwin_x64_platform:
                     raise TaskError('Linux x86_64 platform not found in {}'.format(
                         list(platforms.keys())))
 
-                platform_info = platforms[linux_x64_platform.pop()]['locales']['en-US']
+                platform_info = platforms[darwin_x64_platform.pop()]['locales']['de']
                 buildID = platform_info['buildID']
                 appVersion = platform_info['appVersion']
 
