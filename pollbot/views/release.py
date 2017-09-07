@@ -1,27 +1,19 @@
 import logging
 from aiohttp import web
 from collections import OrderedDict
-from pollbot import PRODUCTS
 
 from ..tasks.archives import archives, archives_date, archives_date_l10n
 from ..tasks.bedrock import release_notes, security_advisories, download_links, get_releases
 from ..tasks.product_details import product_details, devedition_and_beta_in_sync
 from ..utils import Channel, get_version_channel
+from .decorators import validate_product_version
 
 logger = logging.getLogger(__package__)
 
 
 def status_response(task):
-    async def wrapped(request):
-        product = request.match_info['product']
-        version = request.match_info['version']
-
-        if product not in PRODUCTS:
-            return web.json_response({
-                'status': 404,
-                'message': 'Invalid product: {} not in {}'.format(product, PRODUCTS)
-            }, status=404)
-
+    @validate_product_version
+    async def wrapped(request, product, version):
         try:
             response = await task(product, version)
         except Exception as e:  # In case something went bad, we return an error status message
@@ -44,15 +36,8 @@ product_details = status_response(product_details)
 devedition_beta_check = status_response(devedition_and_beta_in_sync)
 
 
-async def view_get_releases(request):
-    product = request.match_info['product']
-
-    if product not in PRODUCTS:
-        return web.json_response({
-            'status': 404,
-            'message': 'Invalid product: {} not in {}'.format(product, PRODUCTS)
-        }, status=404)
-
+@validate_product_version
+async def view_get_releases(request, product):
     return web.json_response({
         "releases": await get_releases(product)
     })
@@ -83,16 +68,8 @@ CHECKS = OrderedDict(
     }.items(), key=lambda t: t[0]))
 
 
-async def view_get_checks(request):
-    product = request.match_info['product']
-
-    if product not in PRODUCTS:
-        return web.json_response({
-            'status': 404,
-            'message': 'Invalid product: {} not in {}'.format(product, PRODUCTS)
-        }, status=404)
-
-    version = request.match_info['version']
+@validate_product_version
+async def view_get_checks(request, product, version):
     channel = get_version_channel(version)
 
     proto = request.headers.get('X-Forwarded-Proto', 'http')

@@ -60,3 +60,11 @@ def get_version_channel(version):  # pragma: no cover
 def get_version_from_filename(filename):
     parts = filename.split('.', 2)
     return '{}.{}'.format(parts[0].split('-')[1], parts[1])
+
+
+def is_valid_version(version):
+    try:
+        build_version_id(version)
+        return True
+    except:
+        return False
