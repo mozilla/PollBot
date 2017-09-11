@@ -278,18 +278,20 @@ async def test_get_checks_response_validates_product_name(cli):
 
 # This is currently a functional test.
 async def test_nightly_archive(cli):
+    message = ('The archive exists at https://archive.mozilla.org/pub/'
+               'firefox/nightly/latest-mozilla-central-l10n/ and all 98 locales '
+               'are present for all platforms (win32, win64, mac, linux32, linux64)')
     await check_response(cli, "/v1/firefox/57.0a1/archive", body={
         "status": Status.EXISTS.value,
-        "message": "The archive exists at "
-        "https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central-l10n/",
+        "message": message,
         "link": "https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central-l10n/"
     })
 
 
 async def test_release_archive(cli):
     await check_response(cli, "/v1/firefox/54.0/archive", body={
-        "status": Status.EXISTS.value,
-        "message": "An archive for version 54.0 exists at "
+        "status": Status.INCOMPLETE.value,
+        "message": "ja-JP-mac for mac-EME-free file is missing at "
         "https://archive.mozilla.org/pub/firefox/releases/54.0/",
         "link": "https://archive.mozilla.org/pub/firefox/releases/54.0/"
     })

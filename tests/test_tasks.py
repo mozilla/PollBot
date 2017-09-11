@@ -1,4 +1,5 @@
 import json
+import os
 
 import aiohttp
 import asynctest
@@ -8,13 +9,27 @@ from aioresponses import aioresponses
 
 from pollbot.exceptions import TaskError
 from pollbot.tasks import get_session
-from pollbot.tasks.archives import archives
+from pollbot.tasks.archives import archives, RELEASE_PLATFORMS
 from pollbot.tasks.balrog import balrog_rules
 from pollbot.tasks.bedrock import release_notes, security_advisories, download_links, get_releases
 from pollbot.tasks.product_details import (product_details, ongoing_versions,
                                            devedition_and_beta_in_sync)
 from pollbot.views.utilities import heartbeat
 from pollbot.utils import Status
+
+
+HERE = os.path.dirname(__file__)
+
+
+def get_json_body(filename):
+    with open(filename) as f:
+        return json.load(f)
+
+LATEST_MOZILLA_CENTRAL_L10N_BODY = get_json_body(os.path.join(HERE, "fixtures",
+                                                              "latest-mozilla-central-l10n.json"))
+RELEASES_52_BODY = get_json_body(os.path.join(HERE, "fixtures", "releases_52.json"))
+ALL_LOCALES_BODY = open(os.path.join(HERE, "fixtures", "all-locales.txt")).read()
+SHIPPED_LOCALES_BODY = open(os.path.join(HERE, "fixtures", "shipped-locales.txt")).read()
 
 
 class DeliveryTasksTest(asynctest.TestCase):
@@ -103,44 +118,13 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert received["status"] == Status.MISSING.value
 
     async def test_archives_tasks_returns_true_if_file_exists_nightly(self):
+        url = "https://hg.mozilla.org/mozilla-central/raw-file/tip/browser/locales/all-locales"
+        self.mocked.get(url, status=200, body=ALL_LOCALES_BODY)
         url = "https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central-l10n/"
-        body = {
-            "files": [
-                {
-                    "last_modified": "2017-08-11T05:29:18Z",
-                    "name": "Firefox Installer.en-US.exe",
-                    "size": 290544
-                },
-                {
-                    "last_modified": "2017-07-16T01:16:12Z",
-                    "name": "firefox-56.0a1.gd.win32.installer-stub.exe",
-                    "size": 243400
-                },
-                {
-                    "last_modified": "2017-08-11T04:29:50Z",
-                    "name": "firefox-57.0a1.en-US.win64_info.txt",
-                    "size": 23
-                },
-                {
-                    "last_modified": "2017-08-11T04:29:50Z",
-                    "name": "jsshell-win64.zip",
-                    "size": 9398067
-                },
-                {
-                    "last_modified": "2017-08-11T05:29:19Z",
-                    "name": "mozharness.zip",
-                    "size": 650385
-                },
-                {
-                    "last_modified": "2017-08-11T05:30:19Z",
-                    "name": "firefox-date-57.0a1-linux-x86_64-de-partial.mar",
-                    "size": 650385
-                }
-             ]
-            }
-        self.mocked.get(url, status=200, body=json.dumps(body))
+        self.mocked.get(url, status=200, body=json.dumps(LATEST_MOZILLA_CENTRAL_L10N_BODY))
+
         received = await archives('firefox', '57.0a1')
-        assert received["status"] == Status.EXISTS.value
+        assert received["status"] == Status.EXISTS.value, received['message']
 
     async def test_archives_tasks_returns_false_if_absent_for_nightly(self):
         url = 'https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central-l10n/'
@@ -152,6 +136,13 @@ class DeliveryTasksTest(asynctest.TestCase):
     async def test_archives_tasks_returns_true_if_folder_exists(self):
         url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/'
         self.mocked.get(url, status=200)
+        url = ('https://hg.mozilla.org/releases/mozilla-release/raw-file/'
+               'FIREFOX_52_0_2_RELEASE/browser/locales/shipped-locales')
+        self.mocked.get(url, status=200, body=SHIPPED_LOCALES_BODY)
+        
+        for platform in RELEASE_PLATFORMS:
+            url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/{}/'.format(platform)
+            self.mocked.get(url, status=200, body=json.dumps(RELEASES_52_BODY))
 
         received = await archives('firefox', '52.0.2')
         assert received["status"] == Status.EXISTS.value
