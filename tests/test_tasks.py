@@ -35,6 +35,15 @@ SHIPPED_LOCALES_BODY = open(os.path.join(HERE, "fixtures", "shipped-locales.txt"
 
 
 class DeliveryTasksTest(asynctest.TestCase):
+    def mock_platforms(self, platforms, working_body):
+        for platform in platforms:
+            url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/{}/'.format(platform)
+            body = deepcopy(working_body)
+            if platform.startswith('mac'):
+                body['prefixes'].remove('ja/')
+                body['prefixes'].append('ja-JP-mac/')
+            self.mocked.get(url, status=200, body=json.dumps(body))
+
     async def setUp(self):
         self.session = aiohttp.ClientSession(loop=self.loop)
         self.addCleanup(self.session.close)
@@ -179,15 +188,7 @@ class DeliveryTasksTest(asynctest.TestCase):
         url = ('https://hg.mozilla.org/releases/mozilla-release/raw-file/'
                'FIREFOX_52_0_2_RELEASE/browser/locales/shipped-locales')
         self.mocked.get(url, status=200, body=SHIPPED_LOCALES_BODY)
-
-        for platform in RELEASE_PLATFORMS:
-            url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/{}/'.format(platform)
-            body = RELEASES_52_BODY
-            if platform.startswith('mac'):
-                body = deepcopy(RELEASES_52_BODY)
-                body['prefixes'].remove('ja/')
-                body['prefixes'].append('ja-JP-mac/')
-            self.mocked.get(url, status=200, body=json.dumps(body))
+        self.mock_platforms(RELEASE_PLATFORMS, RELEASES_52_BODY)
 
         received = await archives('firefox', '52.0.2')
         assert received["status"] == Status.EXISTS.value
@@ -204,15 +205,7 @@ class DeliveryTasksTest(asynctest.TestCase):
         platform = RELEASE_PLATFORMS[0]
         url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/{}/'.format(platform)
         self.mocked.get(url, status=200, body=json.dumps(release_52_minus_a_file))
-
-        for platform in RELEASE_PLATFORMS[1:]:
-            url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/{}/'.format(platform)
-            body = RELEASES_52_BODY
-            if platform.startswith('mac'):
-                body = deepcopy(RELEASES_52_BODY)
-                body['prefixes'].remove('ja/')
-                body['prefixes'].append('ja-JP-mac/')
-            self.mocked.get(url, status=200, body=json.dumps(body))
+        self.mock_platforms(RELEASE_PLATFORMS[1:], RELEASES_52_BODY)
 
         received = await archives('firefox', '52.0.2')
         assert received["status"] == Status.INCOMPLETE.value
@@ -228,14 +221,12 @@ class DeliveryTasksTest(asynctest.TestCase):
 
         release_52_minus_a_file = deepcopy(RELEASES_52_BODY)
         release_52_minus_a_file['prefixes'].remove('ja/')
+
         platform = RELEASE_PLATFORMS[2]
         url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/{}/'.format(platform)
         self.mocked.get(url, status=200, body=json.dumps(release_52_minus_a_file))
 
-        for platform in RELEASE_PLATFORMS[0:2] + RELEASE_PLATFORMS[3:]:
-            url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/{}/'.format(platform)
-            body = RELEASES_52_BODY
-            self.mocked.get(url, status=200, body=json.dumps(body))
+        self.mock_platforms(RELEASE_PLATFORMS[0:2] + RELEASE_PLATFORMS[3:], RELEASES_52_BODY)
 
         received = await archives('firefox', '52.0.2')
         assert received["status"] == Status.INCOMPLETE.value
@@ -252,14 +243,7 @@ class DeliveryTasksTest(asynctest.TestCase):
         release_52_minus_a_file = deepcopy(RELEASES_52_BODY)
         release_52_minus_a_file['prefixes'].pop()
 
-        for platform in RELEASE_PLATFORMS:
-            url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/{}/'.format(platform)
-            body = release_52_minus_a_file
-            if platform.startswith('mac'):
-                body = deepcopy(release_52_minus_a_file)
-                body['prefixes'].remove('ja/')
-                body['prefixes'].append('ja-JP-mac/')
-            self.mocked.get(url, status=200, body=json.dumps(body))
+        self.mock_platforms(RELEASE_PLATFORMS, release_52_minus_a_file)
 
         received = await archives('firefox', '52.0.2')
         assert received["status"] == Status.INCOMPLETE.value
@@ -291,14 +275,7 @@ class DeliveryTasksTest(asynctest.TestCase):
         platform = RELEASE_PLATFORMS[0]
         url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/{}/'.format(platform)
         self.mocked.get(url, status=502)
-        for platform in RELEASE_PLATFORMS[1:]:
-            url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/{}/'.format(platform)
-            body = RELEASES_52_BODY
-            if platform.startswith('mac'):
-                body = deepcopy(RELEASES_52_BODY)
-                body['prefixes'].remove('ja/')
-                body['prefixes'].append('ja-JP-mac/')
-            self.mocked.get(url, status=200, body=json.dumps(body))
+        self.mock_platforms(RELEASE_PLATFORMS[1:], RELEASES_52_BODY)
 
         with pytest.raises(TaskError) as excinfo:
             await archives('firefox', '52.0.2')

@@ -1,8 +1,7 @@
 import asyncio
 from collections import defaultdict
 from pollbot.exceptions import TaskError
-from pollbot.utils import (build_version_id, Status, Channel, get_version_channel,
-                           get_version_from_filename)
+from pollbot.utils import Status, Channel, get_version_channel
 from . import get_session, heartbeat_factory, build_task_response
 
 
@@ -93,7 +92,6 @@ async def check_nightly_releases_files(url, files, product, version):
     missing_files = []
     # Make sure all locales are present
     for locale in locales:
-        missing = True
         missing_files_for_locale = []
         for platform, platform_pattern in NIGHTLY_PLATFORMS.items():
             current_locale = locale
@@ -106,11 +104,13 @@ async def check_nightly_releases_files(url, files, product, version):
                                                         locale=current_locale))
             if filename not in files:
                 missing_files_for_locale.append(filename)
-            else:
-                missing = False
-        if missing:
+        if len(missing_files_for_locale) == len(NIGHTLY_PLATFORMS):
+            # All platform files where missing for this locale.
+            # The locale is missing from the release.
             missing_locales.append(locale)
         elif missing_files_for_locale:
+            # Only some files where missing.
+            # Add them the list of mising files.
             missing_files.extend(missing_files_for_locale)
 
     return verdict(url, locales, missing_locales, missing_files)
@@ -166,7 +166,7 @@ async def check_releases_files(url, product, version):
 
 def sort_files(product, files):
     return sorted([r["name"] for r in files
-                   if r["name"].lower().startswith("{}".format(product)) and
+                   if r["name"].lower().startswith(product) and
                    not r["name"].endswith('mar')],
                   reverse=True)
 
@@ -185,9 +185,6 @@ async def archives(product, version):
                 else:
                     body = await resp.json()
                     files = sort_files(product, body["files"])
-
-                    last_release = get_version_from_filename(files[0])
-                    status = build_version_id(last_release) >= build_version_id(version)
 
                     status, message = await check_nightly_releases_files(
                         url, files, product, version)
