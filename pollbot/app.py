@@ -63,6 +63,9 @@ def get_app(loop=None):
     cors.add(app.router.add_get('/v1/{product}/{version}/balrog-rules',
                                 release.balrog_rules, name="balrog-rules"))
 
+    cors.add(app.router.add_get('/v1/{product}/{version}/buildhub',
+                                release.buildhub_check, name="buildhub"))
+
     # Swagger UI and documentation
     setup_swagger(app,
                   swagger_url="/v1/api/doc",

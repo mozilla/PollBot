@@ -4,6 +4,7 @@ CHANGELOG
 0.3.0 (unreleased)
 ------------------
 
+- Add a task and endpoint to check the release info in buildhub (#70)
 - Add a task and endpoint to check the channel balrog rule (#72)
 - Validate version number to avoid calling tasks with gibberish (#92)
 - Remove archive nightly specific checks and endpoints (#95)
