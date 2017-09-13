@@ -26,6 +26,7 @@ def get_json_body(filename):
     with open(filename) as f:
         return json.load(f)
 
+
 LATEST_MOZILLA_CENTRAL_L10N_BODY = get_json_body(os.path.join(HERE, "fixtures",
                                                               "latest-mozilla-central-l10n.json"))
 RELEASES_52_BODY = get_json_body(os.path.join(HERE, "fixtures", "releases_52.json"))
@@ -216,6 +217,29 @@ class DeliveryTasksTest(asynctest.TestCase):
         received = await archives('firefox', '52.0.2')
         assert received["status"] == Status.INCOMPLETE.value
         assert received["message"] == ('zh-TW for linux-i686 locale file is missing at '
+                                       'https://archive.mozilla.org/pub/firefox/releases/52.0.2/')
+
+    async def test_archives_tasks_returns_incomplete_if_ja_file_is_missing(self):
+        url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/'
+        self.mocked.get(url, status=200)
+        url = ('https://hg.mozilla.org/releases/mozilla-release/raw-file/'
+               'FIREFOX_52_0_2_RELEASE/browser/locales/shipped-locales')
+        self.mocked.get(url, status=200, body=SHIPPED_LOCALES_BODY)
+
+        release_52_minus_a_file = deepcopy(RELEASES_52_BODY)
+        release_52_minus_a_file['prefixes'].remove('ja/')
+        platform = RELEASE_PLATFORMS[2]
+        url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/{}/'.format(platform)
+        self.mocked.get(url, status=200, body=json.dumps(release_52_minus_a_file))
+
+        for platform in RELEASE_PLATFORMS[0:2] + RELEASE_PLATFORMS[3:]:
+            url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/{}/'.format(platform)
+            body = RELEASES_52_BODY
+            self.mocked.get(url, status=200, body=json.dumps(body))
+
+        received = await archives('firefox', '52.0.2')
+        assert received["status"] == Status.INCOMPLETE.value
+        assert received["message"] == ('ja-JP-mac for mac locale file is missing at '
                                        'https://archive.mozilla.org/pub/firefox/releases/52.0.2/')
 
     async def test_archives_tasks_returns_incomplete_if_a_locale_is_missing(self):
