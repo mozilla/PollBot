@@ -136,7 +136,9 @@ class DeliveryTasksTest(asynctest.TestCase):
 
         with pytest.raises(TaskError) as excinfo:
             await archives('firefox', '57.0a1')
-        assert str(excinfo.value) == 'https://hg.mozilla.com/ not available (HTTP 502)'
+        assert str(excinfo.value) == (
+            'https://hg.mozilla.org/mozilla-central/raw-file/tip/browser/locales/all-locales '
+            'not available (HTTP 502)')
 
     async def test_archives_tasks_returns_incomplete_if_a_locale_is_missing_for_nightly(self):
         all_locales_plus_one = ALL_LOCALES_BODY + 'pt-BN\n'

@@ -36,7 +36,7 @@ def test_get_version_from_filename(filename, version):
 
 VERDICTS = [
     ([], [], "The archive exists at url and all 2 locales are present "
-     "for all platforms (win32, win64, mac, linux32, linux64)"),
+     "for all platforms (linux-i686, linux-x86_64, mac, win32, win64)"),
     (['fr'], [], 'fr locale is missing at url'),
     (['fr', 'en'], [], 'en, fr locales are missing at url'),
     ([], ['Firefox Installer.fr.exe'], 'Firefox Installer.fr.exe locale file is missing at url'),

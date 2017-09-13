@@ -44,7 +44,7 @@ async def get_locales(product, version):
     with get_session() as session:
         async with session.get(url) as resp:
             if resp.status != 200:
-                msg = 'https://hg.mozilla.com/ not available (HTTP {})'.format(resp.status)
+                msg = '{} not available (HTTP {})'.format(url, resp.status)
                 raise TaskError(msg)
             hg_locales = []
             body = await resp.text()
@@ -53,6 +53,8 @@ async def get_locales(product, version):
                     locale, _ = line.split(' ', 1)
                 except ValueError:
                     locale = line
+                # We ignore here ja-JP-mac since because it is ja for the mac platform.
+                # And we want them to be considered as the same locale.
                 if locale and locale != 'ja-JP-mac':
                     hg_locales.append(locale)
 
@@ -63,25 +65,28 @@ def verdict(url, locales, missing_locales, missing_files):
     status = Status.EXISTS
     message = (
         "The archive exists at {} and all {} locales are present "
-        "for all platforms (win32, win64, mac, linux32, linux64)").format(
-            url, len(locales))
+        "for all platforms ({})").format(
+            url, len(locales), ', '.join(RELEASE_PLATFORMS))
 
     if missing_files or missing_locales:
         status = Status.INCOMPLETE
-        message = ""
+        missing = ""
+        verb = "is"
         if missing_locales:
-            message += "{} locale{} ".format(", ".join(sorted(missing_locales)),
-                                             's' if len(missing_locales) > 1 else '')
+            missing = "{} locale{}".format(", ".join(sorted(missing_locales)),
+                                           's' if len(missing_locales) > 1 else '')
             if missing_files:
-                message += "and "
+                missing += " and "
         if missing_files:
-            message += "{} locale file{} ".format(", ".join(sorted(missing_files)),
-                                                  's' if len(missing_files) > 1 else '')
+            missing += "{} locale file{}".format(", ".join(sorted(missing_files)),
+                                                 's' if len(missing_files) > 1 else '')
         if len(missing_files) + len(missing_locales) > 1:
-            message += "are "
-        else:
-            message += "is "
-        message += "missing at {}".format(url)
+            verb = "are"
+
+        message = "{missing} {verb} missing at {url}".format(
+            missing=missing,
+            verb=verb,
+            url=url)
 
     return status, message
 
@@ -130,7 +135,7 @@ async def get_platform_locale(url, platform):
 
 
 async def check_releases_files(url, product, version):
-    # Make sure all platform have got the same locale set.
+    # Make sure all platforms have got the same locale set.
     responses = await asyncio.gather(
         get_locales(product, version),
         *[get_platform_locale(url, platform) for platform in RELEASE_PLATFORMS]
@@ -164,13 +169,6 @@ async def check_releases_files(url, product, version):
     return verdict(url, locales, missing_locales, missing_files)
 
 
-def sort_files(product, files):
-    return sorted([r["name"] for r in files
-                   if r["name"].lower().startswith(product) and
-                   not r["name"].endswith('mar')],
-                  reverse=True)
-
-
 async def archives(product, version):
     with get_session() as session:
         channel = get_version_channel(version)
@@ -181,27 +179,30 @@ async def archives(product, version):
 
             async with session.get(url, headers={"Accept": "application/json"}) as resp:
                 if resp.status != 200:
-                    status = False
+                    success = False
                 else:
                     body = await resp.json()
-                    files = sort_files(product, body["files"])
+                    files = sorted([r["name"] for r in body["files"]
+                                    if r["name"].lower().startswith(product) and
+                                    not r["name"].endswith('mar')],
+                                   reverse=True)
 
-                    status, message = await check_nightly_releases_files(
+                    success, message = await check_nightly_releases_files(
                         url, files, product, version)
 
-                return build_task_response(status, url, message)
+                return build_task_response(success, url, message)
         else:
             url = 'https://archive.mozilla.org/pub/{}/releases/{}/'.format(product, version)
             async with session.get(url, headers={"Accept": "application/json"}) as resp:
                 if resp.status >= 500:
                     msg = 'Archive CDN not available (HTTP {})'.format(resp.status)
                     raise TaskError(msg)
-                status = resp.status < 400
+                success = resp.status < 400
                 message = ("No archive found for this version number at "
                            "https://archive.mozilla.org/pub/{}/releases/".format(product))
-                if status:
-                    status, message = await check_releases_files(url, product, version)
-                return build_task_response(status, url, message)
+                if success:
+                    success, message = await check_releases_files(url, product, version)
+                return build_task_response(success, url, message)
 
 
 heartbeat = heartbeat_factory('https://archive.mozilla.org/pub/firefox/releases/')
