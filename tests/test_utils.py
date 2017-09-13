@@ -1,4 +1,5 @@
 import pytest
+from pollbot.tasks.archives import verdict
 from pollbot.utils import build_version_id, get_version_from_filename
 
 
@@ -31,3 +32,21 @@ FILENAMES = [
 @pytest.mark.parametrize("filename,version", FILENAMES)
 def test_get_version_from_filename(filename, version):
     assert get_version_from_filename(filename) == version
+
+
+VERDICTS = [
+    ([], [], "The archive exists at url and all 2 locales are present "
+     "for all platforms (linux-i686, linux-x86_64, mac, win32, win64)"),
+    (['fr'], [], 'fr locale is missing at url'),
+    (['fr', 'en'], [], 'en, fr locales are missing at url'),
+    ([], ['Firefox Installer.fr.exe'], 'Firefox Installer.fr.exe locale file is missing at url'),
+    ([], ['firefox.fr.dmg', 'firefox.fr.tgz'],
+     'firefox.fr.dmg, firefox.fr.tgz locale files are missing at url'),
+    (['be'], ['Firefox.exe'], 'be locale and Firefox.exe locale file are missing at url'),
+]
+
+
+@pytest.mark.parametrize("missing_locales,missing_files,message", VERDICTS)
+def test_verdict_can_handle_pluralization(missing_locales, missing_files, message):
+    _, explaination = verdict('url', ['1', '2'], missing_locales, missing_files)
+    assert explaination == message

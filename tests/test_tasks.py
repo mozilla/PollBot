@@ -1,4 +1,6 @@
 import json
+import os
+from copy import deepcopy
 
 import aiohttp
 import asynctest
@@ -8,7 +10,7 @@ from aioresponses import aioresponses
 
 from pollbot.exceptions import TaskError
 from pollbot.tasks import get_session
-from pollbot.tasks.archives import archives
+from pollbot.tasks.archives import archives, RELEASE_PLATFORMS
 from pollbot.tasks.balrog import balrog_rules
 from pollbot.tasks.bedrock import release_notes, security_advisories, download_links, get_releases
 from pollbot.tasks.product_details import (product_details, ongoing_versions,
@@ -17,7 +19,31 @@ from pollbot.views.utilities import heartbeat
 from pollbot.utils import Status
 
 
+HERE = os.path.dirname(__file__)
+
+
+def get_json_body(filename):
+    with open(filename) as f:
+        return json.load(f)
+
+
+LATEST_MOZILLA_CENTRAL_L10N_BODY = get_json_body(os.path.join(HERE, "fixtures",
+                                                              "latest-mozilla-central-l10n.json"))
+RELEASES_52_BODY = get_json_body(os.path.join(HERE, "fixtures", "releases_52.json"))
+ALL_LOCALES_BODY = open(os.path.join(HERE, "fixtures", "all-locales.txt")).read()
+SHIPPED_LOCALES_BODY = open(os.path.join(HERE, "fixtures", "shipped-locales.txt")).read()
+
+
 class DeliveryTasksTest(asynctest.TestCase):
+    def mock_platforms(self, platforms, working_body):
+        for platform in platforms:
+            url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/{}/'.format(platform)
+            body = deepcopy(working_body)
+            if platform.startswith('mac'):
+                body['prefixes'].remove('ja/')
+                body['prefixes'].append('ja-JP-mac/')
+            self.mocked.get(url, status=200, body=json.dumps(body))
+
     async def setUp(self):
         self.session = aiohttp.ClientSession(loop=self.loop)
         self.addCleanup(self.session.close)
@@ -102,45 +128,54 @@ class DeliveryTasksTest(asynctest.TestCase):
         received = await release_notes('firefox', '52.0.2')
         assert received["status"] == Status.MISSING.value
 
-    async def test_archives_tasks_returns_true_if_file_exists_nightly(self):
-        url = "https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central-l10n/"
-        body = {
-            "files": [
-                {
-                    "last_modified": "2017-08-11T05:29:18Z",
-                    "name": "Firefox Installer.en-US.exe",
-                    "size": 290544
-                },
-                {
-                    "last_modified": "2017-07-16T01:16:12Z",
-                    "name": "firefox-56.0a1.gd.win32.installer-stub.exe",
-                    "size": 243400
-                },
-                {
-                    "last_modified": "2017-08-11T04:29:50Z",
-                    "name": "firefox-57.0a1.en-US.win64_info.txt",
-                    "size": 23
-                },
-                {
-                    "last_modified": "2017-08-11T04:29:50Z",
-                    "name": "jsshell-win64.zip",
-                    "size": 9398067
-                },
-                {
-                    "last_modified": "2017-08-11T05:29:19Z",
-                    "name": "mozharness.zip",
-                    "size": 650385
-                },
-                {
-                    "last_modified": "2017-08-11T05:30:19Z",
-                    "name": "firefox-date-57.0a1-linux-x86_64-de-partial.mar",
-                    "size": 650385
-                }
-             ]
-            }
-        self.mocked.get(url, status=200, body=json.dumps(body))
+    async def test_archives_tasks_returns_task_error_if_mercurial_is_down(self):
+        url = "https://hg.mozilla.org/mozilla-central/raw-file/tip/browser/locales/all-locales"
+        self.mocked.get(url, status=502)
+        url = 'https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central-l10n/'
+        self.mocked.get(url, status=200, body=json.dumps(LATEST_MOZILLA_CENTRAL_L10N_BODY))
+
+        with pytest.raises(TaskError) as excinfo:
+            await archives('firefox', '57.0a1')
+        assert str(excinfo.value) == (
+            'https://hg.mozilla.org/mozilla-central/raw-file/tip/browser/locales/all-locales '
+            'not available (HTTP 502)')
+
+    async def test_archives_tasks_returns_incomplete_if_a_locale_is_missing_for_nightly(self):
+        all_locales_plus_one = ALL_LOCALES_BODY + 'pt-BN\n'
+        url = "https://hg.mozilla.org/mozilla-central/raw-file/tip/browser/locales/all-locales"
+        self.mocked.get(url, status=200, body=all_locales_plus_one)
+        url = 'https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central-l10n/'
+        self.mocked.get(url, status=200, body=json.dumps(LATEST_MOZILLA_CENTRAL_L10N_BODY))
+
         received = await archives('firefox', '57.0a1')
-        assert received["status"] == Status.EXISTS.value
+        assert received["status"] == Status.INCOMPLETE.value
+        assert received["message"] == (
+            'pt-BN locale is missing at '
+            'https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central-l10n/')
+
+    async def test_archives_tasks_returns_incomplete_if_a_file_is_missing_for_nightly(self):
+        url = "https://hg.mozilla.org/mozilla-central/raw-file/tip/browser/locales/all-locales"
+        self.mocked.get(url, status=200, body=ALL_LOCALES_BODY)
+
+        latest_mozilla_central_minus_a_file = deepcopy(LATEST_MOZILLA_CENTRAL_L10N_BODY)
+        del latest_mozilla_central_minus_a_file["files"][0]
+        url = 'https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central-l10n/'
+        self.mocked.get(url, status=200, body=json.dumps(latest_mozilla_central_minus_a_file))
+
+        received = await archives('firefox', '57.0a1')
+        assert received["status"] == Status.INCOMPLETE.value
+        assert received["message"] == (
+            'Firefox Installer.ach.exe locale file is missing at '
+            'https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central-l10n/')
+
+    async def test_archives_tasks_returns_true_if_file_exists_nightly(self):
+        url = "https://hg.mozilla.org/mozilla-central/raw-file/tip/browser/locales/all-locales"
+        self.mocked.get(url, status=200, body=ALL_LOCALES_BODY)
+        url = "https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central-l10n/"
+        self.mocked.get(url, status=200, body=json.dumps(LATEST_MOZILLA_CENTRAL_L10N_BODY))
+
+        received = await archives('firefox', '57.0a1')
+        assert received["status"] == Status.EXISTS.value, received['message']
 
     async def test_archives_tasks_returns_false_if_absent_for_nightly(self):
         url = 'https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central-l10n/'
@@ -149,12 +184,73 @@ class DeliveryTasksTest(asynctest.TestCase):
         received = await archives('firefox', '57.0a1')
         assert received["status"] == Status.MISSING.value
 
-    async def test_archives_tasks_returns_true_if_folder_exists(self):
+    async def test_archives_tasks_returns_true_if_folder_and_releases_exists(self):
         url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/'
         self.mocked.get(url, status=200)
+        url = ('https://hg.mozilla.org/releases/mozilla-release/raw-file/'
+               'FIREFOX_52_0_2_RELEASE/browser/locales/shipped-locales')
+        self.mocked.get(url, status=200, body=SHIPPED_LOCALES_BODY)
+        self.mock_platforms(RELEASE_PLATFORMS, RELEASES_52_BODY)
 
         received = await archives('firefox', '52.0.2')
         assert received["status"] == Status.EXISTS.value
+
+    async def test_archives_tasks_returns_incomplete_if_a_file_is_missing(self):
+        url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/'
+        self.mocked.get(url, status=200)
+        url = ('https://hg.mozilla.org/releases/mozilla-release/raw-file/'
+               'FIREFOX_52_0_2_RELEASE/browser/locales/shipped-locales')
+        self.mocked.get(url, status=200, body=SHIPPED_LOCALES_BODY)
+
+        release_52_minus_a_file = deepcopy(RELEASES_52_BODY)
+        release_52_minus_a_file['prefixes'].pop()
+        platform = RELEASE_PLATFORMS[0]
+        url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/{}/'.format(platform)
+        self.mocked.get(url, status=200, body=json.dumps(release_52_minus_a_file))
+        self.mock_platforms(RELEASE_PLATFORMS[1:], RELEASES_52_BODY)
+
+        received = await archives('firefox', '52.0.2')
+        assert received["status"] == Status.INCOMPLETE.value
+        assert received["message"] == ('zh-TW for linux-i686 locale file is missing at '
+                                       'https://archive.mozilla.org/pub/firefox/releases/52.0.2/')
+
+    async def test_archives_tasks_returns_incomplete_if_ja_file_is_missing(self):
+        url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/'
+        self.mocked.get(url, status=200)
+        url = ('https://hg.mozilla.org/releases/mozilla-release/raw-file/'
+               'FIREFOX_52_0_2_RELEASE/browser/locales/shipped-locales')
+        self.mocked.get(url, status=200, body=SHIPPED_LOCALES_BODY)
+
+        release_52_minus_a_file = deepcopy(RELEASES_52_BODY)
+        release_52_minus_a_file['prefixes'].remove('ja/')
+
+        platform = RELEASE_PLATFORMS[2]
+        url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/{}/'.format(platform)
+        self.mocked.get(url, status=200, body=json.dumps(release_52_minus_a_file))
+
+        self.mock_platforms(RELEASE_PLATFORMS[0:2] + RELEASE_PLATFORMS[3:], RELEASES_52_BODY)
+
+        received = await archives('firefox', '52.0.2')
+        assert received["status"] == Status.INCOMPLETE.value
+        assert received["message"] == ('ja-JP-mac for mac locale file is missing at '
+                                       'https://archive.mozilla.org/pub/firefox/releases/52.0.2/')
+
+    async def test_archives_tasks_returns_incomplete_if_a_locale_is_missing(self):
+        url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/'
+        self.mocked.get(url, status=200)
+        url = ('https://hg.mozilla.org/releases/mozilla-release/raw-file/'
+               'FIREFOX_52_0_2_RELEASE/browser/locales/shipped-locales')
+        self.mocked.get(url, status=200, body=SHIPPED_LOCALES_BODY)
+
+        release_52_minus_a_file = deepcopy(RELEASES_52_BODY)
+        release_52_minus_a_file['prefixes'].pop()
+
+        self.mock_platforms(RELEASE_PLATFORMS, release_52_minus_a_file)
+
+        received = await archives('firefox', '52.0.2')
+        assert received["status"] == Status.INCOMPLETE.value
+        assert received["message"] == ('zh-TW locale is missing at '
+                                       'https://archive.mozilla.org/pub/firefox/releases/52.0.2/')
 
     async def test_archives_tasks_returns_false_if_absent(self):
         url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/'
@@ -170,6 +266,24 @@ class DeliveryTasksTest(asynctest.TestCase):
         with pytest.raises(TaskError) as excinfo:
             await archives('firefox', '52.0.2')
         assert str(excinfo.value) == 'Archive CDN not available (HTTP 502)'
+
+    async def test_archives_tasks_returns_error_in_case_of_CDN_errors_later(self):
+        url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/'
+        self.mocked.get(url, status=200)
+        url = ('https://hg.mozilla.org/releases/mozilla-release/raw-file/'
+               'FIREFOX_52_0_2_RELEASE/browser/locales/shipped-locales')
+        self.mocked.get(url, status=200, body=SHIPPED_LOCALES_BODY)
+
+        platform = RELEASE_PLATFORMS[0]
+        url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/{}/'.format(platform)
+        self.mocked.get(url, status=502)
+        self.mock_platforms(RELEASE_PLATFORMS[1:], RELEASES_52_BODY)
+
+        with pytest.raises(TaskError) as excinfo:
+            await archives('firefox', '52.0.2')
+        assert str(excinfo.value) == (
+            'Archive CDN not available; failing to get '
+            'https://archive.mozilla.org/pub/firefox/releases/52.0.2/linux-i686/ (HTTP 502)')
 
     async def test_download_links_tasks_returns_true_if_version_matches(self):
         url = 'https://www.mozilla.org/en-US/firefox/all/'
