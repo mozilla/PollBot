@@ -7,6 +7,8 @@ CHANGELOG
 - Add a task and endpoint to check the channel balrog rule (#72)
 - Validate version number to avoid calling tasks with gibberish (#92)
 - Remove archive nightly specific checks and endpoints (#95)
+- Update the archive check to validate that all expected files have been
+  created for all locales and platforms. (#48)
 
 
 0.2.1 (2017-09-06)
