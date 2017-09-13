@@ -290,10 +290,29 @@ async def test_nightly_archive(cli):
 
 async def test_release_archive(cli):
     await check_response(cli, "/v1/firefox/54.0/archive", body={
-        "status": Status.INCOMPLETE.value,
-        "message": "ja-JP-mac for mac-EME-free file is missing at "
-        "https://archive.mozilla.org/pub/firefox/releases/54.0/",
+        "status": Status.EXISTS.value,
+        "message": "The archive exists at https://archive.mozilla.org/pub/firefox/releases/54.0/ "
+        "and all 94 locales are present for all platforms (win32, win64, mac, linux32, linux64)",
         "link": "https://archive.mozilla.org/pub/firefox/releases/54.0/"
+    })
+
+
+async def test_beta_archive(cli):
+    await check_response(cli, "/v1/firefox/56.0b10/archive", body={
+        "status": Status.EXISTS.value,
+        "message": "The archive exists at https://archive.mozilla.org/pub/firefox/releases/56.0b10"
+        "/ and all 95 locales are present for all platforms (win32, win64, mac, linux32, linux64)",
+        "link": "https://archive.mozilla.org/pub/firefox/releases/56.0b10/"
+    })
+
+
+async def test_esr_archive(cli):
+    await check_response(cli, "/v1/firefox/52.3.0esr/archive", body={
+        "status": Status.EXISTS.value,
+        "message": "The archive exists at https://archive.mozilla.org/pub/firefox/releases/"
+        "52.3.0esr/ and all 92 locales are present for all platforms (win32, win64, mac, "
+        "linux32, linux64)",
+        "link": "https://archive.mozilla.org/pub/firefox/releases/52.3.0esr/"
     })
 
 

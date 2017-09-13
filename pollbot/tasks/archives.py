@@ -18,20 +18,11 @@ NIGHTLY_PLATFORMS = {
 
 RELEASE_PLATFORMS = [
     'linux-i686',
-    'linux-x86_64-EME-free',
     'linux-x86_64',
-    'mac-EME-free',
     'mac',
-    'win32-EME-free',
     'win32',
-    'win64-EME-free',
     'win64',
 ]
-
-
-def is_for_channel(channel, versions):
-    channels = [get_version_channel(x) for x in versions.keys()]
-    return channel in channels
 
 
 async def get_locales(product, version):
@@ -80,15 +71,17 @@ def verdict(url, locales, missing_locales, missing_files):
         status = Status.INCOMPLETE
         message = ""
         if missing_locales:
-            message += "{} locales ".format(", ".join(missing_locales))
+            message += "{} locale{} ".format(", ".join(sorted(missing_locales)),
+                                             's' if len(missing_locales) > 1 else '')
             if missing_files:
                 message += "and "
         if missing_files:
-            message += "{} ".format(", ".join(missing_files))
+            message += "{} locale file{} ".format(", ".join(sorted(missing_files)),
+                                                  's' if len(missing_files) > 1 else '')
         if len(missing_files) + len(missing_locales) > 1:
-            message += "files are "
+            message += "are "
         else:
-            message += "file is "
+            message += "is "
         message += "missing at {}".format(url)
 
     return status, message
@@ -128,7 +121,9 @@ async def get_platform_locale(url, platform):
         url = '{}/{}/'.format(url.rstrip('/'), platform)
         async with session.get(url, headers={"Accept": "application/json"}) as resp:
             if resp.status != 200:
-                raise TaskError('Failing to get {}'.format(url))
+                msg = 'Archive CDN not available; failing to get {} (HTTP {})'.format(
+                    url, resp.status)
+                raise TaskError(msg)
 
             body = await resp.json()
             return sorted([p.strip('/') for p in body['prefixes'] if not p.startswith('xpi')])
