@@ -27,9 +27,10 @@ def heartbeat_factory(url):
 
 
 def build_task_response(status, link, message, fail_message=None):
+    if fail_message is None:
+        fail_message = message
+
     if isinstance(status, bool):
-        if not fail_message:
-            fail_message = message
         message = message if status else fail_message
         status = Status.EXISTS if status else Status.MISSING
 
