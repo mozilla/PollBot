@@ -39,8 +39,9 @@ async def product_details(product, version):
 
             exists_message = "We found product-details information about version {}".format(
                 version)
-            missing_message = "We did not found product-details information about version".format(
-                version)
+            missing_message = (
+                "We did not found product-details information about version {}".format(
+                    version))
             return build_task_response(status, url, exists_message, missing_message)
 
 

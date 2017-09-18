@@ -465,6 +465,7 @@ class DeliveryTasksTest(asynctest.TestCase):
 
         received = await product_details('firefox', '52.0')
         assert received["status"] == Status.EXISTS.value
+        assert received["message"] == "We found product-details information about version 52.0"
 
     async def test_product_details_tasks_returns_false_if_absent(self):
         url = 'https://product-details.mozilla.org/1.0/firefox.json'
@@ -472,6 +473,8 @@ class DeliveryTasksTest(asynctest.TestCase):
 
         received = await product_details('firefox', '54.0')
         assert received["status"] == Status.MISSING.value
+        assert received["message"] == (
+            "We did not found product-details information about version 54.0")
 
     async def test_product_details_tasks_returns_error_if_error(self):
         url = 'https://product-details.mozilla.org/1.0/firefox.json'
