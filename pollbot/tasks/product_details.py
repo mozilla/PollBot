@@ -37,11 +37,11 @@ async def product_details(product, version):
             body = await resp.json()
             status = '{}-{}'.format(product, version) in body['releases']
 
-            exists_message = "We found product-details information about version {}".format(
-                version)
-            missing_message = "We did not found product-details information about version".format(
-                version)
-            return build_task_response(status, url, exists_message, missing_message)
+            exists_message = "We found product-details information about version {}"
+            missing_message = "We did not find product-details information about version {}"
+            return build_task_response(status, url,
+                                       exists_message.format(version),
+                                       missing_message.format(version))
 
 
 async def devedition_and_beta_in_sync(product, version):
