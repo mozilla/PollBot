@@ -10,7 +10,7 @@ from aioresponses import aioresponses
 
 from pollbot.exceptions import TaskError
 from pollbot.tasks import get_session
-from pollbot.tasks.archives import archives, RELEASE_PLATFORMS
+from pollbot.tasks.archives import archives, partner_repacks, RELEASE_PLATFORMS
 from pollbot.tasks.balrog import balrog_rules
 from pollbot.tasks.buildhub import buildhub, BUILDHUB_SERVER
 from pollbot.tasks.bedrock import release_notes, security_advisories, download_links, get_releases
@@ -285,6 +285,38 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert str(excinfo.value) == (
             'Archive CDN not available; failing to get '
             'https://archive.mozilla.org/pub/firefox/releases/52.0.2/linux-i686/ (HTTP 502)')
+
+    async def test_partner_repacks_tasks_returns_false_if_release_absent(self):
+        url = 'https://archive.mozilla.org/pub/firefox/candidates/52.0.2-candidates/'
+        self.mocked.get(url, status=404)
+
+        received = await partner_repacks('firefox', '52.0.2')
+        assert received["status"] == Status.MISSING.value
+        assert received["message"] == "No candidates found for that version."
+
+    async def test_partner_repacks_tasks_returns_false_if_partner_repacks_folder_absent(self):
+        url = 'https://archive.mozilla.org/pub/firefox/candidates/52.0.2-candidates/'
+        self.mocked.get(url, status=200, body=json.dumps({"prefixes": ["build1/", "build2/"]}))
+
+        url = 'https://archive.mozilla.org/pub/firefox/candidates/52.0.2-candidates/build2/'
+        self.mocked.get(url, status=200, body=json.dumps({"prefixes": ["linux/", "mac/"]}))
+
+        received = await partner_repacks('firefox', '52.0.2')
+        assert received["status"] == Status.MISSING.value
+        assert received["message"] == ("No partner-repacks in https://archive.mozilla.org/"
+                                       "pub/firefox/candidates/52.0.2-candidates/build2/")
+
+    async def test_partner_repacks_tasks_returns_true_if_partner_repacks_folder_present(self):
+        url = 'https://archive.mozilla.org/pub/firefox/candidates/52.0.2-candidates/'
+        self.mocked.get(url, status=200, body=json.dumps({"prefixes": ["build1/", "build2/"]}))
+
+        url = 'https://archive.mozilla.org/pub/firefox/candidates/52.0.2-candidates/build2/'
+        self.mocked.get(url, status=200, body=json.dumps({"prefixes": ["partner-repacks/"]}))
+
+        received = await partner_repacks('firefox', '52.0.2')
+        assert received["status"] == Status.EXISTS.value
+        assert received["message"] == ("partner-repacks found in https://archive.mozilla.org/"
+                                       "pub/firefox/candidates/52.0.2-candidates/build2/")
 
     async def test_download_links_tasks_returns_true_if_version_matches(self):
         url = 'https://www.mozilla.org/en-US/firefox/all/'

@@ -221,6 +221,8 @@ async def test_get_checks_for_beta(cli):
              "title": "Devedition and Beta versions matches"},
             {"url": "http://localhost/v1/firefox/56.0b6/bedrock/download-links",
              "title": "Download links"},
+            {"url": "http://localhost/v1/firefox/56.0b6/archive/partner-repacks",
+             "title": "Partner repacks"},
             {"url": "http://localhost/v1/firefox/56.0b6/product-details",
              "title": "Product details"},
             {"url": "http://localhost/v1/firefox/56.0b6/bedrock/release-notes",
@@ -242,6 +244,8 @@ async def test_get_checks_for_release(cli):
              "title": "Buildhub release info"},
             {"url": "http://localhost/v1/firefox/54.0/bedrock/download-links",
              "title": "Download links"},
+            {"url": "http://localhost/v1/firefox/54.0/archive/partner-repacks",
+             "title": "Partner repacks"},
             {"url": "http://localhost/v1/firefox/54.0/product-details",
              "title": "Product details"},
             {"url": "http://localhost/v1/firefox/54.0/bedrock/release-notes",
@@ -311,6 +315,24 @@ async def test_beta_archive(cli):
         "/ and all 95 locales are present for all platforms "
         "(linux-i686, linux-x86_64, mac, win32, win64)",
         "link": "https://archive.mozilla.org/pub/firefox/releases/56.0b10/"
+    })
+
+
+async def test_release_partner_repacks(cli):
+    await check_response(cli, "/v1/firefox/54.0/archive/partner-repacks", body={
+        "status": Status.EXISTS.value,
+        "message": "partner-repacks found in https://archive.mozilla.org/pub/"
+        "firefox/candidates/54.0-candidates/build3/",
+        "link": "https://archive.mozilla.org/pub/firefox/candidates/54.0-candidates/build3/"
+    })
+
+
+async def test_beta_partner_repacks(cli):
+    await check_response(cli, "/v1/firefox/56.0b10/archive/partner-repacks", body={
+        "status": Status.EXISTS.value,
+        "message": "partner-repacks found in https://archive.mozilla.org/pub/"
+        "firefox/candidates/56.0b10-candidates/build1/",
+        "link": "https://archive.mozilla.org/pub/firefox/candidates/56.0b10-candidates/build1/"
     })
 
 

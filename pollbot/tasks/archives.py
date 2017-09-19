@@ -205,4 +205,29 @@ async def archives(product, version):
                 return build_task_response(success, url, message)
 
 
+async def partner_repacks(product, version):
+    with get_session() as session:
+        base_url = 'https://archive.mozilla.org/pub/{}/candidates/{}-candidates/'.format(
+            product, version)
+        success = False
+        async with session.get(base_url, headers={"Accept": "application/json"}) as resp:
+            if resp.status != 200:
+                url = base_url
+                message = "No candidates found for that version."
+            else:
+                body = await resp.json()
+                builds = sorted([p.strip('/') for p in body['prefixes'] if p.startswith('build')],
+                                reverse=True)
+                url = '{}{}/'.format(base_url, builds[0])
+                async with session.get(url, headers={"Accept": "application/json"}) as resp:
+                    body = await resp.json()
+                    dirs = sorted([p.strip('/') for p in body['prefixes']])
+                    if 'partner-repacks' in dirs:
+                        success = True
+                        message = "partner-repacks found in {}".format(url)
+                    else:
+                        message = "No partner-repacks in {}".format(url)
+            return build_task_response(success, url, message)
+
+
 heartbeat = heartbeat_factory('https://archive.mozilla.org/pub/firefox/releases/')
