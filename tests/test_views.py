@@ -333,7 +333,7 @@ async def test_release_balrog_rules(cli):
 
 
 async def test_release_buildhub_rules(cli):
-    resp = await check_response(cli, "/v1/firefox/56.0b12/buildhub")
+    resp = await check_response(cli, "/v1/firefox/54.0/buildhub")
     body = await resp.json()
     assert body["status"] == Status.EXISTS.value
     assert "Buildhub contains information about this release." in body["message"]

@@ -610,7 +610,7 @@ class DeliveryTasksTest(asynctest.TestCase):
 
     async def test_buildhub_task_returns_missing_if_release_is_missing(self):
         url = ('{}/buckets/build-hub/collections/releases/records'
-               '?source.product=firefox&target.version=57.0a1').format(BUILDHUB_SERVER)
+               '?source.product=firefox&target.version="57.0a1"').format(BUILDHUB_SERVER)
         self.mocked.get(url, status=200, body=json.dumps({
             'data': []
         }))
@@ -621,7 +621,7 @@ class DeliveryTasksTest(asynctest.TestCase):
 
     async def test_buildhub_task_returns_exists_if_release_was_found(self):
         url = ('{}/buckets/build-hub/collections/releases/records'
-               '?source.product=firefox&target.version=56.0b12').format(BUILDHUB_SERVER)
+               '?source.product=firefox&target.version="56.0b12"').format(BUILDHUB_SERVER)
         self.mocked.get(url, status=200, body=json.dumps({
             'data': [
                 {"last_modified": 1505713780715,

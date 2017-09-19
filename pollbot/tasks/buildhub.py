@@ -4,7 +4,7 @@ BUILDHUB_SERVER = "https://buildhub.stage.mozaws.net/v1"
 
 
 async def buildhub(product, version):
-    url = '{}/buckets/build-hub/collections/releases/records?source.product={}&target.version={}'
+    url = '{}/buckets/build-hub/collections/releases/records?source.product={}&target.version="{}"'
     url = url.format(BUILDHUB_SERVER, product, version)
 
     with get_session() as session:
