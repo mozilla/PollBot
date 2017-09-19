@@ -5,6 +5,7 @@ API Changelog
 ----------------
 
 - Add balrog checks and endpoints.
+- Add buildhub checks and endpoints.
 - Remove multiple nightly archive checks.
 
 

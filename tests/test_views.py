@@ -214,6 +214,8 @@ async def test_get_checks_for_beta(cli):
             {"url": "http://localhost/v1/firefox/56.0b6/archive", "title": "Archive Release"},
             {"url": "http://localhost/v1/firefox/56.0b6/balrog-rules",
              "title": "Balrog update rules"},
+            {"url": "http://localhost/v1/firefox/56.0b6/buildhub",
+             "title": "Buildhub release info"},
             {"url": "http://localhost/v1/firefox/56.0b6/product-details"
              "/devedition-beta-versions-matches",
              "title": "Devedition and Beta versions matches"},
@@ -236,6 +238,8 @@ async def test_get_checks_for_release(cli):
             {"url": "http://localhost/v1/firefox/54.0/archive", "title": "Archive Release"},
             {"url": "http://localhost/v1/firefox/54.0/balrog-rules",
              "title": "Balrog update rules"},
+            {"url": "http://localhost/v1/firefox/54.0/buildhub",
+             "title": "Buildhub release info"},
             {"url": "http://localhost/v1/firefox/54.0/bedrock/download-links",
              "title": "Download links"},
             {"url": "http://localhost/v1/firefox/54.0/product-details",
@@ -257,6 +261,8 @@ async def test_get_checks_for_esr(cli):
             {"url": "http://localhost/v1/firefox/52.3.0esr/archive", "title": "Archive Release"},
             {"url": "http://localhost/v1/firefox/52.3.0esr/balrog-rules",
              "title": "Balrog update rules"},
+            {"url": "http://localhost/v1/firefox/52.3.0esr/buildhub",
+             "title": "Buildhub release info"},
             {"url": "http://localhost/v1/firefox/52.3.0esr/bedrock/download-links",
              "title": "Download links"},
             {"url": "http://localhost/v1/firefox/52.3.0esr/product-details",
@@ -324,6 +330,15 @@ async def test_release_balrog_rules(cli):
     assert body["status"] == Status.EXISTS.value
     assert "Balrog rule has been updated" in body["message"]
     assert body["link"] == "https://aus-api.mozilla.org/api/v1/rules/firefox-release"
+
+
+async def test_release_buildhub_rules(cli):
+    resp = await check_response(cli, "/v1/firefox/54.0/buildhub")
+    body = await resp.json()
+    assert body["status"] == Status.EXISTS.value
+    assert "Buildhub contains information about this release." in body["message"]
+    assert body["link"] == ("https://mozilla-services.github.io/buildhub/"
+                            "?versions[0]=54.0&products[0]=firefox")
 
 
 async def test_release_bedrock_release_notes(cli):
@@ -418,6 +433,7 @@ async def test_heartbeat(cli):
                              "archive": True,
                              "balrog": True,
                              "bedrock": True,
+                             "buildhub": True,
                              "product-details": True,
                          })
 

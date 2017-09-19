@@ -12,6 +12,7 @@ from pollbot.exceptions import TaskError
 from pollbot.tasks import get_session
 from pollbot.tasks.archives import archives, RELEASE_PLATFORMS
 from pollbot.tasks.balrog import balrog_rules
+from pollbot.tasks.buildhub import buildhub, BUILDHUB_SERVER
 from pollbot.tasks.bedrock import release_notes, security_advisories, download_links, get_releases
 from pollbot.tasks.product_details import (product_details, ongoing_versions,
                                            devedition_and_beta_in_sync)
@@ -550,12 +551,17 @@ class DeliveryTasksTest(asynctest.TestCase):
         url = 'https://aus-api.mozilla.org/__heartbeat__'
         self.mocked.get(url, status=404)
 
+        # Buildhub
+        url = '{}/__heartbeat__'.format(BUILDHUB_SERVER)
+        self.mocked.get(url, status=404)
+
         resp = await heartbeat(None)
         assert json.loads(resp.body.decode()) == {
             "archive": False,
             "bedrock": False,
             "product-details": False,
             "balrog": False,
+            "buildhub": False,
         }
         assert resp.status == 503
 
@@ -601,3 +607,58 @@ class DeliveryTasksTest(asynctest.TestCase):
         with pytest.raises(TaskError) as excinfo:
             await balrog_rules('firefox', '57.0a1')
         assert str(excinfo.value) == 'Linux x86_64 platform not found in []'
+
+    async def test_buildhub_task_returns_missing_if_release_is_missing(self):
+        url = ('{}/buckets/build-hub/collections/releases/records'
+               '?source.product=firefox&target.version="57.0a1"').format(BUILDHUB_SERVER)
+        self.mocked.get(url, status=200, body=json.dumps({
+            'data': []
+        }))
+        received = await buildhub('firefox', '57.0a1')
+        assert received['status'] == Status.MISSING.value
+        assert received["message"] == ("Buildhub does not contain any information "
+                                       "about this release yet.")
+
+    async def test_buildhub_task_returns_exists_if_release_was_found(self):
+        url = ('{}/buckets/build-hub/collections/releases/records'
+               '?source.product=firefox&target.version="56.0b12"').format(BUILDHUB_SERVER)
+        self.mocked.get(url, status=200, body=json.dumps({
+            'data': [
+                {"last_modified": 1505713780715,
+                 "source": {
+                     "repository": "https://hg.mozilla.org/releases/mozilla-beta",
+                     "product": "firefox",
+                     "revision": "fbef00b40b98333a637211cd284db9e3f5348f07",
+                     "tree": "releases/mozilla-beta"
+                 },
+                 "download": {
+                     "mimetype": "application/x-bzip2",
+                     "date": "2017-09-14T08:10:44Z",
+                     "url": "https://archive.mozilla.org/pub/firefox/releases/56.0b12/"
+                     "linux-x86_64/zh-TW/firefox-56.0b12.tar.bz2",
+                     "size": 54378157},
+                 "target": {
+                     "locale": "zh-TW",
+                     "platform": "linux-x86_64",
+                     "version": "56.0b12",
+                     "channel": "beta",
+                     "os": "linux"},
+                 "id": "firefox_beta_56-0b12_linux-x86_64_zh-tw",
+                 "build": {
+                     "date": "2017-09-14T02:48:31Z",
+                     "cxx": "/usr/bin/ccache /home/worker/workspace/build/src/gcc/bin/g++ "
+                     "-std=gnu++11",
+                     "target": "x86_64-pc-linux-gnu",
+                     "number": 1,
+                     "host": "x86_64-pc-linux-gnu",
+                     "cc": "/usr/bin/ccache /home/worker/workspace/build/src/gcc/bin/gcc "
+                     "-std=gnu99",
+                     "id": "20170914024831",
+                     "as": "$(CC)"
+                 }}
+            ]
+        }))
+
+        received = await buildhub('firefox', '56.0b12')
+        assert received["status"] == Status.EXISTS.value
+        assert received["message"] == ("Buildhub contains information about this release.")
