@@ -13,6 +13,8 @@ async def buildhub(product, version):
             status = len(body['data']) > 0
             exists_message = 'Buildhub contains information about this release.'
             missing_message = 'Buildhub does not contain any information about this release yet.'
+            url = "https://mozilla-services.github.io/buildhub/?versions[0]={}&products[0]={}"
+            url = url.format(version, product)
             return build_task_response(status, url, exists_message, missing_message)
 
 

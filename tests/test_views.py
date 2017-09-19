@@ -337,7 +337,8 @@ async def test_release_buildhub_rules(cli):
     body = await resp.json()
     assert body["status"] == Status.EXISTS.value
     assert "Buildhub contains information about this release." in body["message"]
-    assert "/buckets/build-hub/collections/releases/records" in body["link"]
+    assert body["link"] == ("https://mozilla-services.github.io/buildhub/"
+                            "?versions[0]=54.0&products[0]=firefox")
 
 
 async def test_release_bedrock_release_notes(cli):
