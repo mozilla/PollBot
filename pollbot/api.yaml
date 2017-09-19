@@ -244,7 +244,7 @@ paths:
 
   /{product}/{version}/archive/partner-repacks:
     get:
-      summary: "checks if the partner-repacks are downloadables"
+      summary: "checks if the partner-repacks are downloadable"
       operationId: "checkArchivePartnerRepacks"
       produces:
       - "application/json"
