@@ -6,6 +6,7 @@ API Changelog
 
 - Add balrog checks and endpoints.
 - Add buildhub checks and endpoints.
+- Add partner-repacks task and endpoint.
 - Remove multiple nightly archive checks.
 
 

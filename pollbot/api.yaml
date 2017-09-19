@@ -242,6 +242,23 @@ paths:
       tags:
       - Status
 
+  /{product}/{version}/archive/partner-repacks:
+    get:
+      summary: "checks if the partner-repacks are downloadables"
+      operationId: "checkArchivePartnerRepacks"
+      produces:
+      - "application/json"
+      parameters:
+      - $ref: "#/parameters/product"
+      - $ref: "#/parameters/version"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/existanceStatus"
+      tags:
+      - Status
+
   /{product}/{version}/product-details:
     get:
       summary: "checks version exists in product-details.mozilla.org"

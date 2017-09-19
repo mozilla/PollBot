@@ -2,7 +2,7 @@ import logging
 from aiohttp import web
 from collections import OrderedDict
 
-from ..tasks.archives import archives
+from ..tasks.archives import archives, partner_repacks
 from ..tasks import balrog, buildhub
 from ..tasks.bedrock import release_notes, security_advisories, download_links, get_releases
 from ..tasks.product_details import product_details, devedition_and_beta_in_sync
@@ -28,6 +28,7 @@ def status_response(task):
 
 
 archive = status_response(archives)
+partner_repacks = status_response(partner_repacks)
 bedrock_release_notes = status_response(release_notes)
 bedrock_security_advisories = status_response(security_advisories)
 bedrock_download_links = status_response(download_links)
@@ -46,6 +47,7 @@ async def view_get_releases(request, product):
 
 CHECKS_TITLE = {
     "archive": "Archive Release",
+    "partner-repacks": "Partner repacks",
     "release-notes": "Release notes",
     "security-advisories": "Security advisories",
     "download-links": "Download links",
@@ -59,6 +61,7 @@ CHECKS_TITLE = {
 CHECKS = OrderedDict(
     sorted({
         "archive": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
+        "partner-repacks": [Channel.RELEASE, Channel.BETA],
         "release-notes": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
         "security-advisories": [Channel.ESR, Channel.RELEASE],
         "download-links": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
