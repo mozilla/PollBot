@@ -326,12 +326,11 @@ class DeliveryTasksTest(asynctest.TestCase):
         self.mocked.get(url, status=200,
                         body='{"hits": [{"version":"54.0"}, {"version":"52.0.2"}], "total": 2}')
 
-        start_date = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
-        end_date = datetime.date.today().strftime('%Y-%m-%d')
+        date = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
 
         url = ('{}/ADI/?start_date={}&end_date={}&platforms=Windows&platforms=Linux&'
                'platforms=Mac%20OS%20X&product=firefox&versions=54.0&versions=52.0.2')
-        url = url.format(CRASH_STATS_SERVER, start_date, end_date)
+        url = url.format(CRASH_STATS_SERVER, date, date)
         self.mocked.get(url, status=200, body='{"hits": [], "total": 0}')
         received = await crash_stats_uptake('firefox', '52.0.2')
         assert received["status"] == Status.ERROR.value
@@ -343,12 +342,11 @@ class DeliveryTasksTest(asynctest.TestCase):
         self.mocked.get(url, status=200,
                         body='{"hits": [{"version":"54.0"}, {"version":"52.0.2"}], "total": 2}')
 
-        start_date = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
-        end_date = datetime.date.today().strftime('%Y-%m-%d')
+        date = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
 
         url = ('{}/ADI/?start_date={}&end_date={}&platforms=Windows&platforms=Linux&'
                'platforms=Mac%20OS%20X&product=firefox&versions=54.0&versions=52.0.2')
-        url = url.format(CRASH_STATS_SERVER, start_date, end_date)
+        url = url.format(CRASH_STATS_SERVER, date, date)
         self.mocked.get(url, status=200,
                         body='{"hits": [{"version": "54.0", "adi_count": 120}], "total": 0}')
         received = await crash_stats_uptake('firefox', '52.0.2')
@@ -361,12 +359,11 @@ class DeliveryTasksTest(asynctest.TestCase):
         self.mocked.get(url, status=200,
                         body='{"hits": [{"version":"54.0"}, {"version":"52.0.2"}], "total": 2}')
 
-        start_date = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
-        end_date = datetime.date.today().strftime('%Y-%m-%d')
+        date = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
 
         url = ('{}/ADI/?start_date={}&end_date={}&platforms=Windows&platforms=Linux&'
                'platforms=Mac%20OS%20X&product=firefox&versions=54.0&versions=52.0.2')
-        url = url.format(CRASH_STATS_SERVER, start_date, end_date)
+        url = url.format(CRASH_STATS_SERVER, date, date)
         self.mocked.get(url, status=200, body=json.dumps({
             "hits": [{"version": "52.0", "adi_count": 500},
                      {"version": "52.0.1", "adi_count": 5000},
@@ -382,12 +379,11 @@ class DeliveryTasksTest(asynctest.TestCase):
         self.mocked.get(url, status=200,
                         body='{"hits": [{"version":"54.0"}, {"version":"52.0.2"}], "total": 2}')
 
-        start_date = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
-        end_date = datetime.date.today().strftime('%Y-%m-%d')
+        date = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
 
         url = ('{}/ADI/?start_date={}&end_date={}&platforms=Windows&platforms=Linux&'
                'platforms=Mac%20OS%20X&product=firefox&versions=54.0&versions=52.0.2')
-        url = url.format(CRASH_STATS_SERVER, start_date, end_date)
+        url = url.format(CRASH_STATS_SERVER, date, date)
         self.mocked.get(url, status=200, body=json.dumps({
             "hits": [{"version": "52.0", "adi_count": 500},
                      {"version": "52.0.1", "adi_count": 3000},

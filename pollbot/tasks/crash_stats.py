@@ -20,8 +20,7 @@ async def get_channel_versions(product, version):
 
 async def uptake(product, version):
     channel = get_version_channel(version)
-    start_date = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
-    end_date = datetime.date.today().strftime('%Y-%m-%d')
+    date = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
 
     if channel is Channel.BETA:
         versions = ['{}b'.format(version.split('b')[0])]
@@ -31,7 +30,7 @@ async def uptake(product, version):
     url = ('{}/ADI/?start_date={}&end_date={}&'
            'platforms=Windows&platforms=Linux&platforms=Mac%20OS%20X&'
            'product={}&versions={}')
-    url = url.format(CRASH_STATS_SERVER, start_date, end_date, product,
+    url = url.format(CRASH_STATS_SERVER, date, date, product,
                      '&versions='.join(versions))
 
     with get_session() as session:
