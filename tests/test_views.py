@@ -216,6 +216,8 @@ async def test_get_checks_for_beta(cli):
              "title": "Balrog update rules"},
             {"url": "http://localhost/v1/firefox/56.0b6/buildhub",
              "title": "Buildhub release info"},
+            {"url": "http://localhost/v1/firefox/56.0b6/crash-stats/uptake",
+             "title": "Crash Stats Uptake"},
             {"url": "http://localhost/v1/firefox/56.0b6/product-details"
              "/devedition-beta-versions-matches",
              "title": "Devedition and Beta versions matches"},
@@ -242,6 +244,8 @@ async def test_get_checks_for_release(cli):
              "title": "Balrog update rules"},
             {"url": "http://localhost/v1/firefox/54.0/buildhub",
              "title": "Buildhub release info"},
+            {"url": "http://localhost/v1/firefox/54.0/crash-stats/uptake",
+             "title": "Crash Stats Uptake"},
             {"url": "http://localhost/v1/firefox/54.0/bedrock/download-links",
              "title": "Download links"},
             {"url": "http://localhost/v1/firefox/54.0/archive/partner-repacks",
@@ -267,6 +271,8 @@ async def test_get_checks_for_esr(cli):
              "title": "Balrog update rules"},
             {"url": "http://localhost/v1/firefox/52.3.0esr/buildhub",
              "title": "Buildhub release info"},
+            {"url": "http://localhost/v1/firefox/52.3.0esr/crash-stats/uptake",
+             "title": "Crash Stats Uptake"},
             {"url": "http://localhost/v1/firefox/52.3.0esr/bedrock/download-links",
              "title": "Download links"},
             {"url": "http://localhost/v1/firefox/52.3.0esr/product-details",
@@ -286,7 +292,8 @@ async def test_get_checks_response_validates_product_name(cli):
     }, status=404)
 
 
-# This is currently a functional test.
+# These are currently functional tests.
+
 async def test_nightly_archive(cli):
     message = ('The archive exists at https://archive.mozilla.org/pub/'
                'firefox/nightly/latest-mozilla-central-l10n/ and all 98 locales '
@@ -318,6 +325,16 @@ async def test_beta_archive(cli):
     })
 
 
+async def test_esr_archive(cli):
+    await check_response(cli, "/v1/firefox/52.3.0esr/archive", body={
+        "status": Status.EXISTS.value,
+        "message": "The archive exists at https://archive.mozilla.org/pub/firefox/releases/"
+        "52.3.0esr/ and all 92 locales are present for all platforms "
+        "(linux-i686, linux-x86_64, mac, win32, win64)",
+        "link": "https://archive.mozilla.org/pub/firefox/releases/52.3.0esr/"
+    })
+
+
 async def test_release_partner_repacks(cli):
     await check_response(cli, "/v1/firefox/54.0/archive/partner-repacks", body={
         "status": Status.EXISTS.value,
@@ -336,14 +353,28 @@ async def test_beta_partner_repacks(cli):
     })
 
 
-async def test_esr_archive(cli):
-    await check_response(cli, "/v1/firefox/52.3.0esr/archive", body={
-        "status": Status.EXISTS.value,
-        "message": "The archive exists at https://archive.mozilla.org/pub/firefox/releases/"
-        "52.3.0esr/ and all 92 locales are present for all platforms "
-        "(linux-i686, linux-x86_64, mac, win32, win64)",
-        "link": "https://archive.mozilla.org/pub/firefox/releases/52.3.0esr/"
-    })
+async def test_esr_crash_stats_uptake(cli):
+    resp = await check_response(cli, "/v1/firefox/52.2.1esr/crash-stats/uptake")
+    body = await resp.json()
+    assert body['status'] == Status.INCOMPLETE.value
+    assert body['link'].startswith("https://crash-stats.mozilla.com/api/ADI/")
+    assert body['message'].startswith("Crash-Stats uptake for version 52.2.1esr is")
+
+
+async def test_release_crash_stats_uptake(cli):
+    resp = await check_response(cli, "/v1/firefox/54.0/crash-stats/uptake")
+    body = await resp.json()
+    assert body['status'] == Status.INCOMPLETE.value
+    assert body['link'].startswith("https://crash-stats.mozilla.com/api/ADI/")
+    assert body['message'].startswith("Crash-Stats uptake for version 54.0 is")
+
+
+async def test_beta_crash_stats_uptake(cli):
+    resp = await check_response(cli, "/v1/firefox/56.0b10/crash-stats/uptake")
+    body = await resp.json()
+    assert body['status'] == Status.INCOMPLETE.value
+    assert body['link'].startswith("https://crash-stats.mozilla.com/api/ADI/")
+    assert body['message'].startswith("Crash-Stats uptake for version 56.0b10 is")
 
 
 async def test_release_balrog_rules(cli):
@@ -456,6 +487,7 @@ async def test_heartbeat(cli):
                              "balrog": True,
                              "bedrock": True,
                              "buildhub": True,
+                             "crash-stats": True,
                              "product-details": True,
                          })
 

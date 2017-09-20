@@ -2,8 +2,8 @@ import logging
 from aiohttp import web
 from collections import OrderedDict
 
+from ..tasks import balrog, buildhub, crash_stats
 from ..tasks.archives import archives, partner_repacks
-from ..tasks import balrog, buildhub
 from ..tasks.bedrock import release_notes, security_advisories, download_links, get_releases
 from ..tasks.product_details import product_details, devedition_and_beta_in_sync
 from ..utils import Channel, get_version_channel
@@ -36,6 +36,7 @@ product_details = status_response(product_details)
 devedition_beta_check = status_response(devedition_and_beta_in_sync)
 balrog_rules = status_response(balrog.balrog_rules)
 buildhub_check = status_response(buildhub.buildhub)
+crash_stats_uptake = status_response(crash_stats.uptake)
 
 
 @validate_product_version
@@ -55,6 +56,7 @@ CHECKS_TITLE = {
     "devedition-beta-matches": "Devedition and Beta versions matches",
     "balrog-rules": "Balrog update rules",
     "buildhub": "Buildhub release info",
+    "crash-stats-uptake": "Crash Stats Uptake",
 }
 
 
@@ -69,6 +71,7 @@ CHECKS = OrderedDict(
         "devedition-beta-matches": [Channel.BETA],
         "balrog-rules": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
         "buildhub": [Channel.ESR, Channel.RELEASE, Channel.BETA],
+        "crash-stats-uptake": [Channel.ESR, Channel.RELEASE, Channel.BETA],
     }.items(), key=lambda t: t[0]))
 
 

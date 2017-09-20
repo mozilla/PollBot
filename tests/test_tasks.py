@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 from copy import deepcopy
@@ -13,6 +14,7 @@ from pollbot.tasks import get_session
 from pollbot.tasks.archives import archives, partner_repacks, RELEASE_PLATFORMS
 from pollbot.tasks.balrog import balrog_rules
 from pollbot.tasks.buildhub import buildhub, BUILDHUB_SERVER
+from pollbot.tasks.crash_stats import uptake as crash_stats_uptake, CRASH_STATS_SERVER
 from pollbot.tasks.bedrock import release_notes, security_advisories, download_links, get_releases
 from pollbot.tasks.product_details import (product_details, ongoing_versions,
                                            devedition_and_beta_in_sync)
@@ -318,6 +320,79 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert received["message"] == ("partner-repacks found in https://archive.mozilla.org/"
                                        "pub/firefox/candidates/52.0.2-candidates/build2/")
 
+    async def test_crash_stats_tasks_returns_error_if_no_hits_for_the_channel(self):
+        url = '{}/ProductVersions/?active=true&build_type=RELEASE&product=firefox'
+        url = url.format(CRASH_STATS_SERVER)
+        self.mocked.get(url, status=200,
+                        body='{"hits": [{"version":"54.0"}, {"version":"52.0.2"}], "total": 2}')
+
+        date = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+
+        url = ('{}/ADI/?start_date={}&end_date={}&platforms=Windows&platforms=Linux&'
+               'platforms=Mac%20OS%20X&product=firefox&versions=54.0&versions=52.0.2')
+        url = url.format(CRASH_STATS_SERVER, date, date)
+        self.mocked.get(url, status=200, body='{"hits": [], "total": 0}')
+        received = await crash_stats_uptake('firefox', '52.0.2')
+        assert received["status"] == Status.ERROR.value
+        assert received["message"] == "No crash-stats ADI info for version ['54.0', '52.0.2']"
+
+    async def test_crash_stats_tasks_returns_error_if_no_hits_for_the_given_version(self):
+        url = '{}/ProductVersions/?active=true&build_type=RELEASE&product=firefox'
+        url = url.format(CRASH_STATS_SERVER)
+        self.mocked.get(url, status=200,
+                        body='{"hits": [{"version":"54.0"}, {"version":"52.0.2"}], "total": 2}')
+
+        date = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+
+        url = ('{}/ADI/?start_date={}&end_date={}&platforms=Windows&platforms=Linux&'
+               'platforms=Mac%20OS%20X&product=firefox&versions=54.0&versions=52.0.2')
+        url = url.format(CRASH_STATS_SERVER, date, date)
+        self.mocked.get(url, status=200,
+                        body='{"hits": [{"version": "54.0", "adi_count": 120}], "total": 0}')
+        received = await crash_stats_uptake('firefox', '52.0.2')
+        assert received["status"] == Status.MISSING.value
+        assert received["message"] == "No crash-stats ADI hits for version 52.0.2"
+
+    async def test_crash_stats_tasks_returns_incomplete_if_ratio_is_low(self):
+        url = '{}/ProductVersions/?active=true&build_type=RELEASE&product=firefox'
+        url = url.format(CRASH_STATS_SERVER)
+        self.mocked.get(url, status=200,
+                        body='{"hits": [{"version":"54.0"}, {"version":"52.0.2"}], "total": 2}')
+
+        date = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+
+        url = ('{}/ADI/?start_date={}&end_date={}&platforms=Windows&platforms=Linux&'
+               'platforms=Mac%20OS%20X&product=firefox&versions=54.0&versions=52.0.2')
+        url = url.format(CRASH_STATS_SERVER, date, date)
+        self.mocked.get(url, status=200, body=json.dumps({
+            "hits": [{"version": "52.0", "adi_count": 500},
+                     {"version": "52.0.1", "adi_count": 5000},
+                     {"version": "52.0.2", "adi_count": 3000}],
+            "total": 3}))
+        body = await crash_stats_uptake('firefox', '52.0.2')
+        assert body["status"] == Status.INCOMPLETE.value
+        assert body["message"] == "Crash-Stats uptake for version 52.0.2 is 0.35% (3,000/8,500)"
+
+    async def test_crash_stats_tasks_returns_exists_if_ratio_is_high(self):
+        url = '{}/ProductVersions/?active=true&build_type=RELEASE&product=firefox'
+        url = url.format(CRASH_STATS_SERVER)
+        self.mocked.get(url, status=200,
+                        body='{"hits": [{"version":"54.0"}, {"version":"52.0.2"}], "total": 2}')
+
+        date = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+
+        url = ('{}/ADI/?start_date={}&end_date={}&platforms=Windows&platforms=Linux&'
+               'platforms=Mac%20OS%20X&product=firefox&versions=54.0&versions=52.0.2')
+        url = url.format(CRASH_STATS_SERVER, date, date)
+        self.mocked.get(url, status=200, body=json.dumps({
+            "hits": [{"version": "52.0", "adi_count": 500},
+                     {"version": "52.0.1", "adi_count": 3000},
+                     {"version": "52.0.2", "adi_count": 5000}],
+            "total": 3}))
+        body = await crash_stats_uptake('firefox', '52.0.2')
+        assert body["status"] == Status.EXISTS.value
+        assert body["message"] == "Crash-Stats uptake for version 52.0.2 is 0.59% (5,000/8,500)"
+
     async def test_download_links_tasks_returns_true_if_version_matches(self):
         url = 'https://www.mozilla.org/en-US/firefox/all/'
         self.mocked.get(url, status=200, body='<html data-latest-firefox="52.0.2"></html>')
@@ -575,10 +650,6 @@ class DeliveryTasksTest(asynctest.TestCase):
         url = 'https://www.mozilla.org/en-US/firefox/all/'
         self.mocked.get(url, status=404)
 
-        # Product Details
-        url = 'https://product-details.mozilla.org/1.0/firefox.json'
-        self.mocked.get(url, status=404)
-
         # Balrog
         url = 'https://aus-api.mozilla.org/__heartbeat__'
         self.mocked.get(url, status=404)
@@ -587,9 +658,18 @@ class DeliveryTasksTest(asynctest.TestCase):
         url = '{}/__heartbeat__'.format(BUILDHUB_SERVER)
         self.mocked.get(url, status=404)
 
+        # Crash Stats
+        url = 'https://crash-stats.mozilla.com/monitoring/healthcheck/'
+        self.mocked.get(url, status=404)
+
+        # Product Details
+        url = 'https://product-details.mozilla.org/1.0/firefox.json'
+        self.mocked.get(url, status=404)
+
         resp = await heartbeat(None)
         assert json.loads(resp.body.decode()) == {
             "archive": False,
+            "crash-stats": False,
             "bedrock": False,
             "product-details": False,
             "balrog": False,

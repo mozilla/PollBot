@@ -11,6 +11,7 @@ CHANGELOG
 - Validate version number to avoid calling tasks with gibberish (#92)
 - Remove archive nightly specific checks and endpoints (#95)
 - Add a task and endpoint to check for partner-repacks (#100)
+- Add a task and endpoint to get crash-stats uptake (#97)
 
 
 0.2.1 (2017-09-06)
