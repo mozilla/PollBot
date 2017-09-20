@@ -57,4 +57,4 @@ async def uptake(product, version):
             return build_task_response(status, url, message)
 
 
-heartbeat = heartbeat_factory('{}/'.format(CRASH_STATS_SERVER))
+heartbeat = heartbeat_factory('https://crash-stats.mozilla.com/monitoring/healthcheck/')

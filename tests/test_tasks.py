@@ -659,7 +659,7 @@ class DeliveryTasksTest(asynctest.TestCase):
         self.mocked.get(url, status=404)
 
         # Crash Stats
-        url = '{}/'.format(CRASH_STATS_SERVER)
+        url = 'https://crash-stats.mozilla.com/monitoring/healthcheck/'
         self.mocked.get(url, status=404)
 
         # Product Details
