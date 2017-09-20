@@ -45,16 +45,16 @@ async def lbheartbeat(request):
 
 async def heartbeat(request):
     info = await asyncio.gather(archives.heartbeat(),
-                                crash_stats.heartbeat(),
                                 balrog.heartbeat(),
                                 bedrock.heartbeat(),
                                 buildhub.heartbeat(),
+                                crash_stats.heartbeat(),
                                 product_details.heartbeat())
     status = all(info) and 200 or 503
     return web.json_response({"archive": info[0],
-                              "crash-stats": info[1],
-                              "balrog": info[2],
-                              "bedrock": info[3],
-                              "buildhub": info[4],
+                              "balrog": info[1],
+                              "bedrock": info[2],
+                              "buildhub": info[3],
+                              "crash-stats": info[4],
                               "product-details": info[5]},
                              status=status)

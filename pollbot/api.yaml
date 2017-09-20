@@ -261,7 +261,7 @@ paths:
 
   /{product}/{version}/crash-stats/uptake:
     get:
-      summary: "checks what is the version uptake with crash-stats info."
+      summary: "checks what is the version uptake with crash-stats info"
       operationId: "checkCrashStatsUptake"
       produces:
       - "application/json"

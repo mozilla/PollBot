@@ -292,7 +292,7 @@ async def test_get_checks_response_validates_product_name(cli):
     }, status=404)
 
 
-# This are currently functional tests.
+# These are currently functional tests.
 
 async def test_nightly_archive(cli):
     message = ('The archive exists at https://archive.mozilla.org/pub/'
@@ -484,10 +484,10 @@ async def test_heartbeat(cli):
     await check_response(cli, "/v1/__heartbeat__",
                          body={
                              "archive": True,
-                             "crash-stats": True,
                              "balrog": True,
                              "bedrock": True,
                              "buildhub": True,
+                             "crash-stats": True,
                              "product-details": True,
                          })
 
