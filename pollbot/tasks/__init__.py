@@ -7,19 +7,25 @@ from pollbot import __version__ as pollbot_version
 from pollbot.utils import Status
 
 
-def get_session():
+def get_session(*, headers=None):
     aiohttp_version = pkg_resources.get_distribution("aiohttp").version
     python_version = '.'.join([str(v) for v in sys.version_info[:3]])
-    return aiohttp.ClientSession(headers={
+
+    session_headers = {
         "User-Agent": "PollBot/{} aiohttp/{} python/{}".format(
             pollbot_version, aiohttp_version, python_version)
-    })
+    }
+
+    if headers is not None:
+        session_headers.update(headers)
+
+    return aiohttp.ClientSession(headers=session_headers)
 
 
-def heartbeat_factory(url):
+def heartbeat_factory(url, headers=None):
     async def heartbeat():
         with get_session() as session:
-            async with session.get(url, timeout=10) as resp:
+            async with session.get(url, headers=headers, timeout=10) as resp:
                 if resp.status == 200:
                     return True
                 return False
