@@ -134,7 +134,7 @@ FROM updated_t, total_t
                 status = Status.INCOMPLETE
             else:
                 status = Status.EXISTS
-            url = "{}/api/queries/{}".format(TELEMETRY_SERVER, query_info["id"])
+            url = "{}/queries/{}".format(TELEMETRY_SERVER, query_info["id"])
             message = 'Telemetry uptake for version {} is {:.2f}% ({:,}/{:,})'.format(
                 version_name, ratio, version_users, total_users)
 
@@ -170,7 +170,7 @@ FROM updated_t, total_t
                 message = "Unable to execute the query n°{} for {} (HTTP {})"
                 raise TaskError(message.format(query_id, version_name, resp.status), url=url)
 
-        url = "{}/api/queries/{}".format(TELEMETRY_SERVER, query_id)
+        url = "{}/queries/{}".format(TELEMETRY_SERVER, query_id)
         message = 'Telemetry uptake calculation for version {} is in progress'.format(version_name)
         return build_task_response(Status.INCOMPLETE, url, message)
 
