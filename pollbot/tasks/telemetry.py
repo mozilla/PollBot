@@ -28,12 +28,11 @@ async def get_last_build_ids_for_nightly_version(session, version):
         raise TaskError("Please configure Build IDs query for {}".format(version))
 
     query_id = NIGHTLY_BUILD_IDS[version]
-    url = "{}/queries/{}".format(TELEMETRY_SERVER, query_id)
+    url = "{}/api/queries/{}".format(TELEMETRY_SERVER, query_id)
     async with session.get(url) as resp:
         if resp.status != 200:
-            return build_task_response(
-                Status.ERROR, url,
-                "Query {} unavailable (HTTP {})".format(query_id, resp.status))
+            raise TaskError("Query {} unavailable (HTTP {})".format(query_id, resp.status),
+                            url=url)
 
         body = await resp.json()
         if body:
@@ -41,16 +40,15 @@ async def get_last_build_ids_for_nightly_version(session, version):
             url = "{}/api/query_results/{}".format(TELEMETRY_SERVER, latest_query_data_id)
             async with session.get(url) as resp:
                 if resp.status != 200:
-                    return build_task_response(
-                        Status.ERROR, url,
-                        "Query Result {} unavailable (HTTP {})".format(latest_query_data_id,
-                                                                       resp.status))
+                    message = "Query Result {} unavailable (HTTP {})"
+                    raise TaskError(message.format(latest_query_data_id, resp.status), url=url)
 
                 body = await resp.json()
                 rows = body["query_result"]["data"]["rows"]
-                last_build_id_date = rows[0]["build_id"][:8]
-                return [r["build_id"] for r in rows
-                        if r["build_id"].startswith(last_build_id_date)]
+                if rows:
+                    last_build_id_date = rows[0]["build_id"][:8]
+                    return [r["build_id"] for r in rows
+                            if r["build_id"].startswith(last_build_id_date)]
 
 
 async def update_parquet_uptake(product, version):
@@ -61,12 +59,13 @@ async def update_parquet_uptake(product, version):
                                    "Telemetry update-parquet metrics landed in Firefox Quantum")
 
     with get_session(headers=get_telemetry_auth_header()) as session:
-        query_title = "Uptake {} {} {}"
         if channel is Channel.NIGHTLY:
             # Get the build IDs of the lastest days of nightly
-            build_ids = await get_last_build_ids_for_nightly_version(version)
-            query_title = query_title.format(channel, product, build_ids[0][:8])
+            build_ids = await get_last_build_ids_for_nightly_version(session, version)
             version_name = "{} ({})".format(version, ", ".join(build_ids))
+            query_title = "Uptake {} {} {} {}"
+            query_title = query_title.format(product.title(), channel.value, version,
+                                             build_ids[0][:8])
 
             query = """
 WITH updated_t AS (
@@ -88,7 +87,8 @@ FROM updated_t, total_t
 
         else:
             # Use the version number
-            query_title = query_title.format(product, channel, version)
+            query_title = "Uptake {} {} {}"
+            query_title = query_title.format(product.title(), channel.value, version)
             version_name = version
 
             query = """
@@ -141,6 +141,7 @@ FROM updated_t, total_t
             return build_task_response(status, url, message)
 
         # In that case we couldn't find the query, so we need to create it.
+        url = "{}/api/queries".format(TELEMETRY_SERVER)
         payload = {
             "name": query_title,
             "schedule": 3600,
@@ -151,7 +152,8 @@ FROM updated_t, total_t
         }
         async with session.post(url, json=payload) as resp:
             if resp.status != 200:
-                pass
+                message = "Unable to create the new query for {} (HTTP {})"
+                raise TaskError(message.format(version_name, resp.status), url=url)
             body = await resp.json()
             query_id = body["id"]
 
@@ -165,11 +167,12 @@ FROM updated_t, total_t
         }
         async with session.post(url, json=payload) as resp:
             if resp.status != 200:
-                pass
+                message = "Unable to execute the query n°{} for {} (HTTP {})"
+                raise TaskError(message.format(query_id, version_name, resp.status), url=url)
 
-        url = "{}/api/queries/{}".format(TELEMETRY_SERVER, query_info["id"])
+        url = "{}/api/queries/{}".format(TELEMETRY_SERVER, query_id)
         message = 'Telemetry uptake calculation for version {} is in progress'.format(version_name)
-        return build_task_response(status.INCOMPLETE, url, message)
+        return build_task_response(Status.INCOMPLETE, url, message)
 
 heartbeat = heartbeat_factory('{}/api/data_sources/1/version'.format(TELEMETRY_SERVER),
                               headers=get_telemetry_auth_header())

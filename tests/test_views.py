@@ -200,7 +200,9 @@ async def test_get_checks_for_nightly(cli):
             {"url": "http://localhost/v1/firefox/57.0a1/product-details",
              "title": "Product details"},
             {"url": "http://localhost/v1/firefox/57.0a1/bedrock/release-notes",
-             "title": "Release notes"}
+             "title": "Release notes"},
+            {"url": "http://localhost/v1/firefox/57.0a1/telemetry/update-parquet-uptake",
+             "title": "Telemetry Update Parquet Uptake"},
         ]
     })
 
@@ -489,6 +491,7 @@ async def test_heartbeat(cli):
                              "buildhub": True,
                              "crash-stats": True,
                              "product-details": True,
+                             "telemetry": True,
                          })
 
 
