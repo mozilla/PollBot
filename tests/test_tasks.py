@@ -1053,3 +1053,32 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert received["message"] == (
             "Telemetry uptake calculation for version 57.0 is in progress"
         )
+
+    async def test_telemetry_update_uptake_return_error_if_the_query_creation_failed(self):
+        url = "{}/api/queries/search?q=Uptake+Firefox+RELEASE+57.0&include_drafts=true"
+        url = url.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.get(url, status=200, body=json.dumps([]))
+
+        url = '{}/api/queries'.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.post(url, status=403)
+
+        with pytest.raises(TaskError) as excinfo:
+            await telemetry.update_parquet_uptake('firefox', '57.0')
+        assert str(excinfo.value) == 'Unable to create the new query for 57.0 (HTTP 403)'
+
+    async def test_telemetry_update_uptake_return_error_if_the_query_execution_failed(self):
+        url = "{}/api/queries/search?q=Uptake+Firefox+RELEASE+57.0&include_drafts=true"
+        url = url.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.get(url, status=200, body=json.dumps([]))
+
+        url = '{}/api/queries'.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.post(url, status=200, body=json.dumps({
+            "id": 1234
+        }))
+
+        url = '{}/api/query_results'.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.post(url, status=403)
+
+        with pytest.raises(TaskError) as excinfo:
+            await telemetry.update_parquet_uptake('firefox', '57.0')
+        assert str(excinfo.value) == 'Unable to execute the query n°1234 for 57.0 (HTTP 403)'
