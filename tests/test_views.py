@@ -460,8 +460,8 @@ async def test_beta_balrog_rules(cli):
 async def test_nightly_balrog_rules(cli):
     resp = await check_response(cli, "/v1/firefox/57.0a1/balrog-rules")
     body = await resp.json()
-    assert body["status"] in (Status.EXISTS.value, Status.MISSING.value)
     assert "Balrog rule is configured" in body["message"]
+    assert body["status"] in (Status.EXISTS.value, Status.MISSING.value)
     assert body["link"] == "https://aus-api.mozilla.org/api/v1/rules/firefox-nightly"
 
 

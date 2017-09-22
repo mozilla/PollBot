@@ -1,7 +1,7 @@
 import re
 
 from pollbot.exceptions import TaskError
-from pollbot.utils import Channel, get_version_channel, build_version_id
+from pollbot.utils import Channel, Status, get_version_channel, build_version_id
 from . import get_session, build_task_response, heartbeat_factory
 
 
@@ -11,23 +11,26 @@ async def get_release_info(release_mapping):
             async with session.get(release_url) as resp:
                 body = await resp.json()
                 platforms = body['platforms']
-                darwin_x64_platform = [x for x in platforms.keys()
-                                       if 'darwin' in x.lower() and 'locales' in platforms[x]]
-                if not darwin_x64_platform:
-                    raise TaskError('Linux x86_64 platform not found in {}'.format(
-                        list(platforms.keys())))
+                built_platforms = [x for x in platforms.keys() if 'locales' in platforms[x]]
+                if not built_platforms:
+                    raise TaskError('No platform with locales were found in {}'.format(
+                        sorted(platforms.keys())))
 
-                platform_info = platforms[darwin_x64_platform.pop()]['locales']['de']
-                buildID = platform_info['buildID']
-                appVersion = platform_info['appVersion']
+                build_ids = {}
+                appVersions = set()
 
-                return buildID, appVersion
+                for platform in built_platforms:
+                    platform_info = platforms[platform]['locales']["de"]
+                    build_ids[platform] = platform_info['buildID']
+                    appVersions.add(platform_info['appVersion'])
+
+                return build_ids, appVersions
 
 
 async def balrog_rules(product, version):
     channel = get_version_channel(version)
     if channel is Channel.NIGHTLY:
-        # In that case the rule doesn't change, so we grab the buildID.
+        # In that case the rule doesn't change, so we grab the build IDs.
 
         # There are case were Nightly is deactivated, in that case
         # the mapping is not nightly-latest anymore
@@ -37,17 +40,38 @@ async def balrog_rules(product, version):
                 rule = await resp.json()
                 status = rule['mapping'] == 'Firefox-mozilla-central-nightly-latest'
 
-                buildID, appVersion = await get_release_info(rule['mapping'])
+                build_ids, appVersions = await get_release_info(rule['mapping'])
 
-                exists_message = (
-                    'Balrog rule is configured for the latest Nightly {} build ({}) '
-                    'with an update rate of {}%').format(
-                        appVersion, buildID, rule['backgroundRate'])
-                missing_message = (
-                    'Balrog rule is configured for {} ({}) instead of '
-                    '"Firefox-mozilla-central-nightly-latest"').format(rule['mapping'], buildID)
+                last_build_id = max(build_ids.values())
+                date = last_build_id[:8]
 
-                return build_task_response(status, url, exists_message, missing_message)
+                old_build_id = [bid for bid in build_ids.values() if not bid.startswith(date)]
+
+                if rule['mapping'] != 'Firefox-mozilla-central-nightly-latest':
+                    status = Status.MISSING
+                    message = ('Balrog rule is configured for {} ({}) instead of '
+                               '"Firefox-mozilla-central-nightly-latest"')
+                    message = message.format(rule['mapping'],
+                                             ', '.join(sorted(build_ids.values())))
+                elif old_build_id:
+                    platforms = [k for k, v in build_ids.items() if v in old_build_id]
+                    status = Status.INCOMPLETE
+                    message = ("Balrog rule is configured for {} ({}) platform {} with build ID {}"
+                               " seem outdated.")
+                    message = message.format(rule['mapping'],
+                                             ', '.join(sorted(build_ids.values())),
+                                             ', '.join(platforms),
+                                             ', '.join(old_build_id))
+                else:
+                    status = Status.EXISTS
+                    message = (
+                        'Balrog rule is configured for the latest Nightly {} build ({}) '
+                        'with an update rate of {}%')
+                    message = message.format(', '.join(sorted(appVersions)),
+                                             ', '.join(sorted(build_ids.values())),
+                                             rule['backgroundRate'])
+
+                return build_task_response(status, url, message)
 
     elif channel is Channel.BETA:
         url = 'https://aus-api.mozilla.org/api/v1/rules/firefox-beta'
@@ -60,13 +84,13 @@ async def balrog_rules(product, version):
     with get_session() as session:
         async with session.get(url) as resp:
             rule = await resp.json()
-            buildID, appVersion = await get_release_info(rule['mapping'])
-            status = build_version_id(appVersion) >= build_version_id(version)
+            build_ids, appVersions = await get_release_info(rule['mapping'])
+            status = build_version_id(appVersions.pop()) >= build_version_id(version)
             exists_message = (
                 'Balrog rule has been updated for {} ({}) with an update rate of {}%'
-            ).format(rule['mapping'], buildID, rule['backgroundRate'])
+            ).format(rule['mapping'], sorted(build_ids.values()), rule['backgroundRate'])
             missing_message = 'Balrog rule is set for {} ({}) which is lower than {}'.format(
-                rule['mapping'], buildID, version)
+                rule['mapping'], sorted(build_ids.values()), version)
             return build_task_response(status, url, exists_message, missing_message)
 
 
