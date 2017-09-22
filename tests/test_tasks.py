@@ -751,11 +751,44 @@ class DeliveryTasksTest(asynctest.TestCase):
             'mapping': 'Firefox-mozilla-central-nightly-latest'
         }))
         url = 'https://aus-api.mozilla.org/api/v1/releases/Firefox-mozilla-central-nightly-latest'
-        self.mocked.get(url, status=200, body=json.dumps({'platforms': {}}))
+        self.mocked.get(url, status=200, body=json.dumps({'platforms': {"foo": {}, "bar": {}}}))
 
         with pytest.raises(TaskError) as excinfo:
             await balrog_rules('firefox', '57.0a1')
-        assert str(excinfo.value) == 'Linux x86_64 platform not found in []'
+        assert str(excinfo.value) == "No platform with locales was found in ['bar', 'foo']"
+
+    async def test_balrog_rules_tasks_returns_missing_if_mapping_is_wrong(self):
+        url = 'https://aus-api.mozilla.org/api/v1/rules/firefox-nightly'
+        self.mocked.get(url, status=200, body=json.dumps({
+            'mapping': 'Firefox-mozilla-central-nightly'
+        }))
+        url = 'https://aus-api.mozilla.org/api/v1/releases/Firefox-mozilla-central-nightly'
+        self.mocked.get(url, status=200, body=json.dumps({'platforms': {
+            "linux": {"locales": {"de": {"buildID": "20170922221002", "appVersion": "57.0a1"}}}}}))
+
+        received = await balrog_rules('firefox', '57.0a1')
+        assert received['status'] == Status.MISSING.value
+        assert received["message"] == ('Balrog rule is configured for '
+                                       'Firefox-mozilla-central-nightly (20170922221002) '
+                                       'instead of "Firefox-mozilla-central-nightly-latest"')
+
+    async def test_balrog_rules_tasks_returns_incomplete_if_buildID_are_not_matching(self):
+        url = 'https://aus-api.mozilla.org/api/v1/rules/firefox-nightly'
+        self.mocked.get(url, status=200, body=json.dumps({
+            'mapping': 'Firefox-mozilla-central-nightly-latest'
+        }))
+        url = 'https://aus-api.mozilla.org/api/v1/releases/Firefox-mozilla-central-nightly-latest'
+        self.mocked.get(url, status=200, body=json.dumps({'platforms': {
+            "linux": {"locales": {"de": {"buildID": "20170922221002", "appVersion": "57.0a1"}}},
+            "mac": {"locales": {"de": {"buildID": "20170921221002", "appVersion": "57.0a1"}}},
+        }}))
+
+        received = await balrog_rules('firefox', '57.0a1')
+        assert received["message"] == ('Balrog rule is configured for '
+                                       'Firefox-mozilla-central-nightly-latest '
+                                       '(20170921221002, 20170922221002) '
+                                       'platform mac with build ID 20170921221002 seem outdated.')
+        assert received['status'] == Status.INCOMPLETE.value
 
     async def test_buildhub_task_returns_missing_if_release_is_missing(self):
         url = ('{}/buckets/build-hub/collections/releases/records'
