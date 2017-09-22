@@ -37,24 +37,37 @@ async def uptake(product, version):
         async with session.get(url) as resp:
             body = await resp.json()
             if not body['hits']:
-                status = Status.ERROR
-                message = "No crash-stats ADI info for version {}".format(versions)
+                # Try the day before
+                date = (datetime.date.today() - datetime.timedelta(days=2)).strftime('%Y-%m-%d')
+
+                url = ('{}/ADI/?start_date={}&end_date={}&'
+                       'platforms=Windows&platforms=Linux&platforms=Mac%20OS%20X&'
+                       'product={}&versions={}')
+                url = url.format(CRASH_STATS_SERVER, date, date, product,
+                                 '&versions='.join(versions))
+
+                async with session.get(url) as resp:
+                    body = await resp.json()
+                    if not body['hits']:
+                        status = Status.ERROR
+                        message = "No crash-stats ADI info for version {}".format(versions)
+                        return build_task_response(status, url, message)
+
+            current_version_hits = [h for h in body['hits'] if h['version'] == version]
+            if not current_version_hits:
+                status = Status.MISSING
+                message = "No crash-stats ADI hits for version {}".format(version)
             else:
-                current_version_hits = [h for h in body['hits'] if h['version'] == version]
-                if not current_version_hits:
-                    status = Status.MISSING
-                    message = "No crash-stats ADI hits for version {}".format(version)
+                version_users = current_version_hits.pop()["adi_count"]
+                total_users = sum([h['adi_count'] for h in body['hits']])
+                ratio = version_users / total_users
+                if ratio < 0.5:
+                    status = Status.INCOMPLETE
                 else:
-                    version_users = current_version_hits.pop()["adi_count"]
-                    total_users = sum([h['adi_count'] for h in body['hits']])
-                    ratio = version_users / total_users
-                    if ratio < 0.5:
-                        status = Status.INCOMPLETE
-                    else:
-                        status = Status.EXISTS
-                    message = 'Crash-Stats uptake for version {} is {:.2f}% ({:,}/{:,})'.format(
-                        version, ratio, version_users, total_users)
-            return build_task_response(status, url, message)
+                    status = Status.EXISTS
+                message = 'Crash-Stats uptake for version {} is {:.2f}% ({:,}/{:,})'.format(
+                    version, ratio, version_users, total_users)
+        return build_task_response(status, url, message)
 
 
 heartbeat = heartbeat_factory('https://crash-stats.mozilla.com/monitoring/healthcheck/')

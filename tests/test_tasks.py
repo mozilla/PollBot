@@ -332,9 +332,46 @@ class DeliveryTasksTest(asynctest.TestCase):
                'platforms=Mac%20OS%20X&product=firefox&versions=54.0&versions=52.0.2')
         url = url.format(CRASH_STATS_SERVER, date, date)
         self.mocked.get(url, status=200, body='{"hits": [], "total": 0}')
+
+        date = (datetime.date.today() - datetime.timedelta(days=2)).strftime('%Y-%m-%d')
+
+        url = ('{}/ADI/?start_date={}&end_date={}&platforms=Windows&platforms=Linux&'
+               'platforms=Mac%20OS%20X&product=firefox&versions=54.0&versions=52.0.2')
+        url = url.format(CRASH_STATS_SERVER, date, date)
+        self.mocked.get(url, status=200, body='{"hits": [], "total": 0}')
+
         received = await crash_stats_uptake('firefox', '52.0.2')
         assert received["status"] == Status.ERROR.value
         assert received["message"] == "No crash-stats ADI info for version ['54.0', '52.0.2']"
+
+    async def test_crash_stats_tasks_tries_the_day_before_if_no_hits_for_the_channel(self):
+        url = '{}/ProductVersions/?active=true&build_type=RELEASE&product=firefox'
+        url = url.format(CRASH_STATS_SERVER)
+        self.mocked.get(url, status=200,
+                        body='{"hits": [{"version":"54.0"}, {"version":"52.0.2"}], "total": 2}')
+
+        date = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+
+        url = ('{}/ADI/?start_date={}&end_date={}&platforms=Windows&platforms=Linux&'
+               'platforms=Mac%20OS%20X&product=firefox&versions=54.0&versions=52.0.2')
+        url = url.format(CRASH_STATS_SERVER, date, date)
+        self.mocked.get(url, status=200, body='{"hits": [], "total": 0}')
+
+        date = (datetime.date.today() - datetime.timedelta(days=2)).strftime('%Y-%m-%d')
+
+        url = ('{}/ADI/?start_date={}&end_date={}&platforms=Windows&platforms=Linux&'
+               'platforms=Mac%20OS%20X&product=firefox&versions=54.0&versions=52.0.2')
+        url = url.format(CRASH_STATS_SERVER, date, date)
+        self.mocked.get(url, status=200, body=json.dumps({
+            "hits": [{"version": "52.0", "adi_count": 500},
+                     {"version": "52.0.1", "adi_count": 3000},
+                     {"version": "52.0.2", "adi_count": 5000}],
+            "total": 3}))
+
+        received = await crash_stats_uptake('firefox', '52.0.2')
+        assert received["status"] == Status.EXISTS.value
+        assert received["message"] == ("Crash-Stats uptake for version 52.0.2 is 0.59% "
+                                       "(5,000/8,500)")
 
     async def test_crash_stats_tasks_returns_error_if_no_hits_for_the_given_version(self):
         url = '{}/ProductVersions/?active=true&build_type=RELEASE&product=firefox'
@@ -348,7 +385,7 @@ class DeliveryTasksTest(asynctest.TestCase):
                'platforms=Mac%20OS%20X&product=firefox&versions=54.0&versions=52.0.2')
         url = url.format(CRASH_STATS_SERVER, date, date)
         self.mocked.get(url, status=200,
-                        body='{"hits": [{"version": "54.0", "adi_count": 120}], "total": 0}')
+                        body='{"hits": [{"version": "54.0", "adi_count": 120}], "total": 1}')
         received = await crash_stats_uptake('firefox', '52.0.2')
         assert received["status"] == Status.MISSING.value
         assert received["message"] == "No crash-stats ADI hits for version 52.0.2"
