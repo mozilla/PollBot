@@ -35,20 +35,27 @@ async def get_last_build_ids_for_nightly_version(session, version):
                             url=url)
 
         body = await resp.json()
-        if body:
-            latest_query_data_id = body["latest_query_data_id"]
-            url = "{}/api/query_results/{}".format(TELEMETRY_SERVER, latest_query_data_id)
-            async with session.get(url) as resp:
-                if resp.status != 200:
-                    message = "Query Result {} unavailable (HTTP {})"
-                    raise TaskError(message.format(latest_query_data_id, resp.status), url=url)
+        if not body:
+            message = "Couldn't find any build matching."
+            raise TaskError(message, url=url)
 
-                body = await resp.json()
-                rows = body["query_result"]["data"]["rows"]
-                if rows:
-                    last_build_id_date = rows[0]["build_id"][:8]
-                    return [r["build_id"] for r in rows
-                            if r["build_id"].startswith(last_build_id_date)]
+        latest_query_data_id = body["latest_query_data_id"]
+        url = "{}/api/query_results/{}".format(TELEMETRY_SERVER, latest_query_data_id)
+        async with session.get(url) as resp:
+            if resp.status != 200:
+                message = "Query Result {} unavailable (HTTP {})"
+                raise TaskError(message.format(latest_query_data_id, resp.status), url=url)
+
+            body = await resp.json()
+            rows = body["query_result"]["data"]["rows"]
+
+            if not rows:
+                message = "Couldn't find any build matching."
+                raise TaskError(message, url=url)
+
+            last_build_id_date = rows[0]["build_id"][:8]
+            return [r["build_id"] for r in rows
+                    if r["build_id"].startswith(last_build_id_date)]
 
 
 async def update_parquet_uptake(product, version):

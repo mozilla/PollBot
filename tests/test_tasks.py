@@ -1033,6 +1033,31 @@ class DeliveryTasksTest(asynctest.TestCase):
             "(20170920220431, 20170920111019, 20170920100426) is in progress"
         )
 
+    async def test_telemetry_update_uptake_creates_the_query_if_null_body(self):
+        url = '{}/api/queries/{}'
+        url = url.format(telemetry.TELEMETRY_SERVER, telemetry.NIGHTLY_BUILD_IDS["57.0a1"])
+        self.mocked.get(url, status=200, body=json.dumps({}))
+
+        with pytest.raises(TaskError) as excinfo:
+            await telemetry.update_parquet_uptake('firefox', '57.0a1')
+        assert str(excinfo.value) == "Couldn't find any build matching."
+
+    async def test_telemetry_update_uptake_creates_the_query_if_no_results(self):
+        url = '{}/api/queries/{}'
+        url = url.format(telemetry.TELEMETRY_SERVER, telemetry.NIGHTLY_BUILD_IDS["57.0a1"])
+        self.mocked.get(url, status=200, body=json.dumps({
+            "latest_query_data_id": 1234
+        }))
+
+        url = '{}/api/query_results/1234'.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.get(url, status=200, body=json.dumps({
+            "query_result": {"data": {"rows": []}}
+        }))
+
+        with pytest.raises(TaskError) as excinfo:
+            await telemetry.update_parquet_uptake('firefox', '57.0a1')
+        assert str(excinfo.value) == "Couldn't find any build matching."
+
     async def test_telemetry_update_uptake_creates_the_query_if_not_found_for_release(self):
         url = "{}/api/queries/search?q=Uptake+Firefox+RELEASE+57.0&include_drafts=true"
         url = url.format(telemetry.TELEMETRY_SERVER)
