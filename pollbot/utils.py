@@ -1,3 +1,4 @@
+import datetime
 from enum import Enum
 
 
@@ -68,3 +69,7 @@ def is_valid_version(version):
         return True
     except:
         return False
+
+
+def yesterday(*, days=1):
+    return(datetime.date.today() - datetime.timedelta(days=days)).strftime('%Y-%m-%d')

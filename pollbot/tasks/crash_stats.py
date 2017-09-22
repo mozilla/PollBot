@@ -1,5 +1,5 @@
-import datetime
-from pollbot.utils import Status, Channel, get_version_channel
+from urllib.parse import urlencode, quote
+from pollbot.utils import Status, Channel, get_version_channel, yesterday
 from . import get_session, build_task_response, heartbeat_factory
 
 CRASH_STATS_SERVER = "https://crash-stats.mozilla.com/api"
@@ -18,33 +18,41 @@ async def get_channel_versions(product, version):
             return versions
 
 
+def crash_stats_query_url(params):
+    params.extend([("platforms", "Windows"),
+                   ("platforms", "Linux"),
+                   ("platforms", "Mac OS X")])
+    return '{}/ADI/?{}'.format(CRASH_STATS_SERVER, urlencode(params, quote_via=quote))
+
+
 async def uptake(product, version):
     channel = get_version_channel(version)
-    date = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+    date = yesterday()
 
     if channel is Channel.BETA:
         versions = ['{}b'.format(version.split('b')[0])]
     else:
         versions = await get_channel_versions(product, version)
 
-    url = ('{}/ADI/?start_date={}&end_date={}&'
-           'platforms=Windows&platforms=Linux&platforms=Mac%20OS%20X&'
-           'product={}&versions={}')
-    url = url.format(CRASH_STATS_SERVER, date, date, product,
-                     '&versions='.join(versions))
+    version_params = [("versions", x) for x in versions]
+    params = [("start_date", date),
+              ("end_date", date),
+              ("product", product)]
+    params.extend(version_params)
+    url = crash_stats_query_url(params)
 
     with get_session() as session:
         async with session.get(url) as resp:
             body = await resp.json()
             if not body['hits']:
                 # Try the day before
-                date = (datetime.date.today() - datetime.timedelta(days=2)).strftime('%Y-%m-%d')
+                date = yesterday(days=2)
 
-                url = ('{}/ADI/?start_date={}&end_date={}&'
-                       'platforms=Windows&platforms=Linux&platforms=Mac%20OS%20X&'
-                       'product={}&versions={}')
-                url = url.format(CRASH_STATS_SERVER, date, date, product,
-                                 '&versions='.join(versions))
+                params = [("start_date", date),
+                          ("end_date", date),
+                          ("product", product)]
+                params.extend(version_params)
+                url = crash_stats_query_url(params)
 
                 async with session.get(url) as resp:
                     body = await resp.json()
