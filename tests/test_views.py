@@ -484,6 +484,7 @@ async def test_lbheartbeat(cli):
 
 async def test_heartbeat(cli):
     await check_response(cli, "/v1/__heartbeat__",
+                         status=503,
                          body={
                              "archive": True,
                              "balrog": True,
@@ -491,7 +492,7 @@ async def test_heartbeat(cli):
                              "buildhub": True,
                              "crash-stats": True,
                              "product-details": True,
-                             "telemetry": True,
+                             "telemetry": False,
                          })
 
 
