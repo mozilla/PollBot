@@ -6,7 +6,10 @@ from pollbot.utils import Status, Channel, get_version_channel, build_version_id
 from . import get_session, build_task_response, heartbeat_factory
 
 TELEMETRY_SERVER = "https://sql.telemetry.mozilla.org"
-NIGHTLY_BUILD_IDS = {"57.0a1": 40223}  # https://sql.telemetry.mozilla.org/queries/40223/source
+NIGHTLY_BUILD_IDS = {
+    "57.0a1": 40223,  # https://sql.telemetry.mozilla.org/queries/40223/source
+    "58.0a1": 40790,  # https://sql.telemetry.mozilla.org/queries/40790/source
+}
 TELEMETRY_API_KEY = os.getenv("TELEMETRY_API_KEY")
 
 
