@@ -69,6 +69,8 @@ def get_app(loop=None):
 
     cors.add(app.router.add_get('/v1/{product}/{version}/buildhub',
                                 release.buildhub_check, name="buildhub"))
+    cors.add(app.router.add_get('/v1/{product}/{version}/telemetry/update-parquet-uptake',
+                                release.telemetry_uptake, name="telemetry-update-parquet-uptake"))
 
     # Swagger UI and documentation
     setup_swagger(app,

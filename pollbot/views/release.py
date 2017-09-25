@@ -2,11 +2,11 @@ import logging
 from aiohttp import web
 from collections import OrderedDict
 
-from ..tasks import balrog, buildhub, crash_stats
+from ..tasks import balrog, buildhub, crash_stats, telemetry
 from ..tasks.archives import archives, partner_repacks
 from ..tasks.bedrock import release_notes, security_advisories, download_links, get_releases
 from ..tasks.product_details import product_details, devedition_and_beta_in_sync
-from ..utils import Channel, get_version_channel
+from ..utils import Channel, get_version_channel, build_version_id
 from .decorators import validate_product_version
 
 logger = logging.getLogger(__package__)
@@ -37,6 +37,7 @@ devedition_beta_check = status_response(devedition_and_beta_in_sync)
 balrog_rules = status_response(balrog.balrog_rules)
 buildhub_check = status_response(buildhub.buildhub)
 crash_stats_uptake = status_response(crash_stats.uptake)
+telemetry_uptake = status_response(telemetry.update_parquet_uptake)
 
 
 @validate_product_version
@@ -57,6 +58,7 @@ CHECKS_TITLE = {
     "balrog-rules": "Balrog update rules",
     "buildhub": "Buildhub release info",
     "crash-stats-uptake": "Crash Stats Uptake",
+    "telemetry-update-parquet-uptake": "Telemetry Update Parquet Uptake",
 }
 
 
@@ -72,6 +74,7 @@ CHECKS = OrderedDict(
         "balrog-rules": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
         "buildhub": [Channel.ESR, Channel.RELEASE, Channel.BETA],
         "crash-stats-uptake": [Channel.ESR, Channel.RELEASE, Channel.BETA],
+        "telemetry-update-parquet-uptake": "57.0a1",
     }.items(), key=lambda t: t[0]))
 
 
@@ -86,7 +89,18 @@ async def view_get_checks(request, product, version):
     router = request.app.router
 
     for check_name, channels in CHECKS.items():
-        if channel in channels:
+        check_related_to_version = False
+        if isinstance(channels, list):
+            if channel in channels:
+                # List of related channels
+                check_related_to_version = True
+        else:
+            # We set the min version.
+            min_version = channels
+            if build_version_id(version) >= build_version_id(min_version):
+                check_related_to_version = True
+
+        if check_related_to_version:
             prefix = "{}://{}".format(proto, host)
             url = router[check_name].url_for(product=product, version=version)
             info = {
