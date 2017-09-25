@@ -1,7 +1,7 @@
 API Changelog
 =============
 
-1.2 (unreleased)
+1.2 (2017-09-25)
 ----------------
 
 - Add balrog checks and endpoints.

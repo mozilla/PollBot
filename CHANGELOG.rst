@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-0.3.0 (unreleased)
+0.3.0 (2017-09-25)
 ------------------
 
 - Update the archive check to validate that all expected files have been
