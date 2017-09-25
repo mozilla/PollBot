@@ -8,7 +8,7 @@ API Changelog
 - Add buildhub checks and endpoints.
 - Add Crash-Stats uptake check and endpoint.
 - Add partner-repacks task and endpoint.
-- Add Telemetry update parket uptake check and endpoint.
+- Add Telemetry update parquet uptake check and endpoint.
 - Remove multiple nightly archive checks.
 
 
