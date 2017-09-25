@@ -50,13 +50,15 @@ database services to configure.
 
 However you can configure the following parameters using environment variables:
 
-+-------------------+--------------------------------------------------+
-| **VARIABLE**      | **Description**                                  |
-+-------------------+--------------------------------------------------+
-| ``PORT``          | The service PORT, by default runs on 9876        |
-+-------------------+--------------------------------------------------+
-| ``VERSION_FILE``  | The JSON version file, default PWD/version.json  |
-+-------------------+--------------------------------------------------+
-| ``CACHE_MAX_AGE`` | The Cache-Control max-age value, default to 30   |
-|                   | seconds. Set it to 0 to set it to no-cache       |
-+-------------------+--------------------------------------------------+
++-----------------------+---------------------------------------------------+
+| **VARIABLE**          | **Description**                                   |
++-----------------------+---------------------------------------------------+
+| ``PORT``              | The service PORT, by default runs on 9876         |
++-----------------------+---------------------------------------------------+
+| ``VERSION_FILE``      | The JSON version file, default PWD/version.json   |
++-----------------------+---------------------------------------------------+
+| ``CACHE_MAX_AGE``     | The Cache-Control max-age value, default to 30    |
+|                       | seconds. Set it to 0 to set it to no-cache        |
++-----------------------+---------------------------------------------------+
+| ``TELEMETRY_API_KEY`` | API KEY to be able to query the Telemetry Service |
++-----------------------+---------------------------------------------------+
