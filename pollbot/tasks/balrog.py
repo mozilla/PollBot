@@ -52,14 +52,14 @@ async def balrog_rules(product, version):
                     message = ('Balrog rule is configured for {} ({}) instead of '
                                '"Firefox-mozilla-central-nightly-latest"')
                     message = message.format(rule['mapping'],
-                                             ', '.join(sorted(build_ids.values())))
+                                             ', '.join(sorted(set(build_ids.values()))))
                 elif old_build_id:
                     platforms = [k for k, v in build_ids.items() if v in old_build_id]
                     status = Status.INCOMPLETE
                     message = ("Balrog rule is configured for {} ({}) platform {} with build ID {}"
                                " seem outdated.")
                     message = message.format(rule['mapping'],
-                                             ', '.join(sorted(build_ids.values())),
+                                             ', '.join(sorted(set(build_ids.values()))),
                                              ', '.join(platforms),
                                              ', '.join(old_build_id))
                 else:
@@ -68,7 +68,7 @@ async def balrog_rules(product, version):
                         'Balrog rule is configured for the latest Nightly {} build ({}) '
                         'with an update rate of {}%')
                     message = message.format(', '.join(sorted(appVersions)),
-                                             ', '.join(sorted(build_ids.values())),
+                                             ', '.join(sorted(set(build_ids.values()))),
                                              rule['backgroundRate'])
 
                 return build_task_response(status, url, message)

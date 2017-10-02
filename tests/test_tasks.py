@@ -795,6 +795,24 @@ class DeliveryTasksTest(asynctest.TestCase):
                                        'platform mac with build ID 20170921221002 seem outdated.')
         assert received['status'] == Status.INCOMPLETE.value
 
+    async def test_balrog_rules_tasks_returns_exists_if_buildID_are_matching(self):
+        url = 'https://aus-api.mozilla.org/api/v1/rules/firefox-nightly'
+        self.mocked.get(url, status=200, body=json.dumps({
+            'mapping': 'Firefox-mozilla-central-nightly-latest',
+            'backgroundRate': 100
+        }))
+        url = 'https://aus-api.mozilla.org/api/v1/releases/Firefox-mozilla-central-nightly-latest'
+        self.mocked.get(url, status=200, body=json.dumps({'platforms': {
+            "linux": {"locales": {"de": {"buildID": "20170922221002", "appVersion": "57.0a1"}}},
+            "mac": {"locales": {"de": {"buildID": "20170922221002", "appVersion": "57.0a1"}}},
+        }}))
+
+        received = await balrog_rules('firefox', '57.0a1')
+        assert received["message"] == ('Balrog rule is configured for the latest '
+                                       'Nightly 57.0a1 build (20170922221002) '
+                                       'with an update rate of 100%')
+        assert received['status'] == Status.EXISTS.value
+
     async def test_buildhub_task_returns_missing_if_release_is_missing(self):
         url = ('{}/buckets/build-hub/collections/releases/records'
                '?source.product=firefox&target.version="57.0a1"').format(BUILDHUB_SERVER)
