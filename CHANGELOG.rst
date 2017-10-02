@@ -4,7 +4,7 @@ CHANGELOG
 0.4.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Deduplicate Balrog Build IDs (#116)
 
 
 0.3.0 (2017-09-25)

@@ -405,19 +405,20 @@ async def test_release_bedrock_release_notes(cli):
 
 
 async def test_release_bedrock_security_advisories(cli):
-    await check_response(cli, "/v1/firefox/54.0/bedrock/security-advisories", body={
-        "status": Status.EXISTS.value,
-        "message": "Security advisories for release were published up to version 55.0.3",
-        "link": "https://www.mozilla.org/en-US/security/known-vulnerabilities/firefox/"
-    })
+    resp = await check_response(cli, "/v1/firefox/54.0/bedrock/security-advisories")
+    body = await resp.json()
+    assert body['status'] == Status.EXISTS.value
+    assert body['message'].startswith("Security advisories for release were published")
+    assert body['link'] == "https://www.mozilla.org/en-US/security/known-vulnerabilities/firefox/"
 
 
 async def test_release_bedrock_download_links(cli):
-    await check_response(cli, "/v1/firefox/54.0/bedrock/download-links", body={
-        "status": Status.EXISTS.value,
-        "message": "The download links for release have been published for version 55.0.3",
-        "link": "https://www.mozilla.org/en-US/firefox/all/"
-    })
+    resp = await check_response(cli, "/v1/firefox/54.0/bedrock/download-links")
+    body = await resp.json()
+
+    assert body['status'] == Status.EXISTS.value
+    assert body['message'].startswith("The download links for release have been published")
+    assert body['link'] == "https://www.mozilla.org/en-US/firefox/all/"
 
 
 async def test_release_product_details(cli):
@@ -463,7 +464,7 @@ async def test_nightly_balrog_rules(cli):
     resp = await check_response(cli, "/v1/firefox/57.0a1/balrog-rules")
     body = await resp.json()
     assert "Balrog rule is configured" in body["message"]
-    assert body["status"] in (Status.EXISTS.value, Status.MISSING.value)
+    assert body["status"] in (Status.EXISTS.value, Status.MISSING.value, Status.INCOMPLETE.value)
     assert body["link"] == "https://aus-api.mozilla.org/api/v1/rules/firefox-nightly"
 
 
