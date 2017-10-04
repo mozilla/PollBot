@@ -23,7 +23,8 @@ async def get_query_info_from_title(session, query_title):
     async with session.get(query_url) as resp:
         body = await resp.json()
         if body:
-            return body[0]
+            body = [b for b in body if not b['name'].startswith('Copy of')]
+            return body and body[0] or None
 
 
 async def get_last_build_ids_for_nightly_version(session, version):
