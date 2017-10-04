@@ -85,12 +85,17 @@ async def balrog_rules(product, version):
         async with session.get(url) as resp:
             rule = await resp.json()
             build_ids, appVersions = await get_release_info(rule['mapping'])
+
             status = build_version_id(appVersions.pop()) >= build_version_id(version)
+            if rule['backgroundRate'] != 100:
+                status = Status.INCOMPLETE
+
             exists_message = (
                 'Balrog rule has been updated for {} ({}) with an update rate of {}%'
-            ).format(rule['mapping'], sorted(build_ids.values()), rule['backgroundRate'])
+            ).format(rule['mapping'], ', '.join(sorted(set(build_ids.values()))),
+                     rule['backgroundRate'])
             missing_message = 'Balrog rule is set for {} ({}) which is lower than {}'.format(
-                rule['mapping'], sorted(build_ids.values()), version)
+                rule['mapping'], ', '.join(sorted(set(build_ids.values()))), version)
             return build_task_response(status, url, exists_message, missing_message)
 
 

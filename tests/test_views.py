@@ -297,14 +297,12 @@ async def test_get_checks_response_validates_product_name(cli):
 # These are currently functional tests.
 
 async def test_nightly_archive(cli):
-    message = ('The archive exists at https://archive.mozilla.org/pub/'
-               'firefox/nightly/latest-mozilla-central-l10n/ and all 98 locales '
-               'are present for all platforms (linux-i686, linux-x86_64, mac, win32, win64)')
-    await check_response(cli, "/v1/firefox/57.0a1/archive", body={
-        "status": Status.EXISTS.value,
-        "message": message,
-        "link": "https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central-l10n/"
-    })
+    resp = await check_response(cli, "/v1/firefox/57.0a1/archive")
+    body = await resp.json()
+    assert body['status'] in (Status.EXISTS.value, Status.INCOMPLETE.value)
+    assert 'firefox/nightly/latest-mozilla-central-l10n' in body['message']
+    assert body['link'] == ("https://archive.mozilla.org/pub/firefox/nightly/"
+                            "latest-mozilla-central-l10n/")
 
 
 async def test_release_archive(cli):
@@ -382,7 +380,7 @@ async def test_beta_crash_stats_uptake(cli):
 async def test_release_balrog_rules(cli):
     resp = await check_response(cli, "/v1/firefox/54.0/balrog-rules")
     body = await resp.json()
-    assert body["status"] == Status.EXISTS.value
+    assert body["status"] in (Status.EXISTS.value, Status.INCOMPLETE.value)
     assert "Balrog rule has been updated" in body["message"]
     assert body["link"] == "https://aus-api.mozilla.org/api/v1/rules/firefox-release"
 
