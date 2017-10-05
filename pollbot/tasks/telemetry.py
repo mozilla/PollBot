@@ -123,13 +123,14 @@ FROM updated_t, total_t
 
         if query_info:
             # In that case the query already exists
-            # Get the results
             latest_query_data_id = query_info["latest_query_data_id"]
 
+            # In case the query processing didn't start, the last_query_data_id can be None.
             if latest_query_data_id is None:
                 url = "{}/queries/{}".format(TELEMETRY_SERVER, query_info['id'])
                 return build_task_response(Status.INCOMPLETE, url, "Query still processing.")
 
+            # Get the results if we know the query results ID
             url = "{}/api/query_results/{}".format(TELEMETRY_SERVER, latest_query_data_id)
             async with session.get(url) as resp:
                 if resp.status != 200:
@@ -139,6 +140,7 @@ FROM updated_t, total_t
                                                                        resp.status))
 
                 body = await resp.json()
+                # If no data are matching the query, we may have an empty list of results,
                 if not body["query_result"]["data"]["rows"]:
                     url = "{}/queries/{}".format(TELEMETRY_SERVER, query_info['id'])
                     return build_task_response(Status.ERROR, url,

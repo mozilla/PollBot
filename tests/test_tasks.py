@@ -887,7 +887,7 @@ class DeliveryTasksTest(asynctest.TestCase):
             await telemetry.update_parquet_uptake('firefox', '57.0a1')
         assert str(excinfo.value) == 'Query 40223 unavailable (HTTP 502)'
 
-    async def test_telemetry_update_uptake_tasks_returns_error_for_no_result(self):
+    async def test_telemetry_update_uptake_tasks_returns_incomplete_for_no_result(self):
         url = '{}/api/queries/{}'
         url = url.format(telemetry.TELEMETRY_SERVER, telemetry.NIGHTLY_BUILD_IDS["57.0a1"])
         self.mocked.get(url, status=200, body=json.dumps({
