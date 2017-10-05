@@ -146,7 +146,7 @@ FROM updated_t, total_t
                 status = Status.EXISTS
             url = "{}/queries/{}".format(TELEMETRY_SERVER, query_info["id"])
             message = 'Telemetry uptake for version {} is {:.2f}% ({:,}/{:,})'.format(
-                version_name, ratio, version_users, total_users)
+                version_name, ratio * 100, version_users, total_users)
 
             return build_task_response(status, url, message)
 
