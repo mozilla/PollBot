@@ -71,5 +71,5 @@ def is_valid_version(version):
         return False
 
 
-def yesterday(*, days=1):
-    return(datetime.date.today() - datetime.timedelta(days=days)).strftime('%Y-%m-%d')
+def yesterday(*, formating='%Y-%m-%d', days=1):
+    return(datetime.date.today() - datetime.timedelta(days=days)).strftime(formating)

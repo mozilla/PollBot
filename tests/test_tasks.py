@@ -860,6 +860,45 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert received["message"] == ("Buildhub does not contain any information "
                                        "about this release yet.")
 
+    async def test_buildhub_task_returns_incomplete_if_nightly_too_old(self):
+        url = ('{}/buckets/build-hub/collections/releases/records?has_build.id=true'
+               '&source.product=firefox&_sort=-build.id&target.version="58.0a1"'
+               '&_limit=1').format(BUILDHUB_SERVER)
+        self.mocked.get(url, status=200, body=json.dumps({
+            'data': [
+                {
+                    "build": {
+                        "id": "20171003220138",
+                        "date": "2017-10-03T22:01:38Z"
+                    }
+                }
+            ]
+        }))
+        received = await buildhub('firefox', '58.0a1')
+        assert received['status'] == Status.INCOMPLETE.value
+        assert received["message"] == ("Latest Nightly build id is 20171003220138 "
+                                       "for this version.")
+
+    async def test_buildhub_task_returns_exists_if_nightly_is_fresh(self):
+        url = ('{}/buckets/build-hub/collections/releases/records?has_build.id=true'
+               '&source.product=firefox&_sort=-build.id&target.version="58.0a1"'
+               '&_limit=1').format(BUILDHUB_SERVER)
+        build_id = datetime.date.today().strftime('%Y%m%d%H%M%S')
+        self.mocked.get(url, status=200, body=json.dumps({
+            'data': [
+                {
+                    "build": {
+                        "id": build_id,
+                        "date": datetime.date.today().strftime('%Y-%m-%dT%H:%M:%SZ')
+                    }
+                }
+            ]
+        }))
+        received = await buildhub('firefox', '58.0a1')
+        assert received['status'] == Status.EXISTS.value
+        assert received["message"] == "Latest Nightly build id is {} for this version.".format(
+            build_id)
+
     async def test_buildhub_task_returns_exists_if_release_was_found(self):
         url = ('{}/buckets/build-hub/collections/releases/records?has_build.id=true'
                '&source.product=firefox&target.version="56.0b12"'

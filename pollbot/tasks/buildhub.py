@@ -1,6 +1,6 @@
 from urllib.parse import urlencode
 
-from pollbot.utils import Channel, get_version_channel
+from pollbot.utils import Channel, Status, get_version_channel, yesterday
 
 from . import get_session, build_task_response, heartbeat_factory
 
@@ -15,6 +15,8 @@ async def buildhub(product, version):
         "has_build.id": "true",
         "_limit": 1,
     }
+
+    exists_message = 'Build id is {record[build][id]} for this release.'
     missing_message = 'Buildhub does not contain any information about this release yet.'
 
     channel = get_version_channel(version)
@@ -23,9 +25,6 @@ async def buildhub(product, version):
             "_sort": "-build.id",
         })
         exists_message = 'Latest Nightly build id is {record[build][id]} for this version.'
-
-    else:
-        exists_message = 'Build id is {record[build][id]} for this release.'
 
     url = '{}/buckets/build-hub/collections/releases/records?{}'
     url = url.format(BUILDHUB_SERVER, urlencode(params))
@@ -38,6 +37,11 @@ async def buildhub(product, version):
             if status:
                 record = body['data'][0]
                 exists_message = exists_message.format(record=record)
+
+                if channel is Channel.NIGHTLY:
+                    last_expected_nightly = yesterday(formating='%Y%m%d')
+                    if record['build']['id'][:8] < last_expected_nightly:
+                        status = Status.INCOMPLETE
 
             url = "https://mozilla-services.github.io/buildhub/?versions[0]={}&products[0]={}"
             url = url.format(version, product)
