@@ -195,6 +195,8 @@ async def test_get_checks_for_nightly(cli):
             {"url": "http://localhost/v1/firefox/57.0a1/archive", "title": "Archive Release"},
             {"url": "http://localhost/v1/firefox/57.0a1/balrog-rules",
              "title": "Balrog update rules"},
+            {"url": "http://localhost/v1/firefox/57.0a1/buildhub",
+             "title": "Buildhub release info"},
             {"url": "http://localhost/v1/firefox/57.0a1/bedrock/download-links",
              "title": "Download links"},
             {"url": "http://localhost/v1/firefox/57.0a1/product-details",
