@@ -944,7 +944,8 @@ class DeliveryTasksTest(asynctest.TestCase):
         url = url.format(telemetry.TELEMETRY_SERVER)
         self.mocked.get(url, status=200, body=json.dumps([{
             "latest_query_data_id": None,
-            "id": 40197
+            "id": 40197,
+            "name": "Uptake Firefox NIGHTLY 57.0a1 20170920"
         }]))
 
         received = await telemetry.update_parquet_uptake('firefox', '57.0a1')
@@ -973,7 +974,8 @@ class DeliveryTasksTest(asynctest.TestCase):
         url = url.format(telemetry.TELEMETRY_SERVER)
         self.mocked.get(url, status=200, body=json.dumps([{
             "latest_query_data_id": 5678,
-            "id": 40197
+            "id": 40197,
+            "name": "Uptake Firefox NIGHTLY 57.0a1 20170920"
         }]))
 
         url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
@@ -1078,7 +1080,7 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert received["status"] == Status.EXISTS.value
         assert received["message"] == ("Telemetry uptake for version 57.0a1 "
                                        "(20170920220431, 20170920111019, 20170920100426) "
-                                       "is 0.65% (27,236/42,088)")
+                                       "is 65.43% (27,236/42,088)")
 
     async def test_telemetry_update_uptake_tasks_returns_exists_for_high_nightly_uptake(self):
         url = '{}/api/queries/{}'

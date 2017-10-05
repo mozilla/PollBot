@@ -61,7 +61,7 @@ async def balrog_rules(product, version):
                     message = message.format(rule['mapping'],
                                              ', '.join(sorted(set(build_ids.values()))),
                                              ', '.join(platforms),
-                                             ', '.join(old_build_id))
+                                             ', '.join(sorted(set(old_build_id))))
                 else:
                     status = Status.EXISTS
                     if rule['backgroundRate'] != 100:
