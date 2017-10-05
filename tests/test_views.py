@@ -195,6 +195,8 @@ async def test_get_checks_for_nightly(cli):
             {"url": "http://localhost/v1/firefox/57.0a1/archive", "title": "Archive Release"},
             {"url": "http://localhost/v1/firefox/57.0a1/balrog-rules",
              "title": "Balrog update rules"},
+            {"url": "http://localhost/v1/firefox/57.0a1/buildhub",
+             "title": "Buildhub release info"},
             {"url": "http://localhost/v1/firefox/57.0a1/bedrock/download-links",
              "title": "Download links"},
             {"url": "http://localhost/v1/firefox/57.0a1/product-details",
@@ -389,7 +391,7 @@ async def test_release_buildhub_rules(cli):
     resp = await check_response(cli, "/v1/firefox/54.0/buildhub")
     body = await resp.json()
     assert body["status"] == Status.EXISTS.value
-    assert "Buildhub contains information about this release." in body["message"]
+    assert "Build id is 20170608175746 for this release." in body["message"]
     assert body["link"] == ("https://mozilla-services.github.io/buildhub/"
                             "?versions[0]=54.0&products[0]=firefox")
 

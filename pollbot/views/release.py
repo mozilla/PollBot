@@ -72,7 +72,7 @@ CHECKS = OrderedDict(
         "product-details": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
         "devedition-beta-matches": [Channel.BETA],
         "balrog-rules": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
-        "buildhub": [Channel.ESR, Channel.RELEASE, Channel.BETA],
+        "buildhub": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
         "crash-stats-uptake": [Channel.ESR, Channel.RELEASE, Channel.BETA],
         "telemetry-update-parquet-uptake": "57.0a1",
     }.items(), key=lambda t: t[0]))
