@@ -389,7 +389,7 @@ async def test_release_buildhub_rules(cli):
     resp = await check_response(cli, "/v1/firefox/54.0/buildhub")
     body = await resp.json()
     assert body["status"] == Status.EXISTS.value
-    assert "Buildhub contains information about this release." in body["message"]
+    assert "Build id is 20170608175746 for this release." in body["message"]
     assert body["link"] == ("https://mozilla-services.github.io/buildhub/"
                             "?versions[0]=54.0&products[0]=firefox")
 

@@ -849,8 +849,9 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert received['status'] == Status.INCOMPLETE.value
 
     async def test_buildhub_task_returns_missing_if_release_is_missing(self):
-        url = ('{}/buckets/build-hub/collections/releases/records'
-               '?source.product=firefox&target.version="57.0a1"').format(BUILDHUB_SERVER)
+        url = ('{}/buckets/build-hub/collections/releases/records?has_build.id=true'
+               '&source.product=firefox&_sort=-build.id&target.version="57.0a1"'
+               '&_limit=1').format(BUILDHUB_SERVER)
         self.mocked.get(url, status=200, body=json.dumps({
             'data': []
         }))
@@ -860,8 +861,9 @@ class DeliveryTasksTest(asynctest.TestCase):
                                        "about this release yet.")
 
     async def test_buildhub_task_returns_exists_if_release_was_found(self):
-        url = ('{}/buckets/build-hub/collections/releases/records'
-               '?source.product=firefox&target.version="56.0b12"').format(BUILDHUB_SERVER)
+        url = ('{}/buckets/build-hub/collections/releases/records?has_build.id=true'
+               '&source.product=firefox&target.version="56.0b12"'
+               '&_limit=1').format(BUILDHUB_SERVER)
         self.mocked.get(url, status=200, body=json.dumps({
             'data': [
                 {"last_modified": 1505713780715,
@@ -901,7 +903,7 @@ class DeliveryTasksTest(asynctest.TestCase):
 
         received = await buildhub('firefox', '56.0b12')
         assert received["status"] == Status.EXISTS.value
-        assert received["message"] == ("Buildhub contains information about this release.")
+        assert received["message"] == "Build id is 20170914024831 for this release."
 
     async def test_telemetry_update_uptake_tasks_returns_error_for_previous_nightly(self):
         received = await telemetry.update_parquet_uptake('firefox', '56.0a1')
