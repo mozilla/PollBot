@@ -887,6 +887,69 @@ class DeliveryTasksTest(asynctest.TestCase):
             await telemetry.update_parquet_uptake('firefox', '57.0a1')
         assert str(excinfo.value) == 'Query 40223 unavailable (HTTP 502)'
 
+    async def test_telemetry_update_uptake_tasks_returns_incomplete_for_no_result(self):
+        url = '{}/api/queries/{}'
+        url = url.format(telemetry.TELEMETRY_SERVER, telemetry.NIGHTLY_BUILD_IDS["57.0a1"])
+        self.mocked.get(url, status=200, body=json.dumps({
+            "latest_query_data_id": 1234
+        }))
+
+        url = '{}/api/query_results/1234'.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.get(url, status=200, body=json.dumps({
+            "query_result": {"data": {"rows": [
+                {"build_id": "20170920220431"},
+                {"build_id": "20170920111019"},
+                {"build_id": "20170920100426"},
+                {"build_id": "20170919220202"},
+                {"build_id": "20170919110626"}
+            ]}}
+        }))
+
+        url = "{}/api/queries/search?q=Uptake+Firefox+NIGHTLY+57.0a1+20170920&include_drafts=true"
+        url = url.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.get(url, status=200, body=json.dumps([{
+            "latest_query_data_id": None,
+            "id": 40197
+        }]))
+
+        received = await telemetry.update_parquet_uptake('firefox', '57.0a1')
+        assert received["status"] == Status.INCOMPLETE.value
+        assert received["message"] == ("Query still processing.")
+
+    async def test_telemetry_update_uptake_tasks_returns_error_for_empty_results(self):
+        url = '{}/api/queries/{}'
+        url = url.format(telemetry.TELEMETRY_SERVER, telemetry.NIGHTLY_BUILD_IDS["57.0a1"])
+        self.mocked.get(url, status=200, body=json.dumps({
+            "latest_query_data_id": 1234
+        }))
+
+        url = '{}/api/query_results/1234'.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.get(url, status=200, body=json.dumps({
+            "query_result": {"data": {"rows": [
+                {"build_id": "20170920220431"},
+                {"build_id": "20170920111019"},
+                {"build_id": "20170920100426"},
+                {"build_id": "20170919220202"},
+                {"build_id": "20170919110626"}
+            ]}}
+        }))
+
+        url = "{}/api/queries/search?q=Uptake+Firefox+NIGHTLY+57.0a1+20170920&include_drafts=true"
+        url = url.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.get(url, status=200, body=json.dumps([{
+            "latest_query_data_id": 5678,
+            "id": 40197
+        }]))
+
+        url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.get(url, status=200, body=json.dumps({
+            "query_result": {"data": {"rows": []}}
+        }))
+
+        received = await telemetry.update_parquet_uptake('firefox', '57.0a1')
+        assert received["status"] == Status.ERROR.value
+        assert received["message"] == ("No result found for your query.")
+
     async def test_telemetry_update_uptake_tasks_returns_error_for_unavailable_query_results(self):
         url = '{}/api/queries/{}'
         url = url.format(telemetry.TELEMETRY_SERVER, telemetry.NIGHTLY_BUILD_IDS["57.0a1"])

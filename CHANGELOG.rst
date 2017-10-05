@@ -5,6 +5,7 @@ CHANGELOG
 ------------------
 
 - Deduplicate Balrog Build IDs (#116)
+- Handle Telemetry empty results responses (#121)
 
 
 0.3.0 (2017-09-25)
