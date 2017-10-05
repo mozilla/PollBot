@@ -7,6 +7,7 @@ CHANGELOG
 - Ignore ``Copy of`` Telemetry search results (#115)
 - Deduplicate Balrog Build IDs (#116)
 - Handle Telemetry empty results responses (#121)
+- Enable a buildhub check for Nightly (#129)
 
 
 0.3.0 (2017-09-25)
