@@ -985,7 +985,8 @@ class DeliveryTasksTest(asynctest.TestCase):
         url = url.format(telemetry.TELEMETRY_SERVER)
         self.mocked.get(url, status=200, body=json.dumps([{
             "latest_query_data_id": 5678,
-            "id": 40197
+            "id": 40197,
+            "name": "Uptake Firefox NIGHTLY 57.0a1 20170920"
         }]))
 
         url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
@@ -1000,6 +1001,49 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert received["message"] == ("Telemetry uptake for version 57.0a1 "
                                        "(20170920220431, 20170920111019, 20170920100426) "
                                        "is 45.32% (19,074/42,088)")
+
+    async def test_telemetry_update_uptake_tasks_should_ignore_copied_queries(self):
+        url = '{}/api/queries/{}'
+        url = url.format(telemetry.TELEMETRY_SERVER, telemetry.NIGHTLY_BUILD_IDS["57.0a1"])
+        self.mocked.get(url, status=200, body=json.dumps({
+            "latest_query_data_id": 1234
+        }))
+
+        url = '{}/api/query_results/1234'.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.get(url, status=200, body=json.dumps({
+            "query_result": {"data": {"rows": [
+                {"build_id": "20170920220431"},
+                {"build_id": "20170920111019"},
+                {"build_id": "20170920100426"},
+                {"build_id": "20170919220202"},
+                {"build_id": "20170919110626"}
+            ]}}
+        }))
+
+        url = "{}/api/queries/search?q=Uptake+Firefox+NIGHTLY+57.0a1+20170920&include_drafts=true"
+        url = url.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.get(url, status=200, body=json.dumps([{
+            "latest_query_data_id": 123456789,
+            "id": 40198,
+            "name": "Copy of (#40197) Uptake Firefox NIGHTLY 57.0a1 20170920"
+        }, {
+            "latest_query_data_id": 5678,
+            "id": 40197,
+            "name": "Uptake Firefox NIGHTLY 57.0a1 20170920"
+        }]))
+
+        url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.get(url, status=200, body=json.dumps({
+            "query_result": {"data": {"rows": [
+                {"ratio": 0.65432, "updated": 27236, "total": 42088}
+            ]}}
+        }))
+
+        received = await telemetry.update_parquet_uptake('firefox', '57.0a1')
+        assert received["status"] == Status.EXISTS.value
+        assert received["message"] == ("Telemetry uptake for version 57.0a1 "
+                                       "(20170920220431, 20170920111019, 20170920100426) "
+                                       "is 0.65% (27,236/42,088)")
 
     async def test_telemetry_update_uptake_tasks_returns_exists_for_high_nightly_uptake(self):
         url = '{}/api/queries/{}'
@@ -1023,7 +1067,8 @@ class DeliveryTasksTest(asynctest.TestCase):
         url = url.format(telemetry.TELEMETRY_SERVER)
         self.mocked.get(url, status=200, body=json.dumps([{
             "latest_query_data_id": 5678,
-            "id": 40197
+            "id": 40197,
+            "name": "Uptake Firefox NIGHTLY 57.0a1 20170920"
         }]))
 
         url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
@@ -1061,7 +1106,8 @@ class DeliveryTasksTest(asynctest.TestCase):
         url = url.format(telemetry.TELEMETRY_SERVER)
         self.mocked.get(url, status=200, body=json.dumps([{
             "latest_query_data_id": 5678,
-            "id": 40197
+            "id": 40197,
+            "name": "Uptake Firefox NIGHTLY 57.0a1 20170920"
         }]))
         url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
         self.mocked.get(url, status=404)
@@ -1075,7 +1121,8 @@ class DeliveryTasksTest(asynctest.TestCase):
         url = url.format(telemetry.TELEMETRY_SERVER)
         self.mocked.get(url, status=200, body=json.dumps([{
             "latest_query_data_id": 5678,
-            "id": 40197
+            "id": 40197,
+            "name": "Uptake Firefox NIGHTLY 57.0a1 20170920"
         }]))
 
         url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
@@ -1094,7 +1141,8 @@ class DeliveryTasksTest(asynctest.TestCase):
         url = url.format(telemetry.TELEMETRY_SERVER)
         self.mocked.get(url, status=200, body=json.dumps([{
             "latest_query_data_id": 5678,
-            "id": 40197
+            "id": 40197,
+            "name": "Uptake Firefox NIGHTLY 57.0a1 20170920"
         }]))
 
         url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
