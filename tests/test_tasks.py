@@ -370,8 +370,7 @@ class DeliveryTasksTest(asynctest.TestCase):
 
         received = await crash_stats_uptake('firefox', '52.0.2')
         assert received["status"] == Status.EXISTS.value
-        assert received["message"] == ("Crash-Stats uptake for version 52.0.2 is 58.82% "
-                                       "(5,000/8,500)")
+        assert received["message"] == "Crash-Stats uptake for version 52.0.2 is 58.82%"
 
     async def test_crash_stats_tasks_returns_error_if_no_hits_for_the_given_version(self):
         url = '{}/ProductVersions/?active=true&build_type=RELEASE&product=firefox'
@@ -408,7 +407,7 @@ class DeliveryTasksTest(asynctest.TestCase):
             "total": 3}))
         body = await crash_stats_uptake('firefox', '52.0.2')
         assert body["status"] == Status.INCOMPLETE.value
-        assert body["message"] == "Crash-Stats uptake for version 52.0.2 is 35.29% (3,000/8,500)"
+        assert body["message"] == "Crash-Stats uptake for version 52.0.2 is 35.29%"
 
     async def test_crash_stats_tasks_returns_exists_if_ratio_is_high(self):
         url = '{}/ProductVersions/?active=true&build_type=RELEASE&product=firefox'
@@ -428,7 +427,7 @@ class DeliveryTasksTest(asynctest.TestCase):
             "total": 3}))
         body = await crash_stats_uptake('firefox', '52.0.2')
         assert body["status"] == Status.EXISTS.value
-        assert body["message"] == "Crash-Stats uptake for version 52.0.2 is 58.82% (5,000/8,500)"
+        assert body["message"] == "Crash-Stats uptake for version 52.0.2 is 58.82%"
 
     async def test_download_links_tasks_returns_true_if_version_matches(self):
         url = 'https://www.mozilla.org/en-US/firefox/all/'
@@ -1078,7 +1077,7 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert received["status"] == Status.INCOMPLETE.value
         assert received["message"] == ("Telemetry uptake for version 57.0a1 "
                                        "(20170920220431, 20170920111019, 20170920100426) "
-                                       "is 45.32% (19,074/42,088)")
+                                       "is 45.32%")
 
     async def test_telemetry_update_uptake_tasks_should_ignore_copied_queries(self):
         url = '{}/api/queries/{}'
@@ -1121,7 +1120,7 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert received["status"] == Status.EXISTS.value
         assert received["message"] == ("Telemetry uptake for version 57.0a1 "
                                        "(20170920220431, 20170920111019, 20170920100426) "
-                                       "is 65.43% (27,236/42,088)")
+                                       "is 65.43%")
 
     async def test_telemetry_update_uptake_tasks_returns_exists_for_high_nightly_uptake(self):
         url = '{}/api/queries/{}'
@@ -1160,7 +1159,7 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert received["status"] == Status.EXISTS.value
         assert received["message"] == ("Telemetry uptake for version 57.0a1 "
                                        "(20170920220431, 20170920111019, 20170920100426) "
-                                       "is 65.43% (27,236/42,088)")
+                                       "is 65.43%")
 
     async def test_telemetry_update_uptake_tasks_returns_missing_for_no_search_query(self):
         url = '{}/api/queries/{}'
@@ -1212,7 +1211,7 @@ class DeliveryTasksTest(asynctest.TestCase):
 
         received = await telemetry.update_parquet_uptake('firefox', '57.0')
         assert received["status"] == Status.INCOMPLETE.value
-        assert received["message"] == "Telemetry uptake for version 57.0 is 45.32% (19,074/42,088)"
+        assert received["message"] == "Telemetry uptake for version 57.0 is 45.32%"
 
     async def test_telemetry_update_uptake_tasks_returns_incomplete_for_high_release_uptake(self):
         url = "{}/api/queries/search?q=Uptake+Firefox+RELEASE+57.0&include_drafts=true"
@@ -1232,7 +1231,7 @@ class DeliveryTasksTest(asynctest.TestCase):
 
         received = await telemetry.update_parquet_uptake('firefox', '57.0')
         assert received["status"] == Status.EXISTS.value
-        assert received["message"] == "Telemetry uptake for version 57.0 is 65.43% (27,236/42,088)"
+        assert received["message"] == "Telemetry uptake for version 57.0 is 65.43%"
 
     async def test_telemetry_update_uptake_creates_the_query_if_not_found_for_nightly(self):
         url = '{}/api/queries/{}'

@@ -73,8 +73,8 @@ async def uptake(product, version):
                     status = Status.INCOMPLETE
                 else:
                     status = Status.EXISTS
-                message = 'Crash-Stats uptake for version {} is {:.2f}% ({:,}/{:,})'.format(
-                    version, ratio * 100, version_users, total_users)
+                message = 'Crash-Stats uptake for version {} is {:.2f}%'.format(
+                    version, ratio * 100)
         return build_task_response(status, url, message)
 
 
