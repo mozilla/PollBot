@@ -8,6 +8,7 @@ CHANGELOG
 - Deduplicate Balrog Build IDs (#116)
 - Handle Telemetry empty results responses (#121)
 - Enable a buildhub check for Nightly (#129)
+- Keep only the Uptake ratio (#130)
 
 
 0.3.0 (2017-09-25)
