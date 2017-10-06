@@ -149,8 +149,8 @@ FROM updated_t, total_t
 
                 data = body["query_result"]["data"]["rows"][0]
 
-            version_users = data["updated"]
-            total_users = data["total"]
+            # version_users = data["updated"]
+            # total_users = data["total"]
             ratio = data["ratio"]
 
             if ratio < 0.5:
@@ -158,8 +158,8 @@ FROM updated_t, total_t
             else:
                 status = Status.EXISTS
             url = "{}/queries/{}".format(TELEMETRY_SERVER, query_info["id"])
-            message = 'Telemetry uptake for version {} is {:.2f}% ({:,}/{:,})'.format(
-                version_name, ratio * 100, version_users, total_users)
+            message = 'Telemetry uptake for version {} is {:.2f}%'.format(
+                version_name, ratio * 100)
 
             return build_task_response(status, url, message)
 
