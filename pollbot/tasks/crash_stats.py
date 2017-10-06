@@ -66,8 +66,8 @@ async def uptake(product, version):
                 status = Status.MISSING
                 message = "No crash-stats ADI hits for version {}".format(version)
             else:
-                # version_users = current_version_hits.pop()["adi_count"]
-                # total_users = sum([h['adi_count'] for h in body['hits']])
+                version_users = current_version_hits.pop()["adi_count"]
+                total_users = sum([h['adi_count'] for h in body['hits']])
                 ratio = version_users / total_users
                 if ratio < 0.5:
                     status = Status.INCOMPLETE
