@@ -150,6 +150,7 @@ FROM updated_t, total_t
         payload = {
             "name": query_title,
             "schedule": 3600,
+            "schedule_until": (date.today() + timedelta(days=7)).strftime('%Y-%m-%dT%H:%M:%S'),
             "is_draft": True,
             "query": query,
             "data_source_id": 1,

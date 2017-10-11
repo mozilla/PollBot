@@ -388,13 +388,13 @@ async def test_release_balrog_rules(cli):
     assert body["link"] == "https://aus-api.mozilla.org/api/v1/rules/firefox-release"
 
 
-async def test_release_buildhub_rules(cli):
+async def test_release_buildhub(cli):
     resp = await check_response(cli, "/v1/firefox/54.0/buildhub")
     body = await resp.json()
     assert body["status"] == Status.EXISTS.value
-    assert "Build id is 20170608175746 for this release." in body["message"]
+    assert "Build IDs for this release: 20170608175746, 20170608105825" == body["message"]
     assert body["link"] == ("https://mozilla-services.github.io/buildhub/"
-                            "?versions[0]=54.0&products[0]=firefox")
+                            "?versions[0]=54.0&products[0]=firefox&channel[0]=release")
 
 
 async def test_release_bedrock_release_notes(cli):
