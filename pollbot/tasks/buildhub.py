@@ -6,7 +6,7 @@ from pollbot.utils import Channel, Status, get_version_channel, yesterday
 from . import get_session, build_task_response, heartbeat_factory
 
 
-BUILDHUB_SERVER = "https://buildhub.stage.mozaws.net/v1"
+BUILDHUB_SERVER = "https://buildhub.prod.mozaws.net/v1"
 
 
 async def get_build_ids_for_version(product, version, *, size=10):
