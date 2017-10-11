@@ -847,6 +847,20 @@ class DeliveryTasksTest(asynctest.TestCase):
                                        '(20170922221002) with an update rate of 50%')
         assert received['status'] == Status.INCOMPLETE.value
 
+    def _mock_buildhub_search(self, build_id="20171009192146"):
+        url = "{}/buckets/build-hub/collections/releases/search".format(BUILDHUB_SERVER)
+        self.mocked.post(url, status=200, body=json.dumps({
+            "aggregations": {
+                "by_version": {
+                    "buckets": [
+                        {
+                            "doc_count": 433,
+                            "key": build_id
+                        }
+                    ],
+                }
+            }}))
+
     async def test_buildhub_task_returns_missing_if_release_is_missing(self):
         url = ('{}/buckets/build-hub/collections/releases/records?has_build.id=true'
                '&source.product=firefox&_sort=-build.id&target.version="57.0a1"'
@@ -899,49 +913,60 @@ class DeliveryTasksTest(asynctest.TestCase):
             build_id)
 
     async def test_buildhub_task_returns_exists_if_release_was_found(self):
-        url = ('{}/buckets/build-hub/collections/releases/records?has_build.id=true'
-               '&source.product=firefox&target.version="56.0b12"'
-               '&_limit=1').format(BUILDHUB_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps({
-            'data': [
-                {"last_modified": 1505713780715,
-                 "source": {
-                     "repository": "https://hg.mozilla.org/releases/mozilla-beta",
-                     "product": "firefox",
-                     "revision": "fbef00b40b98333a637211cd284db9e3f5348f07",
-                     "tree": "releases/mozilla-beta"
-                 },
-                 "download": {
-                     "mimetype": "application/x-bzip2",
-                     "date": "2017-09-14T08:10:44Z",
-                     "url": "https://archive.mozilla.org/pub/firefox/releases/56.0b12/"
-                     "linux-x86_64/zh-TW/firefox-56.0b12.tar.bz2",
-                     "size": 54378157},
-                 "target": {
-                     "locale": "zh-TW",
-                     "platform": "linux-x86_64",
-                     "version": "56.0b12",
-                     "channel": "beta",
-                     "os": "linux"},
-                 "id": "firefox_beta_56-0b12_linux-x86_64_zh-tw",
-                 "build": {
-                     "date": "2017-09-14T02:48:31Z",
-                     "cxx": "/usr/bin/ccache /home/worker/workspace/build/src/gcc/bin/g++ "
-                     "-std=gnu++11",
-                     "target": "x86_64-pc-linux-gnu",
-                     "number": 1,
-                     "host": "x86_64-pc-linux-gnu",
-                     "cc": "/usr/bin/ccache /home/worker/workspace/build/src/gcc/bin/gcc "
-                     "-std=gnu99",
-                     "id": "20170914024831",
-                     "as": "$(CC)"
-                 }}
-            ]
-        }))
-
+        self._mock_buildhub_search("20170914024831")
         received = await buildhub('firefox', '56.0b12')
         assert received["status"] == Status.EXISTS.value
-        assert received["message"] == "Build id is 20170914024831 for this release."
+        assert received["message"] == "Build IDs for this release: 20170914024831"
+
+    def _telemetry_mock_release_query(self, body=None):
+        url = ("{}/api/queries/search?q="
+               "Uptake+Firefox+RELEASE+57.0+%2820171009192146%29&include_drafts=true")
+        url = url.format(telemetry.TELEMETRY_SERVER)
+        if body is None:
+            body = [{
+                "latest_query_data_id": 5678,
+                "id": 40197,
+                "name": "Uptake Firefox RELEASE 57.0 (20171009192146)"
+            }]
+        self.mocked.get(url, status=200, body=json.dumps(body))
+
+    def _telemetry_mock_nightly_query(self, body=None):
+        if body is None:
+            body = [{
+                "latest_query_data_id": 5678,
+                "id": 40197,
+                "name": "Uptake Firefox NIGHTLY 57.0a1 20170920"
+            }]
+
+        url = ("{}/api/queries/search?q=Uptake+Firefox+NIGHTLY+57.0a1+"
+               "%2820170920220431%2C+20170920111019%2C+20170920100426%29&include_drafts=true")
+        url = url.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.get(url, status=200, body=json.dumps(body))
+
+    def _telemetry_mock_query_result(self, body):
+        url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.get(url, status=200, body=json.dumps(body))
+
+    def _telemetry_mock_nightly_build_ids(self, body=None):
+        url = '{}/api/queries/{}'
+        url = url.format(telemetry.TELEMETRY_SERVER, telemetry.NIGHTLY_BUILD_IDS["57.0a1"])
+        self.mocked.get(url, status=200, body=json.dumps({
+            "latest_query_data_id": 1234
+        }))
+
+        if body is None:
+            body = {
+                "query_result": {"data": {"rows": [
+                    {"build_id": "20170920220431"},
+                    {"build_id": "20170920111019"},
+                    {"build_id": "20170920100426"},
+                    {"build_id": "20170919220202"},
+                    {"build_id": "20170919110626"}
+                ]}}
+            }
+
+        url = '{}/api/query_results/1234'.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.get(url, status=200, body=json.dumps(body))
 
     async def test_telemetry_update_uptake_tasks_returns_error_for_previous_nightly(self):
         received = await telemetry.update_parquet_uptake('firefox', '56.0a1')
@@ -963,65 +988,23 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert str(excinfo.value) == 'Query 40223 unavailable (HTTP 502)'
 
     async def test_telemetry_update_uptake_tasks_returns_incomplete_for_no_result(self):
-        url = '{}/api/queries/{}'
-        url = url.format(telemetry.TELEMETRY_SERVER, telemetry.NIGHTLY_BUILD_IDS["57.0a1"])
-        self.mocked.get(url, status=200, body=json.dumps({
-            "latest_query_data_id": 1234
-        }))
-
-        url = '{}/api/query_results/1234'.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps({
-            "query_result": {"data": {"rows": [
-                {"build_id": "20170920220431"},
-                {"build_id": "20170920111019"},
-                {"build_id": "20170920100426"},
-                {"build_id": "20170919220202"},
-                {"build_id": "20170919110626"}
-            ]}}
-        }))
-
-        url = "{}/api/queries/search?q=Uptake+Firefox+NIGHTLY+57.0a1+20170920&include_drafts=true"
-        url = url.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps([{
+        self._telemetry_mock_nightly_build_ids()
+        self._telemetry_mock_nightly_query([{
             "latest_query_data_id": None,
             "id": 40197,
             "name": "Uptake Firefox NIGHTLY 57.0a1 20170920"
-        }]))
+        }])
 
         received = await telemetry.update_parquet_uptake('firefox', '57.0a1')
         assert received["status"] == Status.INCOMPLETE.value
         assert received["message"] == ("Query still processing.")
 
     async def test_telemetry_update_uptake_tasks_returns_error_for_empty_results(self):
-        url = '{}/api/queries/{}'
-        url = url.format(telemetry.TELEMETRY_SERVER, telemetry.NIGHTLY_BUILD_IDS["57.0a1"])
-        self.mocked.get(url, status=200, body=json.dumps({
-            "latest_query_data_id": 1234
-        }))
-
-        url = '{}/api/query_results/1234'.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps({
-            "query_result": {"data": {"rows": [
-                {"build_id": "20170920220431"},
-                {"build_id": "20170920111019"},
-                {"build_id": "20170920100426"},
-                {"build_id": "20170919220202"},
-                {"build_id": "20170919110626"}
-            ]}}
-        }))
-
-        url = "{}/api/queries/search?q=Uptake+Firefox+NIGHTLY+57.0a1+20170920&include_drafts=true"
-        url = url.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps([{
-            "latest_query_data_id": 5678,
-            "id": 40197,
-            "name": "Uptake Firefox NIGHTLY 57.0a1 20170920"
-        }]))
-
-        url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps({
+        self._telemetry_mock_nightly_build_ids()
+        self._telemetry_mock_nightly_query()
+        self._telemetry_mock_query_result({
             "query_result": {"data": {"rows": []}}
-        }))
+        })
 
         received = await telemetry.update_parquet_uptake('firefox', '57.0a1')
         assert received["status"] == Status.ERROR.value
@@ -1041,37 +1024,13 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert str(excinfo.value) == 'Query Result 1234 unavailable (HTTP 502)'
 
     async def test_telemetry_update_uptake_tasks_returns_incomplete_for_low_nightly_uptake(self):
-        url = '{}/api/queries/{}'
-        url = url.format(telemetry.TELEMETRY_SERVER, telemetry.NIGHTLY_BUILD_IDS["57.0a1"])
-        self.mocked.get(url, status=200, body=json.dumps({
-            "latest_query_data_id": 1234
-        }))
-
-        url = '{}/api/query_results/1234'.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps({
-            "query_result": {"data": {"rows": [
-                {"build_id": "20170920220431"},
-                {"build_id": "20170920111019"},
-                {"build_id": "20170920100426"},
-                {"build_id": "20170919220202"},
-                {"build_id": "20170919110626"}
-            ]}}
-        }))
-
-        url = "{}/api/queries/search?q=Uptake+Firefox+NIGHTLY+57.0a1+20170920&include_drafts=true"
-        url = url.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps([{
-            "latest_query_data_id": 5678,
-            "id": 40197,
-            "name": "Uptake Firefox NIGHTLY 57.0a1 20170920"
-        }]))
-
-        url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps({
+        self._telemetry_mock_nightly_build_ids()
+        self._telemetry_mock_nightly_query()
+        self._telemetry_mock_query_result({
             "query_result": {"data": {"rows": [
                 {"ratio": 0.4532, "updated": 19074, "total": 42088}
             ]}}
-        }))
+        })
 
         received = await telemetry.update_parquet_uptake('firefox', '57.0a1')
         assert received["status"] == Status.INCOMPLETE.value
@@ -1080,26 +1039,8 @@ class DeliveryTasksTest(asynctest.TestCase):
                                        "is 45.32%")
 
     async def test_telemetry_update_uptake_tasks_should_ignore_copied_queries(self):
-        url = '{}/api/queries/{}'
-        url = url.format(telemetry.TELEMETRY_SERVER, telemetry.NIGHTLY_BUILD_IDS["57.0a1"])
-        self.mocked.get(url, status=200, body=json.dumps({
-            "latest_query_data_id": 1234
-        }))
-
-        url = '{}/api/query_results/1234'.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps({
-            "query_result": {"data": {"rows": [
-                {"build_id": "20170920220431"},
-                {"build_id": "20170920111019"},
-                {"build_id": "20170920100426"},
-                {"build_id": "20170919220202"},
-                {"build_id": "20170919110626"}
-            ]}}
-        }))
-
-        url = "{}/api/queries/search?q=Uptake+Firefox+NIGHTLY+57.0a1+20170920&include_drafts=true"
-        url = url.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps([{
+        self._telemetry_mock_nightly_build_ids()
+        self._telemetry_mock_nightly_query([{
             "latest_query_data_id": 123456789,
             "id": 40198,
             "name": "Copy of (#40197) Uptake Firefox NIGHTLY 57.0a1 20170920"
@@ -1107,14 +1048,12 @@ class DeliveryTasksTest(asynctest.TestCase):
             "latest_query_data_id": 5678,
             "id": 40197,
             "name": "Uptake Firefox NIGHTLY 57.0a1 20170920"
-        }]))
-
-        url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps({
+        }])
+        self._telemetry_mock_query_result({
             "query_result": {"data": {"rows": [
                 {"ratio": 0.65432, "updated": 27236, "total": 42088}
             ]}}
-        }))
+        })
 
         received = await telemetry.update_parquet_uptake('firefox', '57.0a1')
         assert received["status"] == Status.EXISTS.value
@@ -1123,31 +1062,8 @@ class DeliveryTasksTest(asynctest.TestCase):
                                        "is 65.43%")
 
     async def test_telemetry_update_uptake_tasks_returns_exists_for_high_nightly_uptake(self):
-        url = '{}/api/queries/{}'
-        url = url.format(telemetry.TELEMETRY_SERVER, telemetry.NIGHTLY_BUILD_IDS["57.0a1"])
-        self.mocked.get(url, status=200, body=json.dumps({
-            "latest_query_data_id": 1234
-        }))
-
-        url = '{}/api/query_results/1234'.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps({
-            "query_result": {"data": {"rows": [
-                {"build_id": "20170920220431"},
-                {"build_id": "20170920111019"},
-                {"build_id": "20170920100426"},
-                {"build_id": "20170919220202"},
-                {"build_id": "20170919110626"}
-            ]}}
-        }))
-
-        url = "{}/api/queries/search?q=Uptake+Firefox+NIGHTLY+57.0a1+20170920&include_drafts=true"
-        url = url.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps([{
-            "latest_query_data_id": 5678,
-            "id": 40197,
-            "name": "Uptake Firefox NIGHTLY 57.0a1 20170920"
-        }]))
-
+        self._telemetry_mock_nightly_build_ids()
+        self._telemetry_mock_nightly_query()
         url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
         self.mocked.get(url, status=200, body=json.dumps({
             "query_result": {"data": {"rows": [
@@ -1162,30 +1078,8 @@ class DeliveryTasksTest(asynctest.TestCase):
                                        "is 65.43%")
 
     async def test_telemetry_update_uptake_tasks_returns_missing_for_no_search_query(self):
-        url = '{}/api/queries/{}'
-        url = url.format(telemetry.TELEMETRY_SERVER, telemetry.NIGHTLY_BUILD_IDS["57.0a1"])
-        self.mocked.get(url, status=200, body=json.dumps({
-            "latest_query_data_id": 1234
-        }))
-
-        url = '{}/api/query_results/1234'.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps({
-            "query_result": {"data": {"rows": [
-                {"build_id": "20170920220431"},
-                {"build_id": "20170920111019"},
-                {"build_id": "20170920100426"},
-                {"build_id": "20170919220202"},
-                {"build_id": "20170919110626"}
-            ]}}
-        }))
-
-        url = "{}/api/queries/search?q=Uptake+Firefox+NIGHTLY+57.0a1+20170920&include_drafts=true"
-        url = url.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps([{
-            "latest_query_data_id": 5678,
-            "id": 40197,
-            "name": "Uptake Firefox NIGHTLY 57.0a1 20170920"
-        }]))
+        self._telemetry_mock_nightly_build_ids()
+        self._telemetry_mock_nightly_query()
         url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
         self.mocked.get(url, status=404)
 
@@ -1194,66 +1088,37 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert received["message"] == "Query Result 5678 unavailable (HTTP 404)"
 
     async def test_telemetry_update_uptake_tasks_returns_incomplete_for_low_release_uptake(self):
-        url = "{}/api/queries/search?q=Uptake+Firefox+RELEASE+57.0&include_drafts=true"
-        url = url.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps([{
-            "latest_query_data_id": 5678,
-            "id": 40197,
-            "name": "Uptake Firefox NIGHTLY 57.0a1 20170920"
-        }]))
-
-        url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps({
+        self._mock_buildhub_search()
+        self._telemetry_mock_release_query()
+        self._telemetry_mock_query_result({
             "query_result": {"data": {"rows": [
                 {"ratio": 0.4532, "updated": 19074, "total": 42088}
             ]}}
-        }))
+        })
 
         received = await telemetry.update_parquet_uptake('firefox', '57.0')
         assert received["status"] == Status.INCOMPLETE.value
-        assert received["message"] == "Telemetry uptake for version 57.0 is 45.32%"
+        message = "Telemetry uptake for version 57.0 (20171009192146) is 45.32%"
+        assert received["message"] == message
 
     async def test_telemetry_update_uptake_tasks_returns_incomplete_for_high_release_uptake(self):
-        url = "{}/api/queries/search?q=Uptake+Firefox+RELEASE+57.0&include_drafts=true"
-        url = url.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps([{
-            "latest_query_data_id": 5678,
-            "id": 40197,
-            "name": "Uptake Firefox NIGHTLY 57.0a1 20170920"
-        }]))
-
-        url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps({
+        self._mock_buildhub_search()
+        self._telemetry_mock_release_query()
+        self._telemetry_mock_query_result({
             "query_result": {"data": {"rows": [
                 {"ratio": 0.65432, "updated": 27236, "total": 42088}
             ]}}
-        }))
+        })
 
         received = await telemetry.update_parquet_uptake('firefox', '57.0')
         assert received["status"] == Status.EXISTS.value
-        assert received["message"] == "Telemetry uptake for version 57.0 is 65.43%"
+        message = "Telemetry uptake for version 57.0 (20171009192146) is 65.43%"
+        assert received["message"] == message
 
     async def test_telemetry_update_uptake_creates_the_query_if_not_found_for_nightly(self):
-        url = '{}/api/queries/{}'
-        url = url.format(telemetry.TELEMETRY_SERVER, telemetry.NIGHTLY_BUILD_IDS["57.0a1"])
-        self.mocked.get(url, status=200, body=json.dumps({
-            "latest_query_data_id": 1234
-        }))
-
-        url = '{}/api/query_results/1234'.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps({
-            "query_result": {"data": {"rows": [
-                {"build_id": "20170920220431"},
-                {"build_id": "20170920111019"},
-                {"build_id": "20170920100426"},
-                {"build_id": "20170919220202"},
-                {"build_id": "20170919110626"}
-            ]}}
-        }))
-
-        url = "{}/api/queries/search?q=Uptake+Firefox+NIGHTLY+57.0a1+20170920&include_drafts=true"
-        url = url.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps([]))
+        self._mock_buildhub_search()
+        self._telemetry_mock_nightly_build_ids()
+        self._telemetry_mock_nightly_query([])
 
         url = '{}/api/queries'.format(telemetry.TELEMETRY_SERVER)
         self.mocked.post(url, status=200, body=json.dumps({
@@ -1282,25 +1147,17 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert str(excinfo.value) == "Couldn't find any build matching."
 
     async def test_telemetry_update_uptake_creates_the_query_if_no_results(self):
-        url = '{}/api/queries/{}'
-        url = url.format(telemetry.TELEMETRY_SERVER, telemetry.NIGHTLY_BUILD_IDS["57.0a1"])
-        self.mocked.get(url, status=200, body=json.dumps({
-            "latest_query_data_id": 1234
-        }))
-
-        url = '{}/api/query_results/1234'.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps({
+        self._telemetry_mock_nightly_build_ids({
             "query_result": {"data": {"rows": []}}
-        }))
+        })
 
         with pytest.raises(TaskError) as excinfo:
             await telemetry.update_parquet_uptake('firefox', '57.0a1')
         assert str(excinfo.value) == "Couldn't find any build matching."
 
     async def test_telemetry_update_uptake_creates_the_query_if_not_found_for_release(self):
-        url = "{}/api/queries/search?q=Uptake+Firefox+RELEASE+57.0&include_drafts=true"
-        url = url.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps([]))
+        self._mock_buildhub_search()
+        self._telemetry_mock_release_query([])
 
         url = '{}/api/queries'.format(telemetry.TELEMETRY_SERVER)
         self.mocked.post(url, status=200, body=json.dumps({
@@ -1315,25 +1172,24 @@ class DeliveryTasksTest(asynctest.TestCase):
         received = await telemetry.update_parquet_uptake('firefox', '57.0')
         assert received["status"] == Status.INCOMPLETE.value
         assert received["message"] == (
-            "Telemetry uptake calculation for version 57.0 is in progress"
+            "Telemetry uptake calculation for version 57.0 (20171009192146) is in progress"
         )
 
     async def test_telemetry_update_uptake_return_error_if_the_query_creation_failed(self):
-        url = "{}/api/queries/search?q=Uptake+Firefox+RELEASE+57.0&include_drafts=true"
-        url = url.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps([]))
+        self._mock_buildhub_search()
+        self._telemetry_mock_release_query([])
 
         url = '{}/api/queries'.format(telemetry.TELEMETRY_SERVER)
         self.mocked.post(url, status=403)
 
         with pytest.raises(TaskError) as excinfo:
             await telemetry.update_parquet_uptake('firefox', '57.0')
-        assert str(excinfo.value) == 'Unable to create the new query for 57.0 (HTTP 403)'
+        message = 'Unable to create the new query for 57.0 (20171009192146) (HTTP 403)'
+        assert str(excinfo.value) == message
 
     async def test_telemetry_update_uptake_return_error_if_the_query_execution_failed(self):
-        url = "{}/api/queries/search?q=Uptake+Firefox+RELEASE+57.0&include_drafts=true"
-        url = url.format(telemetry.TELEMETRY_SERVER)
-        self.mocked.get(url, status=200, body=json.dumps([]))
+        self._mock_buildhub_search()
+        self._telemetry_mock_release_query([])
 
         url = '{}/api/queries'.format(telemetry.TELEMETRY_SERVER)
         self.mocked.post(url, status=200, body=json.dumps({
@@ -1345,4 +1201,5 @@ class DeliveryTasksTest(asynctest.TestCase):
 
         with pytest.raises(TaskError) as excinfo:
             await telemetry.update_parquet_uptake('firefox', '57.0')
-        assert str(excinfo.value) == 'Unable to execute the query n°1234 for 57.0 (HTTP 403)'
+        message = 'Unable to execute the query n°1234 for 57.0 (20171009192146) (HTTP 403)'
+        assert str(excinfo.value) == message
