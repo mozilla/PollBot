@@ -27,6 +27,9 @@ def cli(loop, test_client):
     async def error(request):
         raise ValueError()
 
+    async def taskError(request):
+        raise TaskError('Fetching failed', url='http://perdu.com')
+
     app = get_app(loop=loop)
     app.router.add_get('/error', error)
     app.router.add_get('/error-403', error403)
@@ -100,6 +103,20 @@ async def test_status_response_handle_task_errors(cli):
     assert json.loads(resp.body.decode()) == {
         "status": Status.ERROR.value,
         "message": "Error message",
+    }
+
+
+async def test_status_response_handle_task_errors_with_links(cli):
+    async def error_task(product, version):
+        raise TaskError('Error message', url='http://www.perdu.com/')
+    error_endpoint = status_response(error_task)
+    request = mock.MagicMock()
+    request.match_info = {"product": "firefox", "version": "57.0"}
+    resp = await error_endpoint(request)
+    assert json.loads(resp.body.decode()) == {
+        "status": Status.ERROR.value,
+        "message": "Error message",
+        "link": "http://www.perdu.com/"
     }
 
 
