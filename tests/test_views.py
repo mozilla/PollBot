@@ -27,9 +27,6 @@ def cli(loop, test_client):
     async def error(request):
         raise ValueError()
 
-    async def taskError(request):
-        raise TaskError('Fetching failed', url='http://perdu.com')
-
     app = get_app(loop=loop)
     app.router.add_get('/error', error)
     app.router.add_get('/error-403', error403)
