@@ -302,10 +302,10 @@ async def test_get_checks_response_validates_product_name(cli):
 async def test_nightly_archive(cli):
     resp = await check_response(cli, "/v1/firefox/57.0a1/archive")
     body = await resp.json()
-    assert body['status'] in (Status.EXISTS.value, Status.INCOMPLETE.value)
     assert 'firefox/nightly/latest-mozilla-central-l10n' in body['message']
     assert body['link'] == ("https://archive.mozilla.org/pub/firefox/nightly/"
                             "latest-mozilla-central-l10n/")
+    assert body['status'] in (Status.EXISTS.value, Status.INCOMPLETE.value)
 
 
 async def test_release_archive(cli):
