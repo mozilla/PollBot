@@ -305,7 +305,7 @@ async def test_nightly_archive(cli):
     assert 'firefox/nightly/latest-mozilla-central-l10n' in body['message']
     assert body['link'] == ("https://archive.mozilla.org/pub/firefox/nightly/"
                             "latest-mozilla-central-l10n/")
-    assert body['status'] in (Status.EXISTS.value, Status.INCOMPLETE.value)
+    assert body['status'] in (Status.EXISTS.value, Status.INCOMPLETE.value), body['message']
 
 
 async def test_release_archive(cli):
