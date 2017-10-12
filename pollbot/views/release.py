@@ -19,10 +19,14 @@ def status_response(task):
             response = await task(product, version)
         except Exception as e:  # In case something went bad, we return an error status message
             logger.exception(e)
-            return web.json_response({
+            body = {
                 'status': 'error',
                 'message': str(e)
-            })
+            }
+            if hasattr(e, 'url') and e.url is not None:
+                body['link'] = e.url
+
+            return web.json_response(body)
         return web.json_response(response)
     return wrapped
 

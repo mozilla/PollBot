@@ -4,6 +4,7 @@ CHANGELOG
 0.4.0 (unreleased)
 ------------------
 
+- Add support for TaskError url (#113)
 - Ignore ``Copy of`` Telemetry search results (#115)
 - Deduplicate Balrog Build IDs (#116)
 - Handle Telemetry empty results responses (#121)
