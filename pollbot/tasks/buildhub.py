@@ -70,12 +70,15 @@ async def buildhub(product, version):
     missing_message = 'Buildhub does not contain any information about this release yet.'
 
     if status:
-        exists_message = exists_message.format(', '.join(build_ids))
-
         if channel is Channel.NIGHTLY:
             last_expected_nightly = yesterday(formating='%Y%m%d')
             if build_ids[0][:8] < last_expected_nightly:
                 status = Status.INCOMPLETE
+                build_ids = build_ids[:3]
+            else:
+                build_ids = [bid for bid in build_ids if bid > last_expected_nightly]
+
+        exists_message = exists_message.format(', '.join(build_ids))
 
     url = ("https://mozilla-services.github.io/buildhub/"
            "?versions[0]={}&products[0]={}&channel[0]={}")
