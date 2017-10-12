@@ -1,9 +1,12 @@
 import os
+from datetime import date, timedelta
 from urllib.parse import urlencode
 
 from pollbot.exceptions import TaskError
 from pollbot.utils import Status, Channel, get_version_channel, build_version_id
 from . import get_session, build_task_response, heartbeat_factory
+from .buildhub import get_build_ids_for_version
+
 
 TELEMETRY_SERVER = "https://sql.telemetry.mozilla.org"
 NIGHTLY_BUILD_IDS = {
@@ -73,12 +76,15 @@ async def update_parquet_uptake(product, version):
         if channel is Channel.NIGHTLY:
             # Get the build IDs of the lastest days of nightly
             build_ids = await get_last_build_ids_for_nightly_version(session, version)
-            version_name = "{} ({})".format(version, ", ".join(build_ids))
-            query_title = "Uptake {} {} {} {}"
-            query_title = query_title.format(product.title(), channel.value, version,
-                                             build_ids[0][:8])
+        else:
+            # Get the build IDs for this channel
+            build_ids = await get_build_ids_for_version(product, version)
 
-            query = """
+        version_name = "{} ({})".format(version, ", ".join(build_ids))
+        query_title = "Uptake {} {} {}"
+        query_title = query_title.format(product.title(), channel.value, version_name)
+
+        query = """
 WITH updated_t AS (
     SELECT COUNT(*) AS updated
     FROM telemetry_update_parquet
@@ -95,30 +101,6 @@ total_t AS (
 SELECT updated * 1.0 / total as ratio, updated, total
 FROM updated_t, total_t
 """.format(build_ids=', '.join(["'{}'".format(bid) for bid in build_ids]))
-
-        else:
-            # Use the version number
-            query_title = "Uptake {} {} {}"
-            query_title = query_title.format(product.title(), channel.value, version)
-            version_name = version
-
-            query = """
-WITH updated_t AS (
-    SELECT COUNT(*) AS updated
-    FROM telemetry_update_parquet
-    WHERE payload.reason = 'success'
-      AND environment.build.version = '{version}'
-),
-total_t AS (
-    SELECT COUNT(*) AS total, payload.target_version
-    FROM telemetry_update_parquet
-    WHERE payload.reason = 'ready'
-      AND payload.target_version = '{version}'
-      GROUP BY 2
-)
-SELECT updated * 1.0 / total as ratio, updated, total
-FROM updated_t, total_t
-""".format(version=version)
 
         query_info = await get_query_info_from_title(session, query_title)
 
@@ -168,6 +150,7 @@ FROM updated_t, total_t
         payload = {
             "name": query_title,
             "schedule": 3600,
+            "schedule_until": (date.today() + timedelta(days=7)).strftime('%Y-%m-%dT%H:%M:%S'),
             "is_draft": True,
             "query": query,
             "data_source_id": 1,
@@ -196,6 +179,7 @@ FROM updated_t, total_t
         url = "{}/queries/{}".format(TELEMETRY_SERVER, query_id)
         message = 'Telemetry uptake calculation for version {} is in progress'.format(version_name)
         return build_task_response(Status.INCOMPLETE, url, message)
+
 
 heartbeat = heartbeat_factory('{}/api/data_sources/1/version'.format(TELEMETRY_SERVER),
                               headers=get_telemetry_auth_header())

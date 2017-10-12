@@ -10,6 +10,7 @@ from pollbot import __version__ as pollbot_version, HTTP_API_VERSION
 from pollbot.app import get_app
 from pollbot.middlewares import NO_CACHE_ENDPOINTS
 from pollbot.exceptions import TaskError
+from pollbot.tasks.buildhub import get_build_ids_for_version
 from pollbot.views.release import status_response
 from pollbot.utils import Status
 
@@ -313,12 +314,12 @@ async def test_get_checks_response_validates_product_name(cli):
 # These are currently functional tests.
 
 async def test_nightly_archive(cli):
-    resp = await check_response(cli, "/v1/firefox/57.0a1/archive")
+    resp = await check_response(cli, "/v1/firefox/58.0a1/archive")
     body = await resp.json()
-    assert body['status'] in (Status.EXISTS.value, Status.INCOMPLETE.value)
     assert 'firefox/nightly/latest-mozilla-central-l10n' in body['message']
     assert body['link'] == ("https://archive.mozilla.org/pub/firefox/nightly/"
                             "latest-mozilla-central-l10n/")
+    assert body['status'] in (Status.EXISTS.value, Status.INCOMPLETE.value), body['message']
 
 
 async def test_release_archive(cli):
@@ -401,13 +402,13 @@ async def test_release_balrog_rules(cli):
     assert body["link"] == "https://aus-api.mozilla.org/api/v1/rules/firefox-release"
 
 
-async def test_release_buildhub_rules(cli):
+async def test_release_buildhub(cli):
     resp = await check_response(cli, "/v1/firefox/54.0/buildhub")
     body = await resp.json()
     assert body["status"] == Status.EXISTS.value
-    assert "Build id is 20170608175746 for this release." in body["message"]
+    assert "Build IDs for this release: 20170608175746, 20170608105825" == body["message"]
     assert body["link"] == ("https://mozilla-services.github.io/buildhub/"
-                            "?versions[0]=54.0&products[0]=firefox")
+                            "?versions[0]=54.0&products[0]=firefox&channel[0]=release")
 
 
 async def test_release_bedrock_release_notes(cli):
@@ -561,3 +562,30 @@ async def test_cache_control_header_max_age_can_be_parametrized(cli):
         resp = await cli.get("/v1/firefox/54.0")
         assert "Cache-Control" in resp.headers
         assert resp.headers["Cache-Control"] == "public; max-age=10"
+
+
+async def test_get_buildid_for_version(cli):
+    build_ids = await get_build_ids_for_version("firefox", "57.0b5")
+    assert build_ids == ['20171002181526']
+
+
+async def test_get_buildid_for_nightly_version(cli):
+    build_ids = await get_build_ids_for_version("firefox", "57.0a1", size=100)
+    assert build_ids == [
+        '20170921100141', '20170920220431', '20170920100426', '20170919220202', '20170919100405',
+        '20170918220054', '20170918100059', '20170917220255', '20170917100334', '20170916220246',
+        '20170916100147', '20170915220136', '20170915100121', '20170914220209', '20170914100122',
+        '20170913220121', '20170913100125', '20170912220343', '20170912100139', '20170912013600',
+        '20170911100210', '20170910220126', '20170910100150', '20170909220406', '20170909100226',
+        '20170908220146', '20170908100218', '20170907220212', '20170907100318', '20170906220306',
+        '20170906100107', '20170905220108', '20170905100117', '20170904220027', '20170904100131',
+        '20170903220032', '20170903100443', '20170902220453', '20170902100317', '20170901220209',
+        '20170901151028', '20170901100309', '20170831220208', '20170831100258', '20170830220349',
+        '20170830100230', '20170829100404', '20170828100127', '20170827100428', '20170826213134',
+        '20170826100418', '20170825100126', '20170824100243', '20170823100553', '20170822142709',
+        '20170822100529', '20170821100350', '20170820100343', '20170819100442', '20170818100226',
+        '20170817100132', '20170816100153', '20170815213904', '20170815183542', '20170815100349',
+        '20170814100258', '20170813183258', '20170813100233', '20170812100345', '20170811100330',
+        '20170810100255', '20170809100326', '20170808114032', '20170808100224', '20170807113452',
+        '20170807100344', '20170806100257', '20170805100334', '20170804193726', '20170804180022',
+        '20170804100354', '20170803134456', '20170803100352', '20170802100302']
