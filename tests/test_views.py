@@ -300,7 +300,7 @@ async def test_get_checks_response_validates_product_name(cli):
 # These are currently functional tests.
 
 async def test_nightly_archive(cli):
-    resp = await check_response(cli, "/v1/firefox/57.0a1/archive")
+    resp = await check_response(cli, "/v1/firefox/58.0a1/archive")
     body = await resp.json()
     assert 'firefox/nightly/latest-mozilla-central-l10n' in body['message']
     assert body['link'] == ("https://archive.mozilla.org/pub/firefox/nightly/"
