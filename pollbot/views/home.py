@@ -1,6 +1,6 @@
 from aiohttp import web
 
-from .. import __version__ as pollbot_version, HTTP_API_VERSION
+from .. import __version__ as pollbot_version, HTTP_API_VERSION, PRODUCTS
 
 
 async def redirect(request):
@@ -15,5 +15,6 @@ async def index(request):
         "project_version": pollbot_version,
         "url": "https://github.com/mozilla/PollBot",
         "http_api_version": HTTP_API_VERSION,
-        "docs": "{}://{}/v1/api/doc/".format(proto, host)
+        "docs": "{}://{}/v1/api/doc/".format(proto, host),
+        "products": PRODUCTS
     })
