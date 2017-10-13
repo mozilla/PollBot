@@ -8,6 +8,7 @@ CHANGELOG
 - Ignore ``Copy of`` Telemetry search results (#115)
 - Deduplicate Balrog Build IDs (#116)
 - Build telemetry query from a list of build IDs (#117)
+- Add the product lists in the homepage. (#118)
 - Handle Telemetry empty results responses (#121)
 - Enable a buildhub check for Nightly (#129)
 - Keep only the Uptake ratio (#130)

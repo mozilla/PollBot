@@ -6,7 +6,7 @@ import ruamel.yaml as yaml
 
 from aiohttp import web, ClientError
 
-from pollbot import __version__ as pollbot_version, HTTP_API_VERSION
+from pollbot import __version__ as pollbot_version, HTTP_API_VERSION, PRODUCTS
 from pollbot.app import get_app
 from pollbot.middlewares import NO_CACHE_ENDPOINTS
 from pollbot.exceptions import TaskError
@@ -87,7 +87,8 @@ async def test_home_body(cli):
         "project_version": pollbot_version,
         "url": "https://github.com/mozilla/PollBot",
         "http_api_version": HTTP_API_VERSION,
-        "docs": "http://127.0.0.1/v1/api/doc/"
+        "docs": "http://127.0.0.1/v1/api/doc/",
+        "products": PRODUCTS
     }, headers={"Host": "127.0.0.1"})
 
 
