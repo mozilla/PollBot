@@ -5,6 +5,7 @@ from enum import Enum
 class Channel(Enum):
     ESR = "ESR"
     RELEASE = "RELEASE"
+    CANDIDATE = "CANDIDATE"
     BETA = "BETA"
     NIGHTLY = "NIGHTLY"
 
@@ -27,6 +28,13 @@ def version_parts(parts):
 
 def build_version_id(version):
     channel = '0'
+
+    # build version for release candidates
+    if 'rc' in version:  # 57.0b8rc3
+        version = version.split('rc')[0]
+    elif 'build' in version:  # 57.0build4
+        version = version.split('build')[0]
+
     if 'a' in version:
         parts, channel = version.split('a')
         parts = parts.split('.')
@@ -50,6 +58,8 @@ def build_version_id(version):
 def get_version_channel(version):  # pragma: no cover
     if version.endswith('esr'):
         return Channel.ESR
+    elif 'build' in version or 'rc' in version:
+        return Channel.CANDIDATE
     elif 'a' in version:
         return Channel.NIGHTLY
     elif 'b' in version:
