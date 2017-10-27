@@ -253,6 +253,23 @@ async def test_get_checks_for_beta(cli):
     })
 
 
+async def test_get_checks_for_candidates(cli):
+    await check_response(cli, "/v1/firefox/57.0rc6", body={
+        "product": "firefox",
+        "version": "57.0rc6",
+        "channel": "candidate",
+        "checks": [
+            {"url": "http://localhost/v1/firefox/57.0rc6/archive", "title": "Archive Release"},
+            {"url": "http://localhost/v1/firefox/57.0rc6/buildhub",
+             "title": "Buildhub release info"},
+            {'title': 'Partner repacks',
+             'url': 'http://localhost/v1/firefox/57.0rc6/archive/partner-repacks'},
+            {'title': 'Telemetry Update Parquet Uptake',
+             'url': 'http://localhost/v1/firefox/57.0rc6/telemetry/update-parquet-uptake'},
+        ]
+    })
+
+
 async def test_get_checks_for_release(cli):
     await check_response(cli, "/v1/firefox/54.0", body={
         "product": "firefox",
@@ -333,6 +350,17 @@ async def test_release_archive(cli):
     })
 
 
+async def test_candidate_archive(cli):
+    await check_response(cli, "/v1/firefox/56.0.2rc1/archive", body={
+        "status": Status.EXISTS.value,
+        "message": "The archive exists at "
+        "https://archive.mozilla.org/pub/firefox/candidates/56.0.2-candidates/build1/ "
+        "and all 94 locales are present for all platforms "
+        "(linux-i686, linux-x86_64, mac, win32, win64)",
+        "link": "https://archive.mozilla.org/pub/firefox/candidates/56.0.2-candidates/build1/"
+    })
+
+
 async def test_beta_archive(cli):
     await check_response(cli, "/v1/firefox/56.0b10/archive", body={
         "status": Status.EXISTS.value,
@@ -359,6 +387,15 @@ async def test_release_partner_repacks(cli):
         "message": "partner-repacks found in https://archive.mozilla.org/pub/"
         "firefox/candidates/54.0-candidates/build3/",
         "link": "https://archive.mozilla.org/pub/firefox/candidates/54.0-candidates/build3/"
+    })
+
+
+async def test_candidate_partner_repacks(cli):
+    await check_response(cli, "/v1/firefox/56.0.2build1/archive/partner-repacks", body={
+        "status": Status.EXISTS.value,
+        "message": "partner-repacks found in https://archive.mozilla.org/pub/"
+        "firefox/candidates/56.0.2-candidates/build1/",
+        "link": "https://archive.mozilla.org/pub/firefox/candidates/56.0.2-candidates/build1/"
     })
 
 
@@ -410,6 +447,15 @@ async def test_release_buildhub(cli):
     assert "Build IDs for this release: 20170608175746, 20170608105825" == body["message"]
     assert body["link"] == ("https://mozilla-services.github.io/buildhub/"
                             "?versions[0]=54.0&products[0]=firefox&channel[0]=release")
+
+
+async def test_candidates_buildhub(cli):
+    resp = await check_response(cli, "/v1/firefox/56.0.1rc2/buildhub")
+    body = await resp.json()
+    assert body["status"] == Status.EXISTS.value
+    assert "Build IDs for this release: 20171002220106" == body["message"]
+    assert body["link"] == ("https://mozilla-services.github.io/buildhub/"
+                            "?versions[0]=56.0.1rc2&products[0]=firefox&channel[0]=release")
 
 
 async def test_release_bedrock_release_notes(cli):

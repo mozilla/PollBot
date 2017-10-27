@@ -26,14 +26,18 @@ def version_parts(parts):
     return major, minor, patch
 
 
+def strip_candidate_info(version):
+    if 'rc' in version:  # 57.0b8rc3
+        return version.split('rc')[0]
+    elif 'build' in version:  # 57.0build4
+        return version.split('build')[0]
+    return version
+
+
 def build_version_id(version):
     channel = '0'
 
-    # build version for release candidates
-    if 'rc' in version:  # 57.0b8rc3
-        version = version.split('rc')[0]
-    elif 'build' in version:  # 57.0build4
-        version = version.split('build')[0]
+    version = strip_candidate_info(version)
 
     if 'a' in version:
         parts, channel = version.split('a')

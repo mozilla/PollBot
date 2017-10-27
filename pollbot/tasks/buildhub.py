@@ -1,7 +1,7 @@
 import json
 
 from pollbot.exceptions import TaskError
-from pollbot.utils import Channel, Status, get_version_channel, yesterday
+from pollbot.utils import Channel, Status, get_version_channel, yesterday, strip_candidate_info
 
 from . import get_session, build_task_response, heartbeat_factory
 
@@ -10,7 +10,8 @@ BUILDHUB_SERVER = "https://buildhub.prod.mozaws.net/v1"
 
 
 async def get_build_ids_for_version(product, version, *, size=10):
-    channel = get_version_channel(version)
+    channel = get_version_channel(strip_candidate_info(version))
+
     query = {
         "aggs": {
             "by_version": {
@@ -65,7 +66,7 @@ async def buildhub(product, version):
     except TaskError:
         status = False
 
-    channel = get_version_channel(version)
+    channel = get_version_channel(strip_candidate_info(version))
     exists_message = 'Build IDs for this release: {}'
     missing_message = 'Buildhub does not contain any information about this release yet.'
 
