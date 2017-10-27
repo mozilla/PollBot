@@ -32,7 +32,7 @@ ENTRY_POINTS = {
 
 
 setup(name='pollbot',
-      version='0.4.0',
+      version='0.5.0.dev0',
       description='A service that polls other services about releases deliveries.',
       long_description="{}\n\n{}\n\n{}".format(README, CHANGELOG, CONTRIBUTORS),
       license='Mozilla Public License 2.0',
