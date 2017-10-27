@@ -67,7 +67,7 @@ def is_valid_version(version):
     try:
         build_version_id(version)
         return True
-    except:
+    except IndexError:
         return False
 
 
