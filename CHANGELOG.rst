@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-0.4.0 (unreleased)
+0.4.0 (2017-10-27)
 ------------------
 
 - Add support for TaskError url (#113)
