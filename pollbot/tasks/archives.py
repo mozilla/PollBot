@@ -239,7 +239,6 @@ async def partner_repacks(product, version):
                 url = '{}{}/'.format(base_url, builds[0])
 
         # Look for partner-repacks
-        print(url)
         async with session.get(url, headers={"Accept": "application/json"}) as resp:
             body = await resp.json()
             dirs = sorted([p.strip('/') for p in body['prefixes']])

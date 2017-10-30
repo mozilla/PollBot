@@ -355,7 +355,18 @@ async def test_candidate_archive(cli):
         "status": Status.EXISTS.value,
         "message": "The archive exists at "
         "https://archive.mozilla.org/pub/firefox/candidates/56.0.2-candidates/build1/ "
-        "and all 94 locales are present for all platforms "
+        "and all 95 locales are present for all platforms "
+        "(linux-i686, linux-x86_64, mac, win32, win64)",
+        "link": "https://archive.mozilla.org/pub/firefox/candidates/56.0.2-candidates/build1/"
+    })
+
+
+async def test_candidate_archive_build(cli):
+    await check_response(cli, "/v1/firefox/56.0.2build1/archive", body={
+        "status": Status.EXISTS.value,
+        "message": "The archive exists at "
+        "https://archive.mozilla.org/pub/firefox/candidates/56.0.2-candidates/build1/ "
+        "and all 95 locales are present for all platforms "
         "(linux-i686, linux-x86_64, mac, win32, win64)",
         "link": "https://archive.mozilla.org/pub/firefox/candidates/56.0.2-candidates/build1/"
     })
@@ -390,8 +401,17 @@ async def test_release_partner_repacks(cli):
     })
 
 
-async def test_candidate_partner_repacks(cli):
+async def test_candidate_partner_repacks_build(cli):
     await check_response(cli, "/v1/firefox/56.0.2build1/archive/partner-repacks", body={
+        "status": Status.EXISTS.value,
+        "message": "partner-repacks found in https://archive.mozilla.org/pub/"
+        "firefox/candidates/56.0.2-candidates/build1/",
+        "link": "https://archive.mozilla.org/pub/firefox/candidates/56.0.2-candidates/build1/"
+    })
+
+
+async def test_candidate_partner_repacks(cli):
+    await check_response(cli, "/v1/firefox/56.0.2rc1/archive/partner-repacks", body={
         "status": Status.EXISTS.value,
         "message": "partner-repacks found in https://archive.mozilla.org/pub/"
         "firefox/candidates/56.0.2-candidates/build1/",
