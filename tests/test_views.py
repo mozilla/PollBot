@@ -458,6 +458,15 @@ async def test_candidates_buildhub(cli):
                             "?versions[0]=56.0.1rc2&products[0]=firefox&channel[0]=release")
 
 
+async def test_candidates_buildhub_build(cli):
+    resp = await check_response(cli, "/v1/firefox/56.0.1build2/buildhub")
+    body = await resp.json()
+    assert body["status"] == Status.EXISTS.value
+    assert "Build IDs for this release: 20171002220106" == body["message"]
+    assert body["link"] == ("https://mozilla-services.github.io/buildhub/"
+                            "?versions[0]=56.0.1rc2&products[0]=firefox&channel[0]=release")
+
+
 async def test_release_bedrock_release_notes(cli):
     await check_response(cli, "/v1/firefox/54.0/bedrock/release-notes", body={
         "status": Status.EXISTS.value,

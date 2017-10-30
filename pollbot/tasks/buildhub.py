@@ -60,6 +60,9 @@ async def get_build_ids_for_version(product, version, *, size=10):
 
 
 async def buildhub(product, version):
+    if 'build' in version:
+        version = version.replace('build', 'rc')
+
     try:
         build_ids = await get_build_ids_for_version(product, version)
         status = True
