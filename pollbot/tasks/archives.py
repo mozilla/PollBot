@@ -192,14 +192,22 @@ async def archives(product, version):
 
                 return build_task_response(success, url, message)
         else:
-            url = 'https://archive.mozilla.org/pub/{}/releases/{}/'.format(product, version)
+            if channel is Channel.CANDIDATE:
+                if 'rc' in version:
+                    version, build = version.split('rc')
+                else:
+                    version, build = version.split('build')
+                url = 'https://archive.mozilla.org/pub/{}/candidates/{}-candidates/build{}/'
+                url = url.format(product, version, build)
+            else:
+                url = 'https://archive.mozilla.org/pub/{}/releases/{}/'.format(product, version)
+
             async with session.get(url, headers={"Accept": "application/json"}) as resp:
                 if resp.status >= 500:
                     msg = 'Archive CDN not available (HTTP {})'.format(resp.status)
                     raise TaskError(msg)
                 success = resp.status < 400
-                message = ("No archive found for this version number at "
-                           "https://archive.mozilla.org/pub/{}/releases/".format(product))
+                message = ("No archive found for this version number at {}".format(url))
                 if success:
                     success, message = await check_releases_files(url, product, version)
                 return build_task_response(success, url, message)
