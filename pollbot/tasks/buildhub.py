@@ -9,6 +9,12 @@ from . import get_session, build_task_response, heartbeat_factory
 BUILDHUB_SERVER = "https://buildhub.prod.mozaws.net/v1"
 
 
+def get_buildhub_url(product, version, channel):
+    url = ("https://mozilla-services.github.io/buildhub/"
+           "?versions[0]={}&products[0]={}&channel[0]={}")
+    return url.format(version, product, channel.value.lower())
+
+
 async def get_build_ids_for_version(product, version, *, size=10):
     channel = get_version_channel(strip_candidate_info(version))
 
@@ -54,7 +60,7 @@ async def get_build_ids_for_version(product, version, *, size=10):
 
         if not build_ids:
             message = "Couldn't find any build matching."
-            raise TaskError(message, url=url)
+            raise TaskError(message, url=get_buildhub_url(product, version, channel))
 
         return build_ids
 
@@ -84,9 +90,7 @@ async def buildhub(product, version):
 
         exists_message = exists_message.format(', '.join(build_ids))
 
-    url = ("https://mozilla-services.github.io/buildhub/"
-           "?versions[0]={}&products[0]={}&channel[0]={}")
-    url = url.format(version, product, channel.value.lower())
+    url = get_buildhub_url(product, version, channel)
     return build_task_response(status, url, exists_message, missing_message)
 
 
