@@ -65,18 +65,19 @@ CHECKS_TITLE = {
     "telemetry-update-parquet-uptake": "Telemetry Update Parquet Uptake",
 }
 
+ALL = [Channel.ESR, Channel.RELEASE, Channel.CANDIDATE, Channel.BETA, Channel.NIGHTLY]
 
 CHECKS = OrderedDict(
     sorted({
-        "archive": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
-        "partner-repacks": [Channel.RELEASE, Channel.BETA],
+        "archive": ALL,
+        "partner-repacks": [Channel.RELEASE, Channel.BETA, Channel.CANDIDATE],
         "release-notes": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
         "security-advisories": [Channel.ESR, Channel.RELEASE],
         "download-links": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
         "product-details": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
         "devedition-beta-matches": [Channel.BETA],
         "balrog-rules": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
-        "buildhub": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
+        "buildhub": ALL,
         "crash-stats-uptake": [Channel.ESR, Channel.RELEASE, Channel.BETA],
         "telemetry-update-parquet-uptake": "57.0a1",
     }.items(), key=lambda t: t[0]))

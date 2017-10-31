@@ -4,7 +4,7 @@ CHANGELOG
 0.5.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add support for release candidates. (#137)
 
 
 0.4.0 (2017-10-27)
