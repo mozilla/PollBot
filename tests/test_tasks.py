@@ -317,7 +317,7 @@ class DeliveryTasksTest(asynctest.TestCase):
 
         received = await partner_repacks('firefox', '52.0.2')
         assert received["status"] == Status.EXISTS.value
-        assert received["message"] == ("partner-repacks found in https://archive.mozilla.org/"
+        assert received["message"] == ("Partner-repacks found in https://archive.mozilla.org/"
                                        "pub/firefox/candidates/52.0.2-candidates/build2/")
 
     async def test_crash_stats_tasks_returns_error_if_no_hits_for_the_channel(self):

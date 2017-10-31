@@ -1,7 +1,7 @@
 import asyncio
 from collections import defaultdict
 from pollbot.exceptions import TaskError
-from pollbot.utils import Status, Channel, get_version_channel
+from pollbot.utils import Status, Channel, get_version_channel, strip_candidate_info
 from . import get_session, heartbeat_factory, build_task_response
 
 
@@ -22,6 +22,8 @@ RELEASE_PLATFORMS = [
     'win32',
     'win64',
 ]
+
+JSON_HEADERS = {"Accept": "application/json"}
 
 
 async def get_locales(product, version):
@@ -124,7 +126,7 @@ async def check_nightly_releases_files(url, files, product, version):
 async def get_platform_locale(url, platform):
     with get_session() as session:
         url = '{}/{}/'.format(url.rstrip('/'), platform)
-        async with session.get(url, headers={"Accept": "application/json"}) as resp:
+        async with session.get(url, headers=JSON_HEADERS) as resp:
             if resp.status != 200:
                 msg = 'Archive CDN not available; failing to get {} (HTTP {})'.format(
                     url, resp.status)
@@ -169,15 +171,30 @@ async def check_releases_files(url, product, version):
     return verdict(url, locales, missing_locales, missing_files)
 
 
+def build_version_url(product, version):
+    channel = get_version_channel(version)
+    if channel is Channel.NIGHTLY:
+        return 'https://archive.mozilla.org/pub/{}/nightly/latest-mozilla-central-l10n/'.format(
+                product)
+    elif channel is Channel.CANDIDATE:
+        if 'rc' in version:
+            version, build = version.split('rc')
+        else:
+            version, build = version.split('build')
+        url = 'https://archive.mozilla.org/pub/{}/candidates/{}-candidates/build{}/'
+        return url.format(product, version, build)
+    else:
+        return 'https://archive.mozilla.org/pub/{}/releases/{}/'.format(product, version)
+
+
 async def archives(product, version):
     with get_session() as session:
         channel = get_version_channel(version)
+        url = build_version_url(product, version)
         if channel is Channel.NIGHTLY:
-            url = 'https://archive.mozilla.org/pub/{}/nightly/latest-mozilla-central-l10n/'.format(
-                product)
             message = "No archive found at {}".format(url)
 
-            async with session.get(url, headers={"Accept": "application/json"}) as resp:
+            async with session.get(url, headers=JSON_HEADERS) as resp:
                 if resp.status != 200:
                     success = False
                 else:
@@ -192,17 +209,10 @@ async def archives(product, version):
 
                 return build_task_response(success, url, message)
         else:
-            if channel is Channel.CANDIDATE:
-                if 'rc' in version:
-                    version, build = version.split('rc')
-                else:
-                    version, build = version.split('build')
-                url = 'https://archive.mozilla.org/pub/{}/candidates/{}-candidates/build{}/'
-                url = url.format(product, version, build)
-            else:
-                url = 'https://archive.mozilla.org/pub/{}/releases/{}/'.format(product, version)
+            url = build_version_url(product, version)
+            version = strip_candidate_info(version)
 
-            async with session.get(url, headers={"Accept": "application/json"}) as resp:
+            async with session.get(url, headers=JSON_HEADERS) as resp:
                 if resp.status >= 500:
                     msg = 'Archive CDN not available (HTTP {})'.format(resp.status)
                     raise TaskError(msg)
@@ -217,17 +227,13 @@ async def partner_repacks(product, version):
     channel = get_version_channel(version)
     with get_session() as session:
         if channel is Channel.CANDIDATE:
-            if 'rc' in version:
-                version, build = version.split('rc')
-            else:
-                version, build = version.split('build')
-            url = 'https://archive.mozilla.org/pub/{}/candidates/{}-candidates/build{}/'.format(
-                product, version, build)
+            url = build_version_url(product, version)
+            version = strip_candidate_info(version)
         else:
             base_url = 'https://archive.mozilla.org/pub/{}/candidates/{}-candidates/'.format(
                 product, version)
             success = False
-            async with session.get(base_url, headers={"Accept": "application/json"}) as resp:
+            async with session.get(base_url, headers=JSON_HEADERS) as resp:
                 if resp.status != 200:
                     url = base_url
                     message = "No candidates found for that version."
@@ -239,12 +245,12 @@ async def partner_repacks(product, version):
                 url = '{}{}/'.format(base_url, builds[0])
 
         # Look for partner-repacks
-        async with session.get(url, headers={"Accept": "application/json"}) as resp:
+        async with session.get(url, headers=JSON_HEADERS) as resp:
             body = await resp.json()
             dirs = sorted([p.strip('/') for p in body['prefixes']])
             if 'partner-repacks' in dirs:
                 success = True
-                message = "partner-repacks found in {}".format(url)
+                message = "Partner-repacks found in {}".format(url)
             else:
                 message = "No partner-repacks in {}".format(url)
             return build_task_response(success, url, message)

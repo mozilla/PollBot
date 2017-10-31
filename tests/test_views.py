@@ -395,7 +395,7 @@ async def test_esr_archive(cli):
 async def test_release_partner_repacks(cli):
     await check_response(cli, "/v1/firefox/54.0/archive/partner-repacks", body={
         "status": Status.EXISTS.value,
-        "message": "partner-repacks found in https://archive.mozilla.org/pub/"
+        "message": "Partner-repacks found in https://archive.mozilla.org/pub/"
         "firefox/candidates/54.0-candidates/build3/",
         "link": "https://archive.mozilla.org/pub/firefox/candidates/54.0-candidates/build3/"
     })
@@ -404,7 +404,7 @@ async def test_release_partner_repacks(cli):
 async def test_candidate_partner_repacks_build(cli):
     await check_response(cli, "/v1/firefox/56.0.2build1/archive/partner-repacks", body={
         "status": Status.EXISTS.value,
-        "message": "partner-repacks found in https://archive.mozilla.org/pub/"
+        "message": "Partner-repacks found in https://archive.mozilla.org/pub/"
         "firefox/candidates/56.0.2-candidates/build1/",
         "link": "https://archive.mozilla.org/pub/firefox/candidates/56.0.2-candidates/build1/"
     })
@@ -413,7 +413,7 @@ async def test_candidate_partner_repacks_build(cli):
 async def test_candidate_partner_repacks(cli):
     await check_response(cli, "/v1/firefox/56.0.2rc1/archive/partner-repacks", body={
         "status": Status.EXISTS.value,
-        "message": "partner-repacks found in https://archive.mozilla.org/pub/"
+        "message": "Partner-repacks found in https://archive.mozilla.org/pub/"
         "firefox/candidates/56.0.2-candidates/build1/",
         "link": "https://archive.mozilla.org/pub/firefox/candidates/56.0.2-candidates/build1/"
     })
@@ -422,7 +422,7 @@ async def test_candidate_partner_repacks(cli):
 async def test_beta_partner_repacks(cli):
     await check_response(cli, "/v1/firefox/56.0b10/archive/partner-repacks", body={
         "status": Status.EXISTS.value,
-        "message": "partner-repacks found in https://archive.mozilla.org/pub/"
+        "message": "Partner-repacks found in https://archive.mozilla.org/pub/"
         "firefox/candidates/56.0b10-candidates/build1/",
         "link": "https://archive.mozilla.org/pub/firefox/candidates/56.0b10-candidates/build1/"
     })
