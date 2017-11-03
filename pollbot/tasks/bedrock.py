@@ -95,7 +95,7 @@ async def download_links(product, version):
                 if channel is Channel.NIGHTLY:
                     link_path = "#desktop-nightly-download > .download-list > .os_linux64 > a"
                     url = d(link_path).attr('href')
-                elif channel is Channel.BETA:
+                else:  # channel is Channel.BETA:
                     link_path = "#desktop-beta-download > .download-list > .os_linux64 > a"
                     url = d(link_path).attr('href')
                 async with session.get(url, allow_redirects=False) as resp:
