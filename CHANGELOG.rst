@@ -5,6 +5,7 @@ CHANGELOG
 ------------------
 
 - Add support for release candidates. (#137)
+- Add support for new bedrock beta links (#139)
 
 
 0.4.0 (2017-10-27)

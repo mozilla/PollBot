@@ -91,19 +91,17 @@ async def download_links(product, version):
             body = await resp.text()
             d = pq(body)
 
-            if channel is Channel.NIGHTLY:
-                link_path = "#desktop-nightly-download > .download-list > .os_linux64 > a"
-                url = d(link_path).attr('href')
+            if channel in [Channel.NIGHTLY, Channel.BETA]:
+                if channel is Channel.NIGHTLY:
+                    link_path = "#desktop-nightly-download > .download-list > .os_linux64 > a"
+                    url = d(link_path).attr('href')
+                elif channel is Channel.BETA:
+                    link_path = "#desktop-beta-download > .download-list > .os_linux64 > a"
+                    url = d(link_path).attr('href')
                 async with session.get(url, allow_redirects=False) as resp:
                     url = resp.headers['Location']
                     filename = os.path.basename(url)
                     last_release = get_version_from_filename(filename)
-            elif channel is Channel.BETA:
-                link_path = "#desktop-beta-download > .download-list > .os_linux64 > a"
-                url = d(link_path).attr('href')
-                qs = parse_qs(urlparse(url).query)
-                product_parts = qs["product"][0].split('-')
-                last_release = product_parts[1]
             elif channel is Channel.ESR:
                 version = re.sub('esr$', '', version)
                 last_release = d("html").attr('data-esr-versions')
