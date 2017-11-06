@@ -2,7 +2,6 @@ import os.path
 import re
 
 from pyquery import PyQuery as pq
-from urllib.parse import urlparse, parse_qs
 
 from pollbot.exceptions import TaskError
 from pollbot.utils import (build_version_id, Channel, Status, get_version_channel,
