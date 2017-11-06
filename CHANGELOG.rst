@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-0.5.0 (unreleased)
+0.5.0 (2017-11-06)
 ------------------
 
 - Add support for release candidates. (#137)
