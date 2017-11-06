@@ -444,14 +444,18 @@ class DeliveryTasksTest(asynctest.TestCase):
             <ul class="download-list">
               <li class="os_linux64">
                 <a class="download-link"
-                   href="https://download.mozilla.org/?product=firefox-56.0b1-SSL&amp;os=linux64"
+                   href="https://download.mozilla.org/?product=firefox-beta-SSL&amp;os=linux64"
                    >Téléchargement</a>
               </li>
             </ul>
           </div>
         </html>''')
+        url = 'https://download.mozilla.org/?product=firefox-beta-SSL&os=linux64'
+        self.mocked.get(url, status=302, headers={
+            "Location": "https://download-installer.cdn.mozilla.net/pub/firefox/releases"
+            "/57.0b13/linux-x86_64/en-US/firefox-57.0b13.tar.bz2"})
 
-        received = await download_links('firefox', '56.0b1')
+        received = await download_links('firefox', '57.0b13')
         assert received["status"] == Status.EXISTS.value
 
     async def test_download_links_tasks_returns_true_if_version_matches_for_nightly(self):
@@ -484,14 +488,18 @@ class DeliveryTasksTest(asynctest.TestCase):
             <ul class="download-list">
               <li class="os_linux64">
                 <a class="download-link"
-                   href="https://download.mozilla.org/?product=firefox-56.0b1-SSL&amp;os=linux64"
+                   href="https://download.mozilla.org/?product=firefox-beta-SSL&amp;os=linux64"
                    >Téléchargement</a>
               </li>
             </ul>
           </div>
         </html>''')
+        url = 'https://download.mozilla.org/?product=firefox-beta-SSL&os=linux64'
+        self.mocked.get(url, status=302, headers={
+            "Location": "https://download-installer.cdn.mozilla.net/pub/firefox/releases"
+            "/57.0b13/linux-x86_64/en-US/firefox-57.0b13.tar.bz2"})
 
-        received = await download_links('firefox', '55.0b1')
+        received = await download_links('firefox', '56.0b1')
         assert received["status"] == Status.EXISTS.value
 
     async def test_download_links_tasks_returns_true_if_version_matches_esr(self):
