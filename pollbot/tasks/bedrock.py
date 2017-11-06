@@ -91,7 +91,7 @@ async def download_links(product, version):
             body = await resp.text()
             d = pq(body)
 
-            if channel in [Channel.NIGHTLY, Channel.BETA]:
+            if channel in (Channel.NIGHTLY, Channel.BETA):
                 if channel is Channel.NIGHTLY:
                     link_path = "#desktop-nightly-download > .download-list > .os_linux64 > a"
                     url = d(link_path).attr('href')
