@@ -8,3 +8,5 @@ __pycache__/
 .cache/
 .coverage
 .tox/
+pollbot/dashboard/
+delivery-dashboard/

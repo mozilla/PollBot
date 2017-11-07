@@ -15,6 +15,7 @@ async def index(request):
         "project_version": pollbot_version,
         "url": "https://github.com/mozilla/PollBot",
         "http_api_version": HTTP_API_VERSION,
+        "dashboard": "{}://{}/delivery-dashboard/".format(proto, host),
         "docs": "{}://{}/v1/api/doc/".format(proto, host),
         "products": PRODUCTS
     })

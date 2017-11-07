@@ -4,7 +4,7 @@ CHANGELOG
 0.6.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Serve the dashboard as part as the service (#140)
 
 
 0.5.0 (2017-11-06)

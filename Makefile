@@ -79,3 +79,11 @@ docker-build:
 
 docker-test:
 	docker run -it  mozilla/pollbot /bin/bash /app/scripts/run-tests.sh
+
+
+update-dashboard:
+	rm -fr delivery-dashboard
+	git clone https://github.com/mozilla/delivery-dashboard
+	cd delivery-dashboard; git checkout v1; npm install; npm run prebuild; npm run build
+	rm -fr pollbot/dashboard/
+	mv delivery-dashboard/build pollbot/dashboard

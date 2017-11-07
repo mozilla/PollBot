@@ -1,3 +1,4 @@
 include *.rst LICENSE Makefile tox.ini
 include dev-requirements.txt
 include pollbot/*.yaml
+recursive-include pollbot/dashboard *
