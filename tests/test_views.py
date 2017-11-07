@@ -87,6 +87,7 @@ async def test_home_body(cli):
         "project_version": pollbot_version,
         "url": "https://github.com/mozilla/PollBot",
         "http_api_version": HTTP_API_VERSION,
+        "dashboard": "http://127.0.0.1/delivery-dashboard/",
         "docs": "http://127.0.0.1/v1/api/doc/",
         "products": PRODUCTS
     }, headers={"Host": "127.0.0.1"})
@@ -665,3 +666,11 @@ async def test_get_buildid_for_nightly_version(cli):
         '20170810100255', '20170809100326', '20170808114032', '20170808100224', '20170807113452',
         '20170807100344', '20170806100257', '20170805100334', '20170804193726', '20170804180022',
         '20170804100354', '20170803134456', '20170803100352', '20170802100302']
+
+
+async def test_dashboard(cli):
+    resp = await check_response(cli, "/delivery-dashboard/")
+    body1 = await resp.text()
+    resp = await check_response(cli, "/delivery-dashboard/index.html")
+    body2 = await resp.text()
+    assert body1 == body2

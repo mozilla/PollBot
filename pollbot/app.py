@@ -4,7 +4,7 @@ from aiohttp import web
 from aiohttp_swagger import setup_swagger
 
 from .middlewares import setup_middlewares
-from .views import home, release, utilities, product
+from .views import home, release, utilities, product, dashboard
 
 
 HERE = os.path.dirname(__file__)
@@ -35,6 +35,10 @@ def get_app(loop=None):
     cors.add(app.router.add_get('/v1/contribute.json', utilities.contribute_json))
     cors.add(app.router.add_get('/v1/__api__', utilities.oas_spec))
     cors.add(app.router.add_get('/v1/__version__', utilities.version))
+
+    # Dashboard
+    app.router.add_get('/delivery-dashboard/', dashboard.index)
+    app.router.add_static('/delivery-dashboard/', os.path.join(HERE, 'dashboard/'))
 
     # Heartbeat
     cors.add(app.router.add_get('/v1/__heartbeat__', utilities.heartbeat))
