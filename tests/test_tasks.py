@@ -131,6 +131,13 @@ class DeliveryTasksTest(asynctest.TestCase):
         received = await release_notes('firefox', '52.0.2')
         assert received["status"] == Status.MISSING.value
 
+    async def test_releasenotes_tasks_returns_false_if_redirect(self):
+        url = 'https://www.mozilla.org/en-US/firefox/57.0/releasenotes/'
+        self.mocked.get(url, status=302)
+
+        received = await release_notes('firefox', '57.0')
+        assert received["status"] == Status.MISSING.value
+
     async def test_archives_tasks_returns_task_error_if_mercurial_is_down(self):
         url = "https://hg.mozilla.org/mozilla-central/raw-file/tip/browser/locales/all-locales"
         self.mocked.get(url, status=502)
