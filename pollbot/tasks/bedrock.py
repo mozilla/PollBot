@@ -34,8 +34,8 @@ async def release_notes(product, version):
     url = 'https://www.mozilla.org/en-US/{}/{}/releasenotes/'.format(product, version)
 
     with get_session() as session:
-        async with session.get(url) as resp:
-            status = resp.status != 404
+        async with session.get(url, allow_redirects=False) as resp:
+            status = resp.status == 200
             exists_message = "Release notes were found for version {}".format(version)
             missing_message = "No release notes were published for version {}".format(version)
             return build_task_response(status, url, exists_message, missing_message)
