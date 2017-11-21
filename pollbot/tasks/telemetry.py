@@ -77,13 +77,14 @@ async def update_parquet_uptake(product, version):
     with get_session(headers=get_telemetry_auth_header()) as session:
         # Get the build IDs for this channel
         build_ids = await get_build_ids_for_version(product, version)
-        version_name = "{} ({})".format(version, ", ".join(build_ids))
 
         if channel is Channel.NIGHTLY:
+            build_ids = build_ids[:1]
+            version_name = "{} ({})".format(version, ", ".join(build_ids))
             query_title = "Uptake {} {}"
             query_title = query_title.format(product.title(), channel.value)
-            build_ids = build_ids[:1]
         else:
+            version_name = "{} ({})".format(version, ", ".join(build_ids))
             query_title = "Uptake {} {} {}"
             query_title = query_title.format(product.title(), channel.value, version_name)
 
