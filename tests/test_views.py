@@ -564,7 +564,7 @@ async def test_esr_balrog_rules(cli):
 async def test_beta_balrog_rules(cli):
     resp = await check_response(cli, "/v1/firefox/56.0b7/balrog-rules")
     body = await resp.json()
-    assert body["status"] == Status.EXISTS.value
+    assert body["status"] in (Status.EXISTS.value, Status.INCOMPLETE.value)
     assert "Balrog rule has been updated" in body["message"]
     assert body["link"] == "https://aus-api.mozilla.org/api/v1/rules/firefox-beta"
 
