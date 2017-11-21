@@ -4,6 +4,7 @@ CHANGELOG
 1.0.0 (unreleased)
 ------------------
 
+- Reuse the same Nightly query for Telemetry Update Parquet. (#141)
 - Add bouncer checks and endpoints (#147)
 
 
