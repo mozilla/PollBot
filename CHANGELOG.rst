@@ -1,10 +1,10 @@
 CHANGELOG
 =========
 
-0.6.0 (unreleased)
+1.0.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add bouncer checks and endpoints (#147)
 
 
 0.5.0 (2017-11-06)

@@ -66,7 +66,8 @@ def get_app(loop=None):
                                 release.devedition_beta_check, name="devedition-beta-matches"))
     cors.add(app.router.add_get('/v1/{product}/{version}/balrog-rules',
                                 release.balrog_rules, name="balrog-rules"))
-
+    cors.add(app.router.add_get('/v1/{product}/{version}/bouncer',
+                                release.bouncer_download_links, name="bouncer"))
     cors.add(app.router.add_get('/v1/{product}/{version}/buildhub',
                                 release.buildhub_check, name="buildhub"))
     cors.add(app.router.add_get('/v1/{product}/{version}/telemetry/update-parquet-uptake',

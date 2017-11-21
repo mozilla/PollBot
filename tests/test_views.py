@@ -211,6 +211,8 @@ async def test_get_checks_for_nightly(cli):
             {"url": "http://localhost/v1/firefox/57.0a1/archive", "title": "Archive Release"},
             {"url": "http://localhost/v1/firefox/57.0a1/balrog-rules",
              "title": "Balrog update rules"},
+            {"url": "http://localhost/v1/firefox/57.0a1/bouncer",
+             "title": "Bouncer"},
             {"url": "http://localhost/v1/firefox/57.0a1/buildhub",
              "title": "Buildhub release info"},
             {"url": "http://localhost/v1/firefox/57.0a1/bedrock/download-links",
@@ -234,6 +236,8 @@ async def test_get_checks_for_beta(cli):
             {"url": "http://localhost/v1/firefox/56.0b6/archive", "title": "Archive Release"},
             {"url": "http://localhost/v1/firefox/56.0b6/balrog-rules",
              "title": "Balrog update rules"},
+            {"url": "http://localhost/v1/firefox/56.0b6/bouncer",
+             "title": "Bouncer"},
             {"url": "http://localhost/v1/firefox/56.0b6/buildhub",
              "title": "Buildhub release info"},
             {"url": "http://localhost/v1/firefox/56.0b6/crash-stats/uptake",
@@ -279,6 +283,8 @@ async def test_get_checks_for_release(cli):
             {"url": "http://localhost/v1/firefox/54.0/archive", "title": "Archive Release"},
             {"url": "http://localhost/v1/firefox/54.0/balrog-rules",
              "title": "Balrog update rules"},
+            {"url": "http://localhost/v1/firefox/54.0/bouncer",
+             "title": "Bouncer"},
             {"url": "http://localhost/v1/firefox/54.0/buildhub",
              "title": "Buildhub release info"},
             {"url": "http://localhost/v1/firefox/54.0/crash-stats/uptake",
@@ -306,6 +312,8 @@ async def test_get_checks_for_esr(cli):
             {"url": "http://localhost/v1/firefox/52.3.0esr/archive", "title": "Archive Release"},
             {"url": "http://localhost/v1/firefox/52.3.0esr/balrog-rules",
              "title": "Balrog update rules"},
+            {"url": "http://localhost/v1/firefox/52.3.0esr/bouncer",
+             "title": "Bouncer"},
             {"url": "http://localhost/v1/firefox/52.3.0esr/buildhub",
              "title": "Buildhub release info"},
             {"url": "http://localhost/v1/firefox/52.3.0esr/crash-stats/uptake",
@@ -512,6 +520,16 @@ async def test_release_bedrock_download_links(cli):
     assert body['link'] == "https://www.mozilla.org/en-US/firefox/all/"
 
 
+async def test_release_bouncer_download_links(cli):
+    resp = await check_response(cli, "/v1/firefox/54.0/bouncer")
+    body = await resp.json()
+
+    assert body['status'] == Status.EXISTS.value
+    assert body['message'].startswith("Bouncer for RELEASE redirects to version")
+    url_prefix = "https://download-installer.cdn.mozilla.net/pub/firefox/releases/"
+    assert body['link'].startswith(url_prefix)
+
+
 async def test_release_product_details(cli):
     await check_response(cli, "/v1/firefox/54.0/product-details", body={
         "status": Status.EXISTS.value,
@@ -581,6 +599,7 @@ async def test_heartbeat(cli):
                              "archive": True,
                              "balrog": True,
                              "bedrock": True,
+                             "bouncer": True,
                              "buildhub": True,
                              "crash-stats": True,
                              "product-details": True,

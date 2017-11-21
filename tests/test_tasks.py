@@ -16,6 +16,7 @@ from pollbot.tasks.balrog import balrog_rules
 from pollbot.tasks.buildhub import buildhub, BUILDHUB_SERVER
 from pollbot.tasks.crash_stats import uptake as crash_stats_uptake, CRASH_STATS_SERVER
 from pollbot.tasks.bedrock import release_notes, security_advisories, download_links, get_releases
+from pollbot.tasks.bouncer import bouncer
 from pollbot.tasks.product_details import (product_details, ongoing_versions,
                                            devedition_and_beta_in_sync)
 from pollbot.views.utilities import heartbeat
@@ -692,6 +693,94 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert received["status"] == Status.MISSING.value
         assert received["message"] == "No devedition and beta check for 'release' releases"
 
+    async def test_bouncer_tasks_returns_true_if_version_matches_for_nightly(self):
+        url = 'https://www.mozilla.org/fr/firefox/channel/desktop/'
+        self.mocked.get(url, status=200, body='''
+        <html>
+          <div id="desktop-nightly-download">
+            <ul class="download-list">
+              <li class="os_linux64">
+                <a class="download-link"
+                   href="https://download.mozilla.org/?product=firefox-nightly-latest-l10n-ssl&os=linux64"
+                   >Téléchargement</a>
+              </li>
+            </ul>
+          </div>
+        </html>''')
+        url = 'https://download.mozilla.org/?product=firefox-nightly-latest-l10n-ssl&os=linux64'
+        self.mocked.get(url, status=302, headers={
+            "Location": "https://download-installer.cdn.mozilla.net/pub/firefox/nightly"
+            "/latest-mozilla-central-l10n/firefox-57.0a1.en-US.linux-x86_64.tar.bz2"})
+
+        received = await bouncer('firefox', '57.0a1')
+        assert received["status"] == Status.EXISTS.value
+
+    async def test_bouncer_tasks_returns_true_if_version_matches_for_beta(self):
+        url = 'https://www.mozilla.org/fr/firefox/channel/desktop/'
+        self.mocked.get(url, status=200, body='''
+        <html>
+          <div id="desktop-beta-download">
+            <ul class="download-list">
+              <li class="os_linux64">
+                <a class="download-link"
+                   href="https://download.mozilla.org/?product=firefox-beta-ssl&amp;os=linux64"
+                   >Téléchargement</a>
+              </li>
+            </ul>
+          </div>
+        </html>''')
+        url = 'https://download.mozilla.org/?product=firefox-beta-ssl&os=linux64'
+        self.mocked.get(url, status=302, headers={
+            "Location": "https://download-installer.cdn.mozilla.net/pub/firefox/releases"
+            "/57.0b13/linux-x86_64/en-US/firefox-57.0b13.tar.bz2"})
+
+        received = await bouncer('firefox', '57.0b13')
+        assert received["status"] == Status.EXISTS.value
+
+    async def test_bouncer_tasks_returns_true_if_version_matches_for_release(self):
+        url = 'https://www.mozilla.org/en-US/firefox/all/'
+        self.mocked.get(url, status=200, body='''
+<html>
+<table>
+ <tr id="fr">
+  <td class="download linux64">
+   <a href="https://download.mozilla.org/?product=firefox-latest-ssl&amp;os=linux64&amp;lang=fr">
+    Download
+   </a>
+  </td>
+ </tr>
+</table>
+</html>''')
+        url = 'https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&amp;lang=fr'
+        self.mocked.get(url, status=302, headers={
+            "Location": "https://download-installer.cdn.mozilla.net/pub/firefox/releases"
+            "/57.0/linux-x86_64/fr/firefox-57.0.tar.bz2"})
+
+        received = await bouncer('firefox', '57.0')
+        assert received["status"] == Status.EXISTS.value
+
+    async def test_bouncer_tasks_returns_true_if_version_matches_for_esr(self):
+        url = 'https://www.mozilla.org/en-US/firefox/organizations/all/'
+        self.mocked.get(url, status=200, body='''
+<html>
+<table>
+ <tr id="fr">
+  <td class="download linux64">
+   <a href="https://download.mozilla.org/?product=firefox-esr-ssl&amp;os=linux64&amp;lang=fr">
+    Download
+   </a>
+  </td>
+ </tr>
+</table>
+</html>''')
+        url = 'https://download.mozilla.org/?product=firefox-esr-ssl&os=linux64&amp;lang=fr'
+        self.mocked.get(url, status=302, headers={
+            "Location": "https://download-installer.cdn.mozilla.net/pub/firefox/releases/"
+            "52.5.0esr/linux-x86_64/fr/firefox-52.5.0esr.tar.bz2"})
+
+        received = await bouncer('firefox', '52.5.0esr')
+        assert received["status"] == Status.EXISTS.value
+
     async def test_failing_heartbeat(self):
         # Archive
         url = 'https://archive.mozilla.org/pub/firefox/releases/'
@@ -699,6 +788,10 @@ class DeliveryTasksTest(asynctest.TestCase):
 
         # Bedrock
         url = 'https://www.mozilla.org/en-US/firefox/all/'
+        self.mocked.get(url, status=404)
+
+        # Bouncer
+        url = 'https://download.mozilla.org/'
         self.mocked.get(url, status=404)
 
         # Balrog
@@ -725,6 +818,7 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert json.loads(resp.body.decode()) == {
             "archive": False,
             "balrog": False,
+            "bouncer": False,
             "bedrock": False,
             "buildhub": False,
             "crash-stats": False,
