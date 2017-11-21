@@ -693,6 +693,14 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert received["status"] == Status.MISSING.value
         assert received["message"] == "No devedition and beta check for 'release' releases"
 
+    async def test_bouncer_tasks_returns_error_if_error(self):
+        url = 'https://www.mozilla.org/en-US/firefox/all/'
+        self.mocked.get(url, status=404)
+
+        with pytest.raises(TaskError) as excinfo:
+            await bouncer('firefox', '54.0')
+        assert str(excinfo.value) == 'Download page not available  (404)'
+
     async def test_bouncer_tasks_returns_true_if_version_matches_for_nightly(self):
         url = 'https://www.mozilla.org/fr/firefox/channel/desktop/'
         self.mocked.get(url, status=200, body='''
