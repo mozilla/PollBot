@@ -10,6 +10,7 @@ from .buildhub import get_build_ids_for_version
 
 TELEMETRY_SERVER = "https://sql.telemetry.mozilla.org"
 TELEMETRY_API_KEY = os.getenv("TELEMETRY_API_KEY")
+ATHENA_DATASOURCE_ID = 26
 
 
 def get_telemetry_auth_header():
@@ -30,7 +31,7 @@ async def put_query(session, query_title, version_name, query, *, query_id=None,
             '%Y-%m-%dT%H:%M:%S'),
         "is_draft": True,
         "query": query,
-        "data_source_id": 1,
+        "data_source_id": ATHENA_DATASOURCE_ID,
         "options": {"parameters": []}
     }
     async with session.post(url, json=payload) as resp:
@@ -44,7 +45,7 @@ async def put_query(session, query_title, version_name, query, *, query_id=None,
         # Query for results
         url = "{}/api/query_results".format(TELEMETRY_SERVER)
         payload = {
-            "data_source_id": 1,
+            "data_source_id": ATHENA_DATASOURCE_ID,
             "query": query,
             "max_age": 0,
             "query_id": query_id
