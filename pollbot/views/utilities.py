@@ -7,7 +7,7 @@ import ruamel.yaml as yaml
 from aiohttp import web
 
 from pollbot.tasks import (
-    archives, balrog, bedrock, buildhub, crash_stats, product_details, telemetry
+    archives, balrog, bedrock, buildhub, crash_stats, product_details, telemetry, bouncer
 )
 
 
@@ -49,6 +49,7 @@ async def heartbeat(request):
     info = await asyncio.gather(archives.heartbeat(),
                                 balrog.heartbeat(),
                                 bedrock.heartbeat(),
+                                bouncer.heartbeat(),
                                 buildhub.heartbeat(),
                                 crash_stats.heartbeat(),
                                 product_details.heartbeat(),
@@ -57,8 +58,9 @@ async def heartbeat(request):
     return web.json_response({"archive": info[0],
                               "balrog": info[1],
                               "bedrock": info[2],
-                              "buildhub": info[3],
-                              "crash-stats": info[4],
-                              "product-details": info[5],
-                              "telemetry": info[6]},
+                              "bouncer": info[3],
+                              "buildhub": info[4],
+                              "crash-stats": info[5],
+                              "product-details": info[6],
+                              "telemetry": info[7]},
                              status=status)

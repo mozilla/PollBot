@@ -5,6 +5,7 @@ CHANGELOG
 ------------------
 
 - Reuse the same Nightly query for Telemetry Update Parquet. (#141)
+- Add bouncer checks and endpoints (#147)
 
 
 0.5.0 (2017-11-06)

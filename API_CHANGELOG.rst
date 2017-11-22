@@ -1,6 +1,12 @@
 API Changelog
 =============
 
+1.3 (unreleased)
+----------------
+
+- Add bouncer checks and endpoints.
+
+
 1.2 (2017-09-25)
 ----------------
 

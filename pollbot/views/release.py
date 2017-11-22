@@ -5,6 +5,7 @@ from collections import OrderedDict
 from ..tasks import balrog, buildhub, crash_stats, telemetry
 from ..tasks.archives import archives, partner_repacks
 from ..tasks.bedrock import release_notes, security_advisories, download_links, get_releases
+from ..tasks.bouncer import bouncer
 from ..tasks.product_details import product_details, devedition_and_beta_in_sync
 from ..utils import Channel, get_version_channel, build_version_id
 from .decorators import validate_product_version
@@ -36,6 +37,7 @@ partner_repacks = status_response(partner_repacks)
 bedrock_release_notes = status_response(release_notes)
 bedrock_security_advisories = status_response(security_advisories)
 bedrock_download_links = status_response(download_links)
+bouncer_download_links = status_response(bouncer)
 product_details = status_response(product_details)
 devedition_beta_check = status_response(devedition_and_beta_in_sync)
 balrog_rules = status_response(balrog.balrog_rules)
@@ -57,6 +59,7 @@ CHECKS_TITLE = {
     "release-notes": "Release notes",
     "security-advisories": "Security advisories",
     "download-links": "Download links",
+    "bouncer": "Bouncer",
     "product-details": "Product details",
     "devedition-beta-matches": "Devedition and Beta versions matches",
     "balrog-rules": "Balrog update rules",
@@ -77,6 +80,7 @@ CHECKS = OrderedDict(
         "product-details": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
         "devedition-beta-matches": [Channel.BETA],
         "balrog-rules": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
+        "bouncer": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
         "buildhub": ALL,
         "crash-stats-uptake": [Channel.ESR, Channel.RELEASE, Channel.BETA],
         "telemetry-update-parquet-uptake": "57.0a1",
