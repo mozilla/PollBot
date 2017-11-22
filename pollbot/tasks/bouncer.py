@@ -13,14 +13,14 @@ async def bouncer(product, version):
     it redirects to the expected version."""
     channel = get_version_channel(version)
     if channel is Channel.ESR:
-        url = "https://www.mozilla.org/en-US/{}/organizations/all/".format(product)
+        bedrock_url = "https://www.mozilla.org/en-US/{}/organizations/all/".format(product)
     elif channel is Channel.RELEASE:
-        url = 'https://www.mozilla.org/en-US/{}/all/'.format(product)
+        bedrock_url = 'https://www.mozilla.org/en-US/{}/all/'.format(product)
     else:
-        url = 'https://www.mozilla.org/fr/{}/channel/desktop/'.format(product)
+        bedrock_url = 'https://www.mozilla.org/fr/{}/channel/desktop/'.format(product)
 
     with get_session() as session:
-        async with session.get(url) as resp:
+        async with session.get(bedrock_url) as resp:
             if resp.status != 200:
                 msg = 'Download page not available  ({})'.format(resp.status)
                 raise TaskError(msg)
@@ -37,11 +37,15 @@ async def bouncer(product, version):
                 link_path = "#fr > .linux64 > a"
                 url = d(link_path).attr('href')
 
-            async with session.get(url, allow_redirects=False) as resp:
-                url = resp.headers['Location']
-                filename = os.path.basename(url)
-                last_release = get_version_from_filename(filename)
+            if url is not None:
+                async with session.get(url, allow_redirects=False) as resp:
+                    url = resp.headers['Location']
+            else:
+                msg = 'No links found.'.format(resp.status)
+                raise TaskError(msg, url=bedrock_url)
 
+            filename = os.path.basename(url)
+            last_release = get_version_from_filename(filename)
             status = build_version_id(last_release) >= build_version_id(version)
             message = "Bouncer for {} redirects to version {}".format(channel.value, last_release)
             return build_task_response(status, url, message)

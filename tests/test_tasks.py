@@ -701,6 +701,16 @@ class DeliveryTasksTest(asynctest.TestCase):
             await bouncer('firefox', '54.0')
         assert str(excinfo.value) == 'Download page not available  (404)'
 
+    async def test_bouncer_tasks_returns_error_if_not_link_found(self):
+        url = 'https://www.mozilla.org/en-US/firefox/all/'
+        self.mocked.get(url, status=200, body='''
+        <html></html>''')
+
+        with pytest.raises(TaskError) as excinfo:
+            await bouncer('firefox', '54.0')
+        assert str(excinfo.value) == 'No links found.'
+        assert str(excinfo.value.url) == 'https://www.mozilla.org/en-US/firefox/all/'
+
     async def test_bouncer_tasks_returns_true_if_version_matches_for_nightly(self):
         url = 'https://www.mozilla.org/fr/firefox/channel/desktop/'
         self.mocked.get(url, status=200, body='''
