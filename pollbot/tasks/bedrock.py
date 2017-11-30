@@ -69,12 +69,12 @@ async def security_advisories(product, version):
                 last_release = d("html").attr('data-latest-firefox')
             status = build_version_id(last_release) >= build_version_id(version)
             message = ("Security advisories for release were "
-                       "published up to version {}".format(last_release))
+                       "updated up to version {}".format(last_release))
 
             version_title = "#firefox{}".format(version.split('.')[0])
             if status and not d(version_title):
                 status = Status.INCOMPLETE
-                message += " but nothing was published for {}".format(version_title)
+                message += " but nothing was published for {} yet.".format(version_title)
 
             return build_task_response(status, url, message)
 

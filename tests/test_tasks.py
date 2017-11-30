@@ -553,6 +553,9 @@ class DeliveryTasksTest(asynctest.TestCase):
 
         received = await security_advisories('firefox', '52.0.2')
         assert received["status"] == Status.INCOMPLETE.value
+        assert received["message"] == (
+            "Security advisories for release were updated "
+            "up to version 52.0.2 but nothing was published for #firefox52 yet.")
 
     async def test_security_advisories_tasks_returns_true_if_version_matches(self):
         url = 'https://www.mozilla.org/en-US/security/known-vulnerabilities/firefox/'
