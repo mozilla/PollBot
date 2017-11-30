@@ -799,6 +799,29 @@ class DeliveryTasksTest(asynctest.TestCase):
         received = await bouncer('firefox', '52.5.0esr')
         assert received["status"] == Status.EXISTS.value
 
+    async def test_bouncer_tasks_returns_error_if_bouncer_down(self):
+        url = 'https://www.mozilla.org/en-US/firefox/organizations/all/'
+        self.mocked.get(url, status=200, body='''
+<html>
+<table>
+ <tr id="fr">
+  <td class="download linux64">
+   <a href="https://download.mozilla.org/?product=firefox-esr-ssl&amp;os=linux64&amp;lang=fr">
+    Download
+   </a>
+  </td>
+ </tr>
+</table>
+</html>''')
+        url = 'https://download.mozilla.org/?product=firefox-esr-ssl&os=linux64&amp;lang=fr'
+        self.mocked.get(url, status=504)
+
+        with pytest.raises(TaskError) as excinfo:
+            await bouncer('firefox', '52.5.0esr')
+        assert str(excinfo.value) == 'Bouncer is down (504).'
+        assert str(excinfo.value.url) == (
+            'https://download.mozilla.org/?product=firefox-esr-ssl&os=linux64&lang=fr')
+
     async def test_failing_heartbeat(self):
         # Archive
         url = 'https://archive.mozilla.org/pub/firefox/releases/'
