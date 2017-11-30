@@ -4,15 +4,16 @@ CHANGELOG
 1.0.0 (unreleased)
 ------------------
 
-- Reuse the same Nightly query for Telemetry Update Parquet. (#141)
+- Reuse the same Nightly query for Telemetry Update Parquet (#141)
 - Add bouncer checks and endpoints (#147)
 - Switch to Telemetry Athena Data Source (#155)
+- Add an indication about Crash-Stats 24h latency (#156)
 
 
 0.5.0 (2017-11-06)
 ------------------
 
-- Add support for release candidates. (#137)
+- Add support for release candidates (#137)
 - Add support for new bedrock beta links (#139)
 
 
@@ -23,7 +24,7 @@ CHANGELOG
 - Ignore ``Copy of`` Telemetry search results (#115)
 - Deduplicate Balrog Build IDs (#116)
 - Build telemetry query from a list of build IDs (#117)
-- Add the product lists in the homepage. (#118)
+- Add the product lists in the homepage (#118)
 - Handle Telemetry empty results responses (#121)
 - Enable a buildhub check for Nightly (#129)
 - Keep only the Uptake ratio (#130)
@@ -34,7 +35,7 @@ CHANGELOG
 ------------------
 
 - Update the archive check to validate that all expected files have been
-  created for all locales and platforms. (#48)
+  created for all locales and platforms (#48)
 - Add a task and endpoint to check the release info in buildhub (#70)
 - Add a task and endpoint to check the channel balrog rule (#72)
 - Validate version number to avoid calling tasks with gibberish (#92)
@@ -47,7 +48,7 @@ CHANGELOG
 0.2.1 (2017-09-06)
 ------------------
 
-- Fixes archive-l10n checks for nightly with new MAR files. (#91)
+- Fixes archive-l10n checks for nightly with new MAR files (#91)
 
 
 0.2.0 (2017-09-01)
@@ -61,7 +62,7 @@ CHANGELOG
 - Add more context about what the task have been checking (#58)
 - Fix the ESR download links task url (#66)
 - Add a task to validate if devedition and beta version matches (#78)
-- Redirects URL ending by a / to URL without the / in case of 404. (#54)
+- Redirects URL ending by a / to URL without the / in case of 404 (#54)
 - Add Cache-Control headers (#43)
 - Handle aiohttp.ClientError as tasks errors (#76)
 - Handle Archive CDN errors (#75)
