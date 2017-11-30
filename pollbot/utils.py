@@ -74,7 +74,7 @@ def get_version_channel(version):  # pragma: no cover
 
 def get_version_from_filename(filename):
     parts = filename.split('-', 1)[1].split('.')[:-2]  # Remove firefox- and .tar.bz2
-    return '.'.join([p for p in parts if '-' not in p])
+    return '.'.join([p for p in parts if p[0].isdigit()])
 
 
 def is_valid_version(version):

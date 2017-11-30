@@ -30,6 +30,7 @@ def test_parse_nightly_filename(arg, output):
 
 FILENAMES = [
     ('firefox-57.0a1.zh-TW.win64.zip', '57.0a1'),
+    ('firefox-57.0a1.fr.win64.zip', '57.0a1'),
     ('firefox-52.5.0esr.tar.bz2', '52.5.0esr'),
 ]
 
