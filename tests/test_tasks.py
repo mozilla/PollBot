@@ -547,23 +547,33 @@ class DeliveryTasksTest(asynctest.TestCase):
         received = await security_advisories('firefox', '56.0a2')
         assert received["status"] == Status.MISSING.value
 
-    async def test_security_advisories_tasks_returns_true_if_version_matches(self):
+    async def test_security_advisories_tasks_returns_false_if_version_dont_match(self):
         url = 'https://www.mozilla.org/en-US/security/known-vulnerabilities/firefox/'
         self.mocked.get(url, status=200, body='<html data-latest-firefox="52.0.2"></html>')
+
+        received = await security_advisories('firefox', '52.0.2')
+        assert received["status"] == Status.INCOMPLETE.value
+
+    async def test_security_advisories_tasks_returns_true_if_version_matches(self):
+        url = 'https://www.mozilla.org/en-US/security/known-vulnerabilities/firefox/'
+        self.mocked.get(url, status=200,
+                        body='<html data-latest-firefox="52.0.2"><h3 id="firefox52"></h3></html>')
 
         received = await security_advisories('firefox', '52.0.2')
         assert received["status"] == Status.EXISTS.value
 
     async def test_security_advisories_tasks_returns_true_if_version_matches_esr(self):
         url = 'https://www.mozilla.org/en-US/security/known-vulnerabilities/firefox/'
-        self.mocked.get(url, status=200, body='<html data-esr-versions="52.3.0"></html>')
+        self.mocked.get(url, status=200,
+                        body='<html data-esr-versions="52.3.0"><h3 id="firefox52"></h3></html>')
 
         received = await security_advisories('firefox', '52.3.0esr')
         assert received["status"] == Status.EXISTS.value
 
     async def test_security_advisories_tasks_returns_true_if_older_version(self):
         url = 'https://www.mozilla.org/en-US/security/known-vulnerabilities/firefox/'
-        self.mocked.get(url, status=200, body='<html data-latest-firefox="52.0.2"></html>')
+        self.mocked.get(url, status=200,
+                        body='<html data-latest-firefox="52.0.2"><h3 id="firefox52"></h3></html>')
 
         received = await security_advisories('firefox', '52.0')
         assert received["status"] == Status.EXISTS.value

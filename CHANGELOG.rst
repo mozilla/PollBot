@@ -6,9 +6,9 @@ CHANGELOG
 
 - Reuse the same Nightly query for Telemetry Update Parquet (#141)
 - Add bouncer checks and endpoints (#147)
+- Always expect a major version security advisory title for release and ESR (#150)
 - Switch to Telemetry Athena Data Source (#155)
 - Add an indication about Crash-Stats 24h latency (#156)
-
 
 0.5.0 (2017-11-06)
 ------------------
