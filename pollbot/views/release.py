@@ -64,7 +64,7 @@ CHECKS_TITLE = {
     "devedition-beta-matches": "Devedition and Beta versions matches",
     "balrog-rules": "Balrog update rules",
     "buildhub": "Buildhub release info",
-    "crash-stats-uptake": "Crash Stats Uptake",
+    "crash-stats-uptake": "Crash Stats Uptake (48h delay)",
     "telemetry-update-parquet-uptake": "Telemetry Update Parquet Uptake",
 }
 
