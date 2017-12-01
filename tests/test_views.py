@@ -507,7 +507,7 @@ async def test_release_bedrock_security_advisories(cli):
     resp = await check_response(cli, "/v1/firefox/54.0/bedrock/security-advisories")
     body = await resp.json()
     assert body['status'] == Status.EXISTS.value
-    assert body['message'].startswith("Security advisories for release were published")
+    assert body['message'].startswith("Security advisories for release were updated up to version")
     assert body['link'] == "https://www.mozilla.org/en-US/security/known-vulnerabilities/firefox/"
 
 
