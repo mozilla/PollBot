@@ -39,7 +39,11 @@ async def bouncer(product, version):
 
             if url is not None:
                 async with session.get(url, allow_redirects=False) as resp:
-                    url = resp.headers['Location']
+                    if resp.status == 302:
+                        url = resp.headers['Location']
+                    else:
+                        msg = 'Bouncer is down ({}).'.format(resp.status)
+                        raise TaskError(msg, url=url)
             else:
                 msg = 'No links found.'.format(resp.status)
                 raise TaskError(msg, url=bedrock_url)
