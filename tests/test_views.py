@@ -453,11 +453,11 @@ async def test_release_crash_stats_uptake(cli):
 
 
 async def test_beta_crash_stats_uptake(cli):
-    resp = await check_response(cli, "/v1/firefox/56.0b10/crash-stats/uptake")
+    resp = await check_response(cli, "/v1/firefox/57.0b10/crash-stats/uptake")
     body = await resp.json()
     assert body['status'] == Status.INCOMPLETE.value
     assert body['link'].startswith("https://crash-stats.mozilla.com/api/ADI/")
-    assert body['message'].startswith("Crash-Stats uptake for version 56.0b10 is")
+    assert body['message'].startswith("Crash-Stats uptake for version 57.0b10 is")
 
 
 async def test_release_balrog_rules(cli):
@@ -496,10 +496,10 @@ async def test_candidates_buildhub_build(cli):
 
 
 async def test_release_bedrock_release_notes(cli):
-    await check_response(cli, "/v1/firefox/54.0/bedrock/release-notes", body={
+    await check_response(cli, "/v1/firefox/57.0.2/bedrock/release-notes", body={
         "status": Status.EXISTS.value,
-        "message": "Release notes were found for version 54.0",
-        "link": "https://www.mozilla.org/en-US/firefox/54.0/releasenotes/"
+        "message": "Release notes were found for version 57.0.2.",
+        "link": "https://www.mozilla.org/en-US/firefox/57.0.2/releasenotes/"
     })
 
 

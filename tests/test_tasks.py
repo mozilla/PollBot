@@ -118,6 +118,39 @@ class DeliveryTasksTest(asynctest.TestCase):
         received = await release_notes('firefox', '52.0.2')
         assert received["status"] == Status.EXISTS.value
 
+    async def test_releasenotes_tasks_returns_incomplete_if_unexpected_links(self):
+        url = ('https://hg.mozilla.org/releases/mozilla-release/raw-file/'
+               'FIREFOX_52_0_2_RELEASE/browser/locales/shipped-locales')
+        self.mocked.get(url, status=200, body=SHIPPED_LOCALES_BODY)
+        url = 'https://www.mozilla.org/en-US/firefox/52.0.2/releasenotes/'
+        self.mocked.get(url, status=200,
+                        body='''
+<html>
+  <body>
+    <div id="main-content">
+      <ul>
+        <li>
+          <a href="https://support.mozilla.org/fr/kb/broadwell-u-microcode">No OK</a>
+        </li>
+        <li>
+          <a href="http://support.mozilla.org/kb/broadwell-u-microcode">HTTP</a>
+        </li>
+        <li>
+          <a href="https://support.mozilla.org/kb/broadwell-u-microcode">OK</a>
+        </li>
+     </ul>
+    </div>
+  </body>
+</html>
+''')
+
+        received = await release_notes('firefox', '52.0.2')
+        assert received["status"] == Status.INCOMPLETE.value
+        assert received["message"] == ("Release notes were found for version 52.0.2 "
+                                       "but 1 link should not contain the locale in "
+                                       "the URL and 1 link should use the HTTPS protocol "
+                                       "rather than HTTP.")
+
     async def test_releasenotes_tasks_strip_esr_from_version_number(self):
         url = 'https://www.mozilla.org/en-US/firefox/52.3.0/releasenotes/'
         self.mocked.get(url, status=200)
@@ -131,6 +164,31 @@ class DeliveryTasksTest(asynctest.TestCase):
 
         received = await release_notes('firefox', '52.0.2')
         assert received["status"] == Status.MISSING.value
+
+    async def test_releasenotes_tasks_returns_incomplete_if_http_links(self):
+        url = ('https://hg.mozilla.org/releases/mozilla-release/raw-file/'
+               'FIREFOX_52_0_2_RELEASE/browser/locales/shipped-locales')
+        self.mocked.get(url, status=200, body=SHIPPED_LOCALES_BODY)
+        url = 'https://www.mozilla.org/en-US/firefox/52.0.2/releasenotes/'
+        self.mocked.get(url, status=200, body='''
+<html>
+  <body>
+    <div id="main-content">
+      <ul>
+        <li>
+          <a href="http://support.mozilla.org/kb/broadwell-u-microcode">HTTP</a>
+        </li>
+     </ul>
+    </div>
+  </body>
+</html>
+        ''')
+
+        received = await release_notes('firefox', '52.0.2')
+        assert received["status"] == Status.INCOMPLETE.value
+        assert received["message"] == ("Release notes were found for version 52.0.2 "
+                                       "but 1 link should use the HTTPS protocol "
+                                       "rather than HTTP.")
 
     async def test_releasenotes_tasks_returns_false_if_redirect(self):
         url = 'https://www.mozilla.org/en-US/firefox/57.0/releasenotes/'
