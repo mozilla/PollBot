@@ -1,10 +1,10 @@
 CHANGELOG
 =========
 
-0.7.0 (unreleased)
+0.6.1 (2017-12-20)
 ------------------
 
-- Nothing changed yet.
+- Fix release notes checks for ESR.
 
 
 0.6.0 (2017-12-20)
