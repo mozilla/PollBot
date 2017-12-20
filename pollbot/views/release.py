@@ -86,6 +86,8 @@ CHECKS = OrderedDict(
         "telemetry-update-parquet-uptake": "57.0a1",
     }.items(), key=lambda t: t[0]))
 
+NOT_ACTIONABLE = ['-uptake']
+
 
 @validate_product_version
 async def view_get_checks(request, product, version):
@@ -114,7 +116,8 @@ async def view_get_checks(request, product, version):
             url = router[check_name].url_for(product=product, version=version)
             info = {
                 "title": CHECKS_TITLE[check_name],
-                "url": "{}{}".format(prefix, url)
+                "url": "{}{}".format(prefix, url),
+                "actionable": all([na not in check_name for na in NOT_ACTIONABLE])
             }
             checks.append(info)
 
