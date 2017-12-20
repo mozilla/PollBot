@@ -11,6 +11,8 @@ CHANGELOG
 - Switch to Telemetry Athena Data Source (#155)
 - Add an indication about Crash-Stats 24h latency (#156)
 - Fix get_version_from_filename for all locales (#157)
+- Validate Release notes links (#159)
+
 
 0.5.0 (2017-11-06)
 ------------------
