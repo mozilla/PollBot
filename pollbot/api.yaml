@@ -184,6 +184,9 @@ paths:
                   - url
                   - title
                   properties:
+                    actionale:
+                      type: "boolean"
+                      description: "Must the check status equal EXISTS for the release to happen?"
                     url:
                       type: "string"
                       description: "The URL to call to run the check"
