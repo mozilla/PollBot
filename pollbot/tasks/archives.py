@@ -37,6 +37,23 @@ async def get_locales(product, version):
     elif channel is Channel.RELEASE:
         url = ("https://hg.mozilla.org/releases/mozilla-release/raw-file/{}/"
                "browser/locales/shipped-locales").format(tag)
+    elif channel is Channel.CANDIDATE:
+        if 'rc' in version:
+            version, build = version.split('rc')
+        else:
+            version, build = version.split('build')
+        # Build revision URL
+        url = ('https://archive.mozilla.org/pub/{}/candidates/{}-candidates/build{}'
+               '/linux-x86_64/en-US/firefox-{}.txt')
+        url = url.format(product, version, build, version)
+        with get_session() as session:
+            async with session.get(url) as resp:
+                if resp.status != 200:
+                    msg = '{} not available (HTTP {})'.format(url, resp.status)
+                    raise TaskError(msg)
+                body = await resp.text()
+                buildID, rev_url = body.strip().split('\n')
+        url = '{}/browser/locales/shipped-locales'.format(rev_url.replace('rev', 'raw-file'))
     else:
         major, _ = version.split('.', 1)
         branch = "mozilla-esr{}".format(major)
@@ -210,7 +227,6 @@ async def archives(product, version):
                 return build_task_response(success, url, message)
         else:
             url = build_version_url(product, version)
-            version = strip_candidate_info(version)
 
             async with session.get(url, headers=JSON_HEADERS) as resp:
                 if resp.status >= 500:
