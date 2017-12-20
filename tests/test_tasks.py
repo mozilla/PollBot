@@ -39,9 +39,10 @@ SHIPPED_LOCALES_BODY = open(os.path.join(HERE, "fixtures", "shipped-locales.txt"
 
 
 class DeliveryTasksTest(asynctest.TestCase):
-    def mock_platforms(self, platforms, working_body):
+    def mock_platforms(self, platforms, working_body,
+                       base_url='https://archive.mozilla.org/pub/firefox/releases/52.0.2/{}/'):
         for platform in platforms:
-            url = 'https://archive.mozilla.org/pub/firefox/releases/52.0.2/{}/'.format(platform)
+            url = base_url.format(platform)
             body = deepcopy(working_body)
             if platform.startswith('mac'):
                 body['prefixes'].remove('ja/')
@@ -196,6 +197,41 @@ class DeliveryTasksTest(asynctest.TestCase):
 
         received = await release_notes('firefox', '57.0')
         assert received["status"] == Status.MISSING.value
+
+    async def test_archives_tasks_fetch_cset_for_candidates_return_error_if_cset_not_found(self):
+        url = 'https://archive.mozilla.org/pub/firefox/candidates/57.0-candidates/build4/'
+        self.mocked.get(url, status=200)
+
+        url = ("https://archive.mozilla.org/pub/firefox/candidates/57.0-candidates/build4/"
+               "linux-x86_64/en-US/firefox-57.0.txt")
+        self.mocked.get(url, status=404)
+
+        with pytest.raises(TaskError) as excinfo:
+            await archives('firefox', '57.0rc4')
+
+        assert str(excinfo.value) == (
+            'https://archive.mozilla.org/pub/firefox/candidates/57.0-candidates/build4/'
+            'linux-x86_64/en-US/firefox-57.0.txt not available (HTTP 404)')
+
+    async def test_archives_tasks_fetch_cset_for_candidates(self):
+        url = ("https://archive.mozilla.org/pub/firefox/candidates/57.0-candidates/build4/"
+               "linux-x86_64/en-US/firefox-57.0.txt")
+        self.mocked.get(url, status=200, body='''20171112125346
+https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a464f92695524fc
+''')
+        url = ("https://hg.mozilla.org/releases/mozilla-release/raw-file/"
+               "3702966a64c80e17d01f613b0a464f92695524fc/browser/locales/shipped-locales")
+        self.mocked.get(url, status=200, body=SHIPPED_LOCALES_BODY)
+
+        url = 'https://archive.mozilla.org/pub/firefox/candidates/57.0-candidates/build4/'
+        self.mocked.get(url, status=200)
+
+        self.mock_platforms(RELEASE_PLATFORMS, RELEASES_52_BODY,
+                            base_url='https://archive.mozilla.org/pub/firefox/candidates'
+                            '/57.0-candidates/build4/{}/')
+
+        received = await archives('firefox', '57.0rc4')
+        assert received["status"] == Status.EXISTS.value
 
     async def test_archives_tasks_returns_task_error_if_mercurial_is_down(self):
         url = "https://hg.mozilla.org/mozilla-central/raw-file/tip/browser/locales/all-locales"
