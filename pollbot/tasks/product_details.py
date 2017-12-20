@@ -9,7 +9,7 @@ async def ongoing_versions(product):
         async with session.get(url) as resp:
             if resp.status != 200:
                 msg = 'Product Details info not available (HTTP {})'.format(resp.status)
-                raise TaskError(msg)
+                raise TaskError(msg, url=url)
             body = await resp.json()
             return {
                 "esr": body["FIREFOX_ESR"],
@@ -33,7 +33,7 @@ async def product_details(product, version):
         async with session.get(url) as resp:
             if resp.status != 200:
                 msg = 'Product Details info not available (HTTP {})'.format(resp.status)
-                raise TaskError(msg)
+                raise TaskError(msg, url=url)
             body = await resp.json()
             status = '{}-{}'.format(product, version) in body['releases']
 

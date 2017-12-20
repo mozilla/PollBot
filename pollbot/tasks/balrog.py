@@ -13,8 +13,8 @@ async def get_release_info(release_mapping):
                 platforms = body['platforms']
                 built_platforms = [x for x in platforms.keys() if 'locales' in platforms[x]]
                 if not built_platforms:
-                    raise TaskError('No platform with locales was found in {}'.format(
-                        sorted(platforms.keys())))
+                    raise TaskError('No platform with locales were found in {}'.format(
+                        sorted(platforms.keys())), url=release_url)
 
                 build_ids = {}
                 appVersions = set()

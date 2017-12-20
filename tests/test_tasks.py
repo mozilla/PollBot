@@ -1020,7 +1020,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
 
         with pytest.raises(TaskError) as excinfo:
             await balrog_rules('firefox', '57.0a1')
-        assert str(excinfo.value) == "No platform with locales was found in ['bar', 'foo']"
+        assert str(excinfo.value) == "No platform with locales were found in ['bar', 'foo']"
 
     async def test_balrog_rules_tasks_returns_missing_if_mapping_is_wrong(self):
         url = 'https://aus-api.mozilla.org/api/v1/rules/firefox-nightly'

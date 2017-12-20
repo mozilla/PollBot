@@ -23,7 +23,7 @@ async def bouncer(product, version):
         async with session.get(bedrock_url) as resp:
             if resp.status != 200:
                 msg = 'Download page not available  ({})'.format(resp.status)
-                raise TaskError(msg)
+                raise TaskError(msg, url=bedrock_url)
             body = await resp.text()
             d = pq(body)
 
