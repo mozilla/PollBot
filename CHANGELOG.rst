@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-1.0.0 (unreleased)
+0.6.0 (2017-12-20)
 ------------------
 
 - Reuse the same Nightly query for Telemetry Update Parquet (#141)
