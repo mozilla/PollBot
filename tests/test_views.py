@@ -496,10 +496,10 @@ async def test_candidates_buildhub_build(cli):
 
 
 async def test_release_bedrock_release_notes(cli):
-    await check_response(cli, "/v1/firefox/54.0/bedrock/release-notes", body={
+    await check_response(cli, "/v1/firefox/57.0.2/bedrock/release-notes", body={
         "status": Status.EXISTS.value,
-        "message": "Release notes were found for version 54.0",
-        "link": "https://www.mozilla.org/en-US/firefox/54.0/releasenotes/"
+        "message": "Release notes were found for version 57.0.2.",
+        "link": "https://www.mozilla.org/en-US/firefox/57.0.2/releasenotes/"
     })
 
 
