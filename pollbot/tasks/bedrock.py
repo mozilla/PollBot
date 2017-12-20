@@ -7,6 +7,7 @@ from pollbot.exceptions import TaskError
 from pollbot.utils import (build_version_id, Channel, Status, get_version_channel,
                            get_version_from_filename)
 from . import get_session, heartbeat_factory, build_task_response
+from .archives import get_locales
 
 
 async def get_releases(product):
@@ -36,8 +37,54 @@ async def release_notes(product, version):
     with get_session() as session:
         async with session.get(url, allow_redirects=False) as resp:
             status = resp.status == 200
+
+            body = await resp.text()
+
+            localized_count = 0
+            http_count = 0
+
+            if body:
+                d = pq(body)
+
+                domains = ['https://addons.mozilla.org',
+                           'https://www.mozilla.org',
+                           'https://developper.mozilla.org',
+                           'https://support.mozilla.org']
+
+                locales = await get_locales(product, version)
+
+                links = [d(n).attr('href') for n in d('#main-content a')]
+
+                for link in links:
+                    if link.startswith('http://'):
+                        http_count += 1
+                    else:
+                        for domain in domains:
+                            if link.startswith(domain):
+                                for locale in locales:
+                                    if '/{}/'.format(locale) in link:
+                                        localized_count += 1
+
             exists_message = "Release notes were found for version {}".format(version)
             missing_message = "No release notes were published for version {}".format(version)
+            if localized_count > 0:
+                exists_message += " but {} {} should not contain the locale in the URL"
+                exists_message = exists_message.format(localized_count,
+                                                       'links' if localized_count > 1 else 'link')
+                status = Status.INCOMPLETE
+
+            if localized_count and http_count:
+                exists_message += ' and '
+            elif http_count:
+                exists_message += ' but '
+            else:
+                exists_message += '.'
+
+            if http_count > 0:
+                exists_message += "{} {} should use the HTTPS protocol rather than HTTP."
+                exists_message = exists_message.format(http_count,
+                                                       'links' if localized_count > 1 else 'link')
+                status = Status.INCOMPLETE
             return build_task_response(status, url, exists_message, missing_message)
 
 
