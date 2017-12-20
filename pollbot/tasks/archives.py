@@ -50,7 +50,7 @@ async def get_locales(product, version):
             async with session.get(url) as resp:
                 if resp.status != 200:
                     msg = '{} not available (HTTP {})'.format(url, resp.status)
-                    raise TaskError(msg)
+                    raise TaskError(msg, url=url)
                 body = await resp.text()
                 buildID, rev_url = body.strip().split('\n')
         url = '{}/browser/locales/shipped-locales'.format(rev_url.replace('rev', 'raw-file'))
@@ -64,7 +64,7 @@ async def get_locales(product, version):
         async with session.get(url) as resp:
             if resp.status != 200:
                 msg = '{} not available (HTTP {})'.format(url, resp.status)
-                raise TaskError(msg)
+                raise TaskError(msg, url=url)
             hg_locales = []
             body = await resp.text()
             for line in body.split('\n'):
@@ -147,7 +147,7 @@ async def get_platform_locale(url, platform):
             if resp.status != 200:
                 msg = 'Archive CDN not available; failing to get {} (HTTP {})'.format(
                     url, resp.status)
-                raise TaskError(msg)
+                raise TaskError(msg, url=url)
 
             body = await resp.json()
             return sorted([p.strip('/') for p in body['prefixes'] if not p.startswith('xpi')])
@@ -231,7 +231,7 @@ async def archives(product, version):
             async with session.get(url, headers=JSON_HEADERS) as resp:
                 if resp.status >= 500:
                     msg = 'Archive CDN not available (HTTP {})'.format(resp.status)
-                    raise TaskError(msg)
+                    raise TaskError(msg, url=url)
                 success = resp.status < 400
                 message = ("No archive found for this version number at {}".format(url))
                 if success:
