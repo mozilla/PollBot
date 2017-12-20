@@ -508,6 +508,14 @@ async def test_release_bedrock_release_notes(cli):
     })
 
 
+async def test_release_bedrock_esr_release_notes(cli):
+    await check_response(cli, "/v1/firefox/52.5.2esr/bedrock/release-notes", body={
+        "status": Status.EXISTS.value,
+        "message": "Release notes were found for version 52.5.2.",
+        "link": "https://www.mozilla.org/en-US/firefox/52.5.2/releasenotes/"
+    })
+
+
 async def test_release_bedrock_security_advisories(cli):
     resp = await check_response(cli, "/v1/firefox/54.0/bedrock/security-advisories")
     body = await resp.json()

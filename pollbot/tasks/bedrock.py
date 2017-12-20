@@ -24,13 +24,14 @@ async def get_releases(product):
             return sorted(major_releases + minor_releases, key=build_version_id)
 
 
-async def release_notes(product, version):
-    channel = get_version_channel(version)
+async def release_notes(product, full_version):
+    channel = get_version_channel(full_version)
+    version = full_version
     if channel is Channel.BETA:
-        parts = version.split('b')
+        parts = full_version.split('b')
         version = "{}beta".format(parts[0])
     elif channel is Channel.ESR:
-        version = re.sub('esr$', '', version)
+        version = re.sub('esr$', '', full_version)
 
     url = 'https://www.mozilla.org/en-US/{}/{}/releasenotes/'.format(product, version)
 
@@ -51,7 +52,7 @@ async def release_notes(product, version):
                            'https://developer.mozilla.org',
                            'https://support.mozilla.org']
 
-                locales = await get_locales(product, version)
+                locales = await get_locales(product, full_version)
 
                 links = [d(n).attr('href') for n in d('#main-content a')]
 
