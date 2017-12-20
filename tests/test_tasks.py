@@ -206,6 +206,10 @@ class DeliveryTasksTest(asynctest.TestCase):
                "linux-x86_64/en-US/firefox-57.0.txt")
         self.mocked.get(url, status=404)
 
+        self.mock_platforms(RELEASE_PLATFORMS, RELEASES_52_BODY,
+                            base_url='https://archive.mozilla.org/pub/firefox/candidates'
+                            '/57.0-candidates/build4/{}/')
+
         with pytest.raises(TaskError) as excinfo:
             await archives('firefox', '57.0rc4')
 
