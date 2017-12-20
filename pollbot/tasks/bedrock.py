@@ -48,7 +48,7 @@ async def release_notes(product, version):
 
                 domains = ['https://addons.mozilla.org',
                            'https://www.mozilla.org',
-                           'https://developper.mozilla.org',
+                           'https://developer.mozilla.org',
                            'https://support.mozilla.org']
 
                 locales = await get_locales(product, version)
