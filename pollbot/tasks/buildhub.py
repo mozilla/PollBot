@@ -1,7 +1,9 @@
 import json
 
 from pollbot.exceptions import TaskError
-from pollbot.utils import Channel, Status, get_version_channel, yesterday, strip_candidate_info
+from pollbot.utils import (
+    Channel, Status, build_version_id, get_version_channel, yesterday, strip_candidate_info
+)
 
 from . import get_session, build_task_response, heartbeat_factory
 
@@ -20,9 +22,9 @@ async def get_releases(product):
             "by_version": {
                 "terms": {
                     "field": "target.version",
-                    "size": 100,
+                    "size": 1000,
                     "order": {
-                        "_term": "asc"
+                        "_term": "desc"
                     }
                 }
             }
@@ -54,8 +56,9 @@ async def get_releases(product):
                 raise TaskError(message, url=url)
 
             data = await response.json()
-        versions = [r['key'] for r in data['aggregations']['by_version']['buckets']
-                    if strip_candidate_info(r['key']) == r['key']]
+        versions = sorted([r['key'] for r in data['aggregations']['by_version']['buckets']
+                           if strip_candidate_info(r['key']) == r['key']],
+                          key=lambda version: build_version_id(version))
 
         if not versions:
             message = "Couldn't find any version matching."
@@ -66,13 +69,20 @@ async def get_releases(product):
 
 
 def get_buildhub_url(product, version, channel):
+    channel_value = channel.value.lower()
+    if product == "devedition":
+        channel_value = "aurora"
+
     url = ("https://mozilla-services.github.io/buildhub/"
            "?versions[0]={}&products[0]={}&channel[0]={}")
-    return url.format(version, product, channel.value.lower())
+    return url.format(version, product, channel_value)
 
 
 async def get_build_ids_for_version(product, version, *, size=10):
     channel = get_version_channel(strip_candidate_info(version))
+    channel_value = channel.value.lower()
+    if product == "devedition":
+        channel_value = "aurora"
 
     query = {
         "aggs": {
@@ -91,7 +101,7 @@ async def get_build_ids_for_version(product, version, *, size=10):
                 "filter": [
                     {
                         "term": {
-                            "target.channel": channel.value.lower()
+                            "target.channel": channel_value
                         }
                     }, {
                         "term": {

@@ -33,6 +33,9 @@ async def release_notes(product, full_version):
     elif channel is Channel.ESR:
         version = re.sub('esr$', '', full_version)
 
+    if product == 'devedition':
+        product = 'firefox'
+
     url = 'https://www.mozilla.org/en-US/{}/{}/releasenotes/'.format(product, version)
 
     with get_session() as session:
@@ -135,6 +138,8 @@ async def download_links(product, version):
         url = 'https://www.mozilla.org/en-US/{}/all/'.format(product)
     else:
         url = 'https://www.mozilla.org/fr/{}/channel/desktop/'.format(product)
+        if product == 'devedition':
+            url = 'https://www.mozilla.org/en-US/firefox/developer/'
 
     with get_session() as session:
         async with session.get(url) as resp:
@@ -145,12 +150,13 @@ async def download_links(product, version):
             d = pq(body)
 
             if channel in (Channel.NIGHTLY, Channel.BETA):
-                if channel is Channel.NIGHTLY:
+                if product == 'devedition':
+                    link_path = "#intro-download > .download-list > .os_linux64 > a"
+                elif channel is Channel.NIGHTLY:
                     link_path = "#desktop-nightly-download > .download-list > .os_linux64 > a"
-                    url = d(link_path).attr('href')
                 else:  # channel is Channel.BETA:
                     link_path = "#desktop-beta-download > .download-list > .os_linux64 > a"
-                    url = d(link_path).attr('href')
+                url = d(link_path).attr('href')
                 async with session.get(url, allow_redirects=False) as resp:
                     url = resp.headers['Location']
                     filename = os.path.basename(url)

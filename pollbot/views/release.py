@@ -88,6 +88,7 @@ CHECKS = OrderedDict(
     }.items(), key=lambda t: t[0]))
 
 NOT_ACTIONABLE = ['-uptake']
+IGNORES = {'devedition': ['crash-stats-uptake', 'partner-repacks']}
 
 
 @validate_product_version
@@ -111,6 +112,10 @@ async def view_get_checks(request, product, version):
             min_version = channels
             if build_version_id(version) >= build_version_id(min_version):
                 check_related_to_version = True
+
+        if product in IGNORES:
+            if check_name in IGNORES[product]:
+                check_related_to_version = False
 
         if check_related_to_version:
             prefix = "{}://{}".format(proto, host)
