@@ -9,6 +9,62 @@ from . import get_session, build_task_response, heartbeat_factory
 BUILDHUB_SERVER = "https://buildhub.prod.mozaws.net/v1"
 
 
+async def get_releases(product):
+    RELEASE_CHANNEL = {
+        'devedition': 'aurora',
+        'firefox': 'release',
+    }
+
+    query = {
+        "aggs": {
+            "by_version": {
+                "terms": {
+                    "field": "target.version",
+                    "size": 100,
+                    "order": {
+                        "_term": "asc"
+                    }
+                }
+            }
+        },
+        "query": {
+            "bool": {
+                "filter": [
+                    {
+                        "term": {
+                            "source.product": product
+                        }
+                    }, {
+                        "term": {
+                            "target.channel": RELEASE_CHANNEL[product]
+                        }
+                    }
+                ]
+            }
+        },
+        "size": 0
+    }
+    with get_session() as session:
+        url = '{}/buckets/build-hub/collections/releases/search'
+        url = url.format(BUILDHUB_SERVER)
+        async with session.post(url, data=json.dumps(query)) as response:
+            if response.status != 200:
+                message = "Buildhub is not available ({})".format(response.status)
+                url = "https://mozilla-services.github.io/buildhub/?products[0]={}".format(product)
+                raise TaskError(message, url=url)
+
+            data = await response.json()
+        versions = [r['key'] for r in data['aggregations']['by_version']['buckets']
+                    if strip_candidate_info(r['key']) == r['key']]
+
+        if not versions:
+            message = "Couldn't find any version matching."
+            url = "https://mozilla-services.github.io/buildhub/?products[0]={}".format(product)
+            raise TaskError(message, url=url)
+
+        return versions
+
+
 def get_buildhub_url(product, version, channel):
     url = ("https://mozilla-services.github.io/buildhub/"
            "?versions[0]={}&products[0]={}&channel[0]={}")

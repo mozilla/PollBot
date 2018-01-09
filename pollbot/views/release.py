@@ -4,8 +4,9 @@ from collections import OrderedDict
 
 from ..tasks import balrog, buildhub, crash_stats, telemetry
 from ..tasks.archives import archives, partner_repacks
-from ..tasks.bedrock import release_notes, security_advisories, download_links, get_releases
+from ..tasks.bedrock import release_notes, security_advisories, download_links
 from ..tasks.bouncer import bouncer
+from ..tasks.buildhub import get_releases
 from ..tasks.product_details import product_details, devedition_and_beta_in_sync
 from ..utils import Channel, get_version_channel, build_version_id
 from .decorators import validate_product_version

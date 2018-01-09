@@ -10,9 +10,9 @@ from . import get_session, heartbeat_factory, build_task_response
 from .archives import get_locales
 
 
-async def get_releases(product):
+async def get_firefox_releases():
     with get_session() as session:
-        url = 'https://www.mozilla.org/en-US/{}/releases/'.format(product)
+        url = 'https://www.mozilla.org/en-US/firefox/releases/'
         async with session.get(url) as resp:
             if resp.status != 200:
                 msg = 'Releases page not available  ({})'.format(resp.status)
