@@ -125,5 +125,5 @@ async def view_get_checks(request, product, version):
         "product": product,
         "version": version,
         "channel": channel.value.lower(),
-        "checks": checks,
+        "checks": sorted(checks, key=lambda check: check['actionable'], reverse=True),
     })

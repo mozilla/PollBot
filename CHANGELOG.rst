@@ -4,7 +4,7 @@ CHANGELOG
 0.7.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Order checks putting non actionable checks at the end. (#163)
 
 
 0.6.1 (2017-12-20)
