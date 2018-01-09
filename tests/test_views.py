@@ -242,8 +242,6 @@ async def test_get_checks_for_beta(cli):
              "title": "Bouncer", "actionable": True},
             {"url": "http://localhost/v1/firefox/56.0b6/buildhub",
              "title": "Buildhub release info", "actionable": True},
-            {"url": "http://localhost/v1/firefox/56.0b6/crash-stats/uptake",
-             "title": "Crash Stats Uptake (24h latency)", "actionable": False},
             {"url": "http://localhost/v1/firefox/56.0b6/product-details"
              "/devedition-beta-versions-matches", "actionable": True,
              "title": "Devedition and Beta versions matches"},
@@ -255,6 +253,8 @@ async def test_get_checks_for_beta(cli):
              "title": "Product details", "actionable": True},
             {"url": "http://localhost/v1/firefox/56.0b6/bedrock/release-notes",
              "title": "Release notes", "actionable": True},
+            {"url": "http://localhost/v1/firefox/56.0b6/crash-stats/uptake",
+             "title": "Crash Stats Uptake (24h latency)", "actionable": False},
         ]
     })
 
@@ -291,8 +291,6 @@ async def test_get_checks_for_release(cli):
              "title": "Bouncer", "actionable": True},
             {"url": "http://localhost/v1/firefox/54.0/buildhub",
              "title": "Buildhub release info", "actionable": True},
-            {"url": "http://localhost/v1/firefox/54.0/crash-stats/uptake",
-             "title": "Crash Stats Uptake (24h latency)", "actionable": False},
             {"url": "http://localhost/v1/firefox/54.0/bedrock/download-links",
              "title": "Download links", "actionable": True},
             {"url": "http://localhost/v1/firefox/54.0/archive/partner-repacks",
@@ -303,6 +301,8 @@ async def test_get_checks_for_release(cli):
              "title": "Release notes", "actionable": True},
             {"url": "http://localhost/v1/firefox/54.0/bedrock/security-advisories",
              "title": "Security advisories", "actionable": True},
+            {"url": "http://localhost/v1/firefox/54.0/crash-stats/uptake",
+             "title": "Crash Stats Uptake (24h latency)", "actionable": False},
         ]
     })
 
@@ -321,8 +321,6 @@ async def test_get_checks_for_esr(cli):
              "title": "Bouncer", "actionable": True},
             {"url": "http://localhost/v1/firefox/52.3.0esr/buildhub",
              "title": "Buildhub release info", "actionable": True},
-            {"url": "http://localhost/v1/firefox/52.3.0esr/crash-stats/uptake",
-             "title": "Crash Stats Uptake (24h latency)", "actionable": False},
             {"url": "http://localhost/v1/firefox/52.3.0esr/bedrock/download-links",
              "title": "Download links", "actionable": True},
             {"url": "http://localhost/v1/firefox/52.3.0esr/product-details",
@@ -331,6 +329,8 @@ async def test_get_checks_for_esr(cli):
              "title": "Release notes", "actionable": True},
             {"url": "http://localhost/v1/firefox/52.3.0esr/bedrock/security-advisories",
              "title": "Security advisories", "actionable": True},
+            {"url": "http://localhost/v1/firefox/52.3.0esr/crash-stats/uptake",
+             "title": "Crash Stats Uptake (24h latency)", "actionable": False},
         ]
     })
 
