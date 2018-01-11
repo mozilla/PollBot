@@ -23,9 +23,10 @@ async def version(request):
     return web.HTTPNotFound()
 
 
-def render_yaml_file(filename):
+def render_yaml_file(filename, **options):
     with open(os.path.join(HERE, "..", filename)) as stream:
         content = yaml.safe_load(stream)
+    content.update(options)
     return web.json_response(content)
 
 
@@ -34,7 +35,11 @@ async def oas_spec(request):
 
 
 async def contribute_json(request):
-    return render_yaml_file("contribute.yaml")
+    settings = {}
+    whatsdeployed_url = os.getenv('WHATSDEPLOYED_URL')
+    if whatsdeployed_url:
+        settings['whatsdeployed'] = whatsdeployed_url
+    return render_yaml_file("contribute.yaml", **settings)
 
 
 async def contribute_redirect(request):

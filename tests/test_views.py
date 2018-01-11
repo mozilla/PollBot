@@ -61,9 +61,10 @@ async def test_redirects_trailing_slashes(cli):
     assert resp.headers['Location'] == "/v1/firefox/54.0"
 
 
-async def check_yaml_resource(cli, url, filename):
+async def check_yaml_resource(cli, url, filename, **options):
     with open(os.path.join(HERE, "..", "pollbot", filename)) as stream:
         content = yaml.safe_load(stream)
+    content.update(options)
     resp = await cli.get(url)
     assert await resp.json() == content
 
@@ -75,6 +76,16 @@ async def test_oas_spec(cli):
 async def test_contribute_redirect(cli):
     resp = await check_response(cli, "/contribute.json", status=302, allow_redirects=False)
     assert resp.headers['Location'] == "/v1/contribute.json"
+
+
+async def test_contribute_json_with_whatsdeployed_url(cli):
+    whatsdeployed_url = ' https://whatsdeployed.io/s-9sl'
+    os.environ['WHATSDEPLOYED_URL'] = whatsdeployed_url
+    try:
+        await check_yaml_resource(cli, "/v1/contribute.json", "contribute.yaml",
+                                  whatsdeployed=whatsdeployed_url)
+    finally:
+        del os.environ['WHATSDEPLOYED_URL']
 
 
 async def test_contribute_json(cli):
