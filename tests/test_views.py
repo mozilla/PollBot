@@ -761,13 +761,20 @@ async def test_ongoing_versions_response_validates_product_name(cli):
     }, status=404)
 
 
-async def test_ongoing_versions_view(cli):
+async def test_ongoing_versions_view_firefox(cli):
     resp = await check_response(cli, "/v1/firefox/ongoing-versions")
     body = await resp.json()
     assert "esr" in body
     assert "release" in body
     assert "beta" in body
     assert "nightly" in body
+    assert "devedition" not in body
+
+
+async def test_ongoing_versions_view_devedition(cli):
+    resp = await check_response(cli, "/v1/devedition/ongoing-versions")
+    body = await resp.json()
+    assert "devedition" in body
 
 
 @pytest.mark.parametrize("endpoint", NO_CACHE_ENDPOINTS)

@@ -13,4 +13,7 @@ async def get_ongoing_versions(request):
             'message': 'Invalid product: {} not in {}'.format(product, PRODUCTS)
         }, status=404)
 
-    return web.json_response(await ongoing_versions(product))
+    info = await ongoing_versions(product)
+    info = {k: v for k, v in info.items() if (product == "devedition") == (k == "devedition")}
+
+    return web.json_response(info)
