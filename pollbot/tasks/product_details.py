@@ -5,7 +5,7 @@ from . import get_session, heartbeat_factory, build_task_response
 
 async def ongoing_versions(product):
     with get_session() as session:
-        url = 'https://product-details.mozilla.org/1.0/{}_versions.json'.format(product)
+        url = 'https://product-details.mozilla.org/1.0/firefox_versions.json'
         async with session.get(url) as resp:
             if resp.status != 200:
                 msg = 'Product Details info not available (HTTP {})'.format(resp.status)
@@ -29,13 +29,13 @@ async def product_details(product, version):
         return build_task_response(status, url, message)
 
     with get_session() as session:
-        url = 'https://product-details.mozilla.org/1.0/{}.json'.format(product)
+        url = 'https://product-details.mozilla.org/1.0/firefox.json'
         async with session.get(url) as resp:
             if resp.status != 200:
                 msg = 'Product Details info not available (HTTP {})'.format(resp.status)
                 raise TaskError(msg, url=url)
             body = await resp.json()
-            status = '{}-{}'.format(product, version) in body['releases']
+            status = 'firefox-{}'.format(version) in body['releases']
 
             exists_message = "We found product-details information about version {}"
             missing_message = "We did not find product-details information about version {}"
@@ -46,7 +46,7 @@ async def product_details(product, version):
 
 async def devedition_and_beta_in_sync(product, version):
     channel = get_version_channel(version)
-    url = "https://product-details.mozilla.org/1.0/{}_versions.json".format(product)
+    url = "https://product-details.mozilla.org/1.0/firefox_versions.json"
     if channel is Channel.BETA:
         versions = await ongoing_versions(product)
         beta = versions["beta"]

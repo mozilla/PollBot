@@ -28,7 +28,8 @@ JSON_HEADERS = {"Accept": "application/json"}
 
 async def get_locales(product, version):
     channel = get_version_channel(version)
-    tag = "{}_{}_RELEASE".format(product.upper(), version.replace('.', '_'))
+    tag_product = 'FIREFOX'
+    tag = "{}_{}_RELEASE".format(tag_product, version.replace('.', '_'))
     if channel is Channel.NIGHTLY:
         url = "https://hg.mozilla.org/mozilla-central/raw-file/tip/browser/locales/all-locales"
     elif channel is Channel.BETA:

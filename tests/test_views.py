@@ -142,7 +142,7 @@ async def test_status_response_validates_product_name(cli):
     assert resp.status == 404
     assert json.loads(resp.body.decode()) == {
         "status": 404,
-        "message": "Invalid product: invalid-product not in ['firefox']",
+        "message": "Invalid product: invalid-product not in ('firefox', 'devedition')",
     }
 
 
@@ -160,10 +160,24 @@ async def test_status_response_validates_version(cli):
     }
 
 
+async def test_status_response_validates_devedition_version(cli):
+    async def dummy_task(product, version):
+        return True
+    error_endpoint = status_response(dummy_task)
+    request = mock.MagicMock()
+    request.match_info = {"product": "devedition", "version": "58.0"}
+    resp = await error_endpoint(request)
+    assert resp.status == 404
+    assert json.loads(resp.body.decode()) == {
+        "status": 404,
+        "message": "Invalid version number for devedition: 58.0",
+    }
+
+
 async def test_get_releases_response_validates_product_name(cli):
     await check_response(cli, "/v1/invalid-product", body={
         "status": 404,
-        "message": "Invalid product: invalid-product not in ['firefox']"
+        "message": "Invalid product: invalid-product not in ('firefox', 'devedition')"
     }, status=404)
 
 
@@ -259,6 +273,33 @@ async def test_get_checks_for_beta(cli):
     })
 
 
+async def test_get_checks_for_devedition(cli):
+    await check_response(cli, "/v1/devedition/56.0b6", body={
+        "product": "devedition",
+        "version": "56.0b6",
+        "channel": "beta",
+        "checks": [
+            {"url": "http://localhost/v1/devedition/56.0b6/archive",
+             "title": "Archive Release", "actionable": True},
+            {"url": "http://localhost/v1/devedition/56.0b6/balrog-rules",
+             "title": "Balrog update rules", "actionable": True},
+            {"url": "http://localhost/v1/devedition/56.0b6/bouncer",
+             "title": "Bouncer", "actionable": True},
+            {"url": "http://localhost/v1/devedition/56.0b6/buildhub",
+             "title": "Buildhub release info", "actionable": True},
+            {"url": "http://localhost/v1/devedition/56.0b6/product-details"
+             "/devedition-beta-versions-matches", "actionable": True,
+             "title": "Devedition and Beta versions matches"},
+            {"url": "http://localhost/v1/devedition/56.0b6/bedrock/download-links",
+             "title": "Download links", "actionable": True},
+            {"url": "http://localhost/v1/devedition/56.0b6/product-details",
+             "title": "Product details", "actionable": True},
+            {"url": "http://localhost/v1/devedition/56.0b6/bedrock/release-notes",
+             "title": "Release notes", "actionable": True},
+        ]
+    })
+
+
 async def test_get_checks_for_candidates(cli):
     await check_response(cli, "/v1/firefox/57.0rc6", body={
         "product": "firefox",
@@ -338,7 +379,7 @@ async def test_get_checks_for_esr(cli):
 async def test_get_checks_response_validates_product_name(cli):
     await check_response(cli, "/v1/invalid-product/56.0", body={
         "status": 404,
-        "message": "Invalid product: invalid-product not in ['firefox']"
+        "message": "Invalid product: invalid-product not in ('firefox', 'devedition')"
     }, status=404)
 
 
@@ -392,6 +433,16 @@ async def test_beta_archive(cli):
         "/ and all 95 locales are present for all platforms "
         "(linux-i686, linux-x86_64, mac, win32, win64)",
         "link": "https://archive.mozilla.org/pub/firefox/releases/56.0b10/"
+    })
+
+
+async def test_devedition_archive(cli):
+    await check_response(cli, "/v1/devedition/56.0b10/archive", body={
+        "status": Status.EXISTS.value,
+        "message": "The archive exists at https://archive.mozilla.org/pub/devedition/releases"
+        "/56.0b10/ and all 95 locales are present for all platforms "
+        "(linux-i686, linux-x86_64, mac, win32, win64)",
+        "link": "https://archive.mozilla.org/pub/devedition/releases/56.0b10/"
     })
 
 
@@ -500,11 +551,28 @@ async def test_candidates_buildhub_build(cli):
                             "?versions[0]=56.0.1rc2&products[0]=firefox&channel[0]=release")
 
 
+async def test_devedition_buildhub(cli):
+    resp = await check_response(cli, "/v1/devedition/58.0b15/buildhub")
+    body = await resp.json()
+    assert body["status"] == Status.EXISTS.value
+    assert "Build IDs for this release: 20180108140638" == body["message"]
+    assert body["link"] == ("https://mozilla-services.github.io/buildhub/"
+                            "?versions[0]=58.0b15&products[0]=devedition&channel[0]=aurora")
+
+
 async def test_release_bedrock_release_notes(cli):
     await check_response(cli, "/v1/firefox/57.0.2/bedrock/release-notes", body={
         "status": Status.EXISTS.value,
         "message": "Release notes were found for version 57.0.2.",
         "link": "https://www.mozilla.org/en-US/firefox/57.0.2/releasenotes/"
+    })
+
+
+async def test_devedition_bedrock_release_notes(cli):
+    await check_response(cli, "/v1/devedition/58.0b15/bedrock/release-notes", body={
+        "status": Status.EXISTS.value,
+        "message": "Release notes were found for version 58.0beta.",
+        "link": "https://www.mozilla.org/en-US/firefox/58.0beta/releasenotes/"
     })
 
 
@@ -533,6 +601,16 @@ async def test_release_bedrock_download_links(cli):
     assert body['link'] == "https://www.mozilla.org/en-US/firefox/all/"
 
 
+async def test_devedition_bedrock_download_links(cli):
+    resp = await check_response(cli, "/v1/devedition/58.0b15/bedrock/download-links")
+    body = await resp.json()
+
+    assert body['status'] == Status.EXISTS.value
+    assert body['message'].startswith("The download links for release have been published")
+    url_prefix = "https://download-installer.cdn.mozilla.net/pub/devedition/releases/"
+    assert body['link'].startswith(url_prefix)
+
+
 async def test_release_bouncer_download_links(cli):
     resp = await check_response(cli, "/v1/firefox/54.0/bouncer")
     body = await resp.json()
@@ -540,6 +618,16 @@ async def test_release_bouncer_download_links(cli):
     assert body['status'] == Status.EXISTS.value
     assert body['message'].startswith("Bouncer for RELEASE redirects to version")
     url_prefix = "https://download-installer.cdn.mozilla.net/pub/firefox/releases/"
+    assert body['link'].startswith(url_prefix)
+
+
+async def test_devedition_bouncer_download_links(cli):
+    resp = await check_response(cli, "/v1/devedition/58.0b15/bouncer")
+    body = await resp.json()
+
+    assert body['status'] == Status.EXISTS.value
+    assert body['message'].startswith("Bouncer for DEVEDITION redirects to version")
+    url_prefix = "https://download-installer.cdn.mozilla.net/pub/devedition/releases/"
     assert body['link'].startswith(url_prefix)
 
 
@@ -551,9 +639,23 @@ async def test_release_product_details(cli):
     })
 
 
+async def test_devedition_product_details(cli):
+    await check_response(cli, "/v1/devedition/58.0b15/product-details", body={
+        "status": Status.EXISTS.value,
+        "message": "We found product-details information about version 58.0b15",
+        "link": "https://product-details.mozilla.org/1.0/firefox.json"
+    })
+
+
 async def test_beta_product_details_devedition_and_beta_versions_matches(cli):
     await check_response(cli,
                          "/v1/firefox/56.0b7/product-details/devedition-beta-versions-matches",
+                         status=200)
+
+
+async def test_devedition_product_details_devedition_and_beta_versions_matches(cli):
+    await check_response(cli,
+                         "/v1/devedition/56.0b7/product-details/devedition-beta-versions-matches",
                          status=200)
 
 
@@ -582,6 +684,14 @@ async def test_beta_balrog_rules(cli):
     assert body["link"] == "https://aus-api.mozilla.org/api/v1/rules/firefox-beta"
 
 
+async def test_devedition_balrog_rules(cli):
+    resp = await check_response(cli, "/v1/devedition/56.0b7/balrog-rules")
+    body = await resp.json()
+    assert body["status"] in (Status.EXISTS.value, Status.INCOMPLETE.value)
+    assert "Balrog rule has been updated for Devedition" in body["message"]
+    assert body["link"] == "https://aus-api.mozilla.org/api/v1/rules/devedition"
+
+
 async def test_nightly_balrog_rules(cli):
     resp = await check_response(cli, "/v1/firefox/57.0a1/balrog-rules")
     body = await resp.json()
@@ -590,11 +700,19 @@ async def test_nightly_balrog_rules(cli):
     assert body["link"] == "https://aus-api.mozilla.org/api/v1/rules/firefox-nightly"
 
 
-async def test_releases_list(cli):
+async def test_firefox_releases_list(cli):
     resp = await check_response(cli, "/v1/firefox")
     body = await resp.json()
     assert "releases" in body
     assert all([isinstance(version, str) for version in body["releases"]])
+
+
+async def test_devedition_releases_list(cli):
+    resp = await check_response(cli, "/v1/devedition")
+    body = await resp.json()
+    assert "releases" in body
+    assert all([isinstance(version, str) for version in body["releases"]])
+    assert all(['rc' not in version for version in body["releases"]])
 
 
 # Utilities
@@ -639,7 +757,7 @@ async def test_version_view_return_200(cli):
 async def test_ongoing_versions_response_validates_product_name(cli):
     await check_response(cli, "/v1/invalid-product/ongoing-versions", body={
         "status": 404,
-        "message": "Invalid product: invalid-product not in ['firefox']"
+        "message": "Invalid product: invalid-product not in ('firefox', 'devedition')"
     }, status=404)
 
 

@@ -10,20 +10,6 @@ from . import get_session, heartbeat_factory, build_task_response
 from .archives import get_locales
 
 
-async def get_releases(product):
-    with get_session() as session:
-        url = 'https://www.mozilla.org/en-US/{}/releases/'.format(product)
-        async with session.get(url) as resp:
-            if resp.status != 200:
-                msg = 'Releases page not available  ({})'.format(resp.status)
-                raise TaskError(msg)
-            body = await resp.text()
-            d = pq(body)
-            major_releases = [n.text for n in d("strong>a")]
-            minor_releases = [n.text for n in d("ol>li>ol>li>a")]
-            return sorted(major_releases + minor_releases, key=build_version_id)
-
-
 async def release_notes(product, full_version):
     channel = get_version_channel(full_version)
     version = full_version
@@ -32,6 +18,9 @@ async def release_notes(product, full_version):
         version = "{}beta".format(parts[0])
     elif channel is Channel.ESR:
         version = re.sub('esr$', '', full_version)
+
+    if product == 'devedition':
+        product = 'firefox'
 
     url = 'https://www.mozilla.org/en-US/{}/{}/releasenotes/'.format(product, version)
 
@@ -135,6 +124,8 @@ async def download_links(product, version):
         url = 'https://www.mozilla.org/en-US/{}/all/'.format(product)
     else:
         url = 'https://www.mozilla.org/fr/{}/channel/desktop/'.format(product)
+        if product == 'devedition':
+            url = 'https://www.mozilla.org/en-US/firefox/developer/'
 
     with get_session() as session:
         async with session.get(url) as resp:
@@ -145,12 +136,13 @@ async def download_links(product, version):
             d = pq(body)
 
             if channel in (Channel.NIGHTLY, Channel.BETA):
-                if channel is Channel.NIGHTLY:
+                if product == 'devedition':
+                    link_path = "#intro-download > .download-list > .os_linux64 > a"
+                elif channel is Channel.NIGHTLY:
                     link_path = "#desktop-nightly-download > .download-list > .os_linux64 > a"
-                    url = d(link_path).attr('href')
                 else:  # channel is Channel.BETA:
                     link_path = "#desktop-beta-download > .download-list > .os_linux64 > a"
-                    url = d(link_path).attr('href')
+                url = d(link_path).attr('href')
                 async with session.get(url, allow_redirects=False) as resp:
                     url = resp.headers['Location']
                     filename = os.path.basename(url)

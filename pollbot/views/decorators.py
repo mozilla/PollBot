@@ -1,7 +1,7 @@
 from aiohttp import web
 
 from pollbot import PRODUCTS
-from ..utils import is_valid_version
+from ..utils import is_valid_version, Channel, get_version_channel
 
 
 def validate_product_version(func):
@@ -22,6 +22,14 @@ def validate_product_version(func):
             }, status=404)
 
         if version:
+            if product == "devedition":
+                channel = get_version_channel(version)
+                if channel is not Channel.BETA:
+                    return web.json_response({
+                        'status': 404,
+                        'message': 'Invalid version number for devedition: {}'.format(version)
+                    }, status=404)
+
             return await func(request, product, version)
 
         return await func(request, product)

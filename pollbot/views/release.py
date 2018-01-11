@@ -4,8 +4,9 @@ from collections import OrderedDict
 
 from ..tasks import balrog, buildhub, crash_stats, telemetry
 from ..tasks.archives import archives, partner_repacks
-from ..tasks.bedrock import release_notes, security_advisories, download_links, get_releases
+from ..tasks.bedrock import release_notes, security_advisories, download_links
 from ..tasks.bouncer import bouncer
+from ..tasks.buildhub import get_releases
 from ..tasks.product_details import product_details, devedition_and_beta_in_sync
 from ..utils import Channel, get_version_channel, build_version_id
 from .decorators import validate_product_version
@@ -87,6 +88,7 @@ CHECKS = OrderedDict(
     }.items(), key=lambda t: t[0]))
 
 NOT_ACTIONABLE = ['-uptake']
+IGNORES = {'devedition': ['crash-stats-uptake', 'partner-repacks']}
 
 
 @validate_product_version
@@ -110,6 +112,10 @@ async def view_get_checks(request, product, version):
             min_version = channels
             if build_version_id(version) >= build_version_id(min_version):
                 check_related_to_version = True
+
+        if product in IGNORES:
+            if check_name in IGNORES[product]:
+                check_related_to_version = False
 
         if check_related_to_version:
             prefix = "{}://{}".format(proto, host)

@@ -63,6 +63,7 @@ async def get_query_info_from_title(session, query_title):
     query_url = "{}/api/queries/search?{}".format(TELEMETRY_SERVER, query_params)
     async with session.get(query_url) as resp:
         body = await resp.json()
+
         if body:
             body = [query for query in body if not query['name'].startswith('Copy of')]
             return body[0] if len(body) > 0 else None

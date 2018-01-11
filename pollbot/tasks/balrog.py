@@ -77,7 +77,8 @@ async def balrog_rules(product, version):
                 return build_task_response(status, url, message)
 
     elif channel is Channel.BETA:
-        url = 'https://aus-api.mozilla.org/api/v1/rules/firefox-beta'
+        rule_name = 'devedition' if product == 'devedition' else 'firefox-beta'
+        url = 'https://aus-api.mozilla.org/api/v1/rules/{}'.format(rule_name)
     elif channel is Channel.ESR:
         version = re.sub('esr$', '', version)
         url = 'https://aus-api.mozilla.org/api/v1/rules/esr{}'.format(version.split('.')[0])
