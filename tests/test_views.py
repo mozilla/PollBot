@@ -142,7 +142,7 @@ async def test_status_response_validates_product_name(cli):
     assert resp.status == 404
     assert json.loads(resp.body.decode()) == {
         "status": 404,
-        "message": "Invalid product: invalid-product not in ['firefox', 'devedition']",
+        "message": "Invalid product: invalid-product not in ('firefox', 'devedition')",
     }
 
 
@@ -177,7 +177,7 @@ async def test_status_response_validates_devedition_version(cli):
 async def test_get_releases_response_validates_product_name(cli):
     await check_response(cli, "/v1/invalid-product", body={
         "status": 404,
-        "message": "Invalid product: invalid-product not in ['firefox', 'devedition']"
+        "message": "Invalid product: invalid-product not in ('firefox', 'devedition')"
     }, status=404)
 
 
@@ -279,8 +279,8 @@ async def test_get_checks_for_devedition(cli):
         "version": "56.0b6",
         "channel": "beta",
         "checks": [
-            {"url": "http://localhost/v1/devedition/56.0b6/archive", "title": "Archive Release",
-             "actionable": True},
+            {"url": "http://localhost/v1/devedition/56.0b6/archive",
+             "title": "Archive Release", "actionable": True},
             {"url": "http://localhost/v1/devedition/56.0b6/balrog-rules",
              "title": "Balrog update rules", "actionable": True},
             {"url": "http://localhost/v1/devedition/56.0b6/bouncer",
@@ -379,7 +379,7 @@ async def test_get_checks_for_esr(cli):
 async def test_get_checks_response_validates_product_name(cli):
     await check_response(cli, "/v1/invalid-product/56.0", body={
         "status": 404,
-        "message": "Invalid product: invalid-product not in ['firefox', 'devedition']"
+        "message": "Invalid product: invalid-product not in ('firefox', 'devedition')"
     }, status=404)
 
 
@@ -607,8 +607,8 @@ async def test_devedition_bedrock_download_links(cli):
 
     assert body['status'] == Status.EXISTS.value
     assert body['message'].startswith("The download links for release have been published")
-    assert body['link'] == ("https://download-installer.cdn.mozilla.net/pub/devedition/releases/"
-                            "58.0b15/linux-x86_64/en-US/firefox-58.0b15.tar.bz2")
+    url_prefix = "https://download-installer.cdn.mozilla.net/pub/devedition/releases/"
+    assert body['link'].startswith(url_prefix)
 
 
 async def test_release_bouncer_download_links(cli):
@@ -757,7 +757,7 @@ async def test_version_view_return_200(cli):
 async def test_ongoing_versions_response_validates_product_name(cli):
     await check_response(cli, "/v1/invalid-product/ongoing-versions", body={
         "status": 404,
-        "message": "Invalid product: invalid-product not in ['firefox', 'devedition']"
+        "message": "Invalid product: invalid-product not in ('firefox', 'devedition')"
     }, status=404)
 
 
