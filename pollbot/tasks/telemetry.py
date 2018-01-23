@@ -96,12 +96,14 @@ WITH updated_t AS (
     FROM telemetry_update_parquet
     WHERE payload.reason = 'success'
       AND environment.build.build_id IN ({build_ids})
+      AND submission_date_s3 >= '20171201'
 ),
 total_t AS (
     SELECT COUNT(*) AS total, payload.target_version AS version
     FROM telemetry_update_parquet
     WHERE payload.reason = 'ready'
       AND payload.target_build_id IN ({build_ids})
+      AND submission_date_s3 >= '20171201'
       GROUP BY 2
 )
 SELECT updated * 1.0 / total as ratio, updated, total, version
