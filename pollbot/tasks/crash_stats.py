@@ -30,7 +30,9 @@ async def uptake(product, version):
     date = yesterday()
 
     if channel is Channel.BETA:
-        versions = ['{}b'.format(version.split('b')[0])]
+        current_version = version.split('b')[0]
+        previous_version = int(version.split('.')[0]) - 1
+        versions = ['{}b'.format(current_version), '{}.0b'.format(previous_version)]
     else:
         versions = await get_channel_versions(product, version)
 
