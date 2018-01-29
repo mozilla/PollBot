@@ -16,7 +16,7 @@ RELEASE_CHANNEL = {
 }
 
 
-async def get_releases(product, version=None):
+async def get_releases(product, version=None, *, max_releases=1000):
     if version is None:
         channel = RELEASE_CHANNEL[product]
     else:
@@ -34,7 +34,7 @@ async def get_releases(product, version=None):
                 },
                 "terms": {
                     "field": "build.id",
-                    "size": 2,
+                    "size": max_releases,
                     "order": {
                         "_term": "desc"
                     }
@@ -72,8 +72,9 @@ async def get_releases(product, version=None):
         for build_id_bucket in data['aggregations']['by_build_id']['buckets']:
             version_build_id = build_id_bucket["key"]
             version = [r["key"] for r in build_id_bucket["versions"]["buckets"]
-                       if strip_candidate_info(r['key']) == r['key']][0]
-            versions.append((version_build_id, version))
+                       if strip_candidate_info(r['key']) == r['key']]
+            if version:
+                versions.append((version_build_id, version[0]))
 
         if not versions:
             message = "Couldn't find any version matching."
