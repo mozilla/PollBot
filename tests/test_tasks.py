@@ -1023,7 +1023,8 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         }))
         url = 'https://aus-api.mozilla.org/api/v1/releases/Firefox-mozilla-central-nightly'
         self.mocked.get(url, status=200, body=json.dumps({'platforms': {
-            "linux": {"locales": {"de": {"buildID": "20170922221002", "appVersion": "57.0a1"}}}}}))
+            "linux": {"locales": {"de": {"buildID": "20170922221002",
+                                         "displayVersion": "57.0a1"}}}}}))
 
         received = await balrog_rules('firefox', '57.0a1')
         assert received['status'] == Status.MISSING.value
@@ -1038,8 +1039,9 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         }))
         url = 'https://aus-api.mozilla.org/api/v1/releases/Firefox-mozilla-central-nightly-latest'
         self.mocked.get(url, status=200, body=json.dumps({'platforms': {
-            "linux": {"locales": {"de": {"buildID": "20170922221002", "appVersion": "57.0a1"}}},
-            "mac": {"locales": {"de": {"buildID": "20170921221002", "appVersion": "57.0a1"}}},
+            "linux": {"locales": {"de": {"buildID": "20170922221002",
+                                         "displayVersion": "57.0a1"}}},
+            "mac": {"locales": {"de": {"buildID": "20170921221002", "displayVersion": "57.0a1"}}},
         }}))
 
         received = await balrog_rules('firefox', '57.0a1')
@@ -1049,6 +1051,26 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
                                        'platform mac with build ID 20170921221002 seem outdated.')
         assert received['status'] == Status.INCOMPLETE.value
 
+    async def test_balrog_tasks_returns_incomplete_if_buildID_arent_matching_devedition(self):
+        url = 'https://aus-api.mozilla.org/api/v1/rules/devedition'
+        self.mocked.get(url, status=200, body=json.dumps({
+            'mapping': 'Devedition-59.0b3-build1',
+            'backgroundRate': 100
+        }))
+        url = 'https://aus-api.mozilla.org/api/v1/releases/Devedition-59.0b3-build1'
+        self.mocked.get(url, status=200, body=json.dumps({'platforms': {
+            "linux": {"locales": {"de": {"buildID": "20180122144853",
+                                         "displayVersion": "59.0 Beta 3"}}},
+            "mac": {"locales": {"de": {"buildID": "20180122144853",
+                                       "displayVersion": "59.0 Beta 3"}}},
+        }}))
+
+        received = await balrog_rules('devedition', '59.0b4')
+        assert received["message"] == ('Balrog rule is set for '
+                                       'Devedition-59.0b3-build1 (20180122144853) '
+                                       'which is lower than 59.0b4')
+        assert received['status'] == Status.MISSING.value
+
     async def test_balrog_rules_tasks_returns_exists_if_buildID_are_matching(self):
         url = 'https://aus-api.mozilla.org/api/v1/rules/firefox-nightly'
         self.mocked.get(url, status=200, body=json.dumps({
@@ -1057,8 +1079,9 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         }))
         url = 'https://aus-api.mozilla.org/api/v1/releases/Firefox-mozilla-central-nightly-latest'
         self.mocked.get(url, status=200, body=json.dumps({'platforms': {
-            "linux": {"locales": {"de": {"buildID": "20170922221002", "appVersion": "57.0a1"}}},
-            "mac": {"locales": {"de": {"buildID": "20170922221002", "appVersion": "57.0a1"}}},
+            "linux": {"locales": {"de": {"buildID": "20170922221002",
+                                         "displayVersion": "57.0a1"}}},
+            "mac": {"locales": {"de": {"buildID": "20170922221002", "displayVersion": "57.0a1"}}},
         }}))
 
         received = await balrog_rules('firefox', '57.0a1')
@@ -1075,8 +1098,9 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         }))
         url = 'https://aus-api.mozilla.org/api/v1/releases/Firefox-mozilla-central-nightly-latest'
         self.mocked.get(url, status=200, body=json.dumps({'platforms': {
-            "linux": {"locales": {"de": {"buildID": "20170922221002", "appVersion": "57.0a1"}}},
-            "mac": {"locales": {"de": {"buildID": "20170922221002", "appVersion": "57.0a1"}}},
+            "linux": {"locales": {"de": {"buildID": "20170922221002",
+                                         "displayVersion": "57.0a1"}}},
+            "mac": {"locales": {"de": {"buildID": "20170922221002", "displayVersion": "57.0a1"}}},
         }}))
 
         received = await balrog_rules('firefox', '57.0a1')
@@ -1093,8 +1117,9 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         }))
         url = 'https://aus-api.mozilla.org/api/v1/releases/Firefox-56.0-build6'
         self.mocked.get(url, status=200, body=json.dumps({'platforms': {
-            "linux": {"locales": {"de": {"buildID": "20170922221002", "appVersion": "57.0a1"}}},
-            "mac": {"locales": {"de": {"buildID": "20170922221002", "appVersion": "57.0a1"}}},
+            "linux": {"locales": {"de": {"buildID": "20170922221002",
+                                         "displayVersion": "57.0a1"}}},
+            "mac": {"locales": {"de": {"buildID": "20170922221002", "displayVersion": "57.0a1"}}},
         }}))
 
         received = await balrog_rules('firefox', '56.0')
