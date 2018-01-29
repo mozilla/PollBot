@@ -49,8 +49,10 @@ telemetry_uptake = status_response(telemetry.update_parquet_uptake)
 
 @validate_product_version
 async def view_get_releases(request, product):
+    releases = await get_releases(product)
+    releases = sorted(set([r[1] for r in releases]), key=lambda version: build_version_id(version))
     return web.json_response({
-        "releases": await get_releases(product)
+        "releases": releases
     })
 
 

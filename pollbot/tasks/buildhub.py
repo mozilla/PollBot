@@ -2,7 +2,7 @@ import json
 
 from pollbot.exceptions import TaskError
 from pollbot.utils import (
-    Channel, Status, build_version_id, get_version_channel, yesterday, strip_candidate_info
+    Channel, Status, get_version_channel, yesterday, strip_candidate_info
 )
 
 from . import get_session, build_task_response, heartbeat_factory
@@ -10,19 +10,31 @@ from . import get_session, build_task_response, heartbeat_factory
 
 BUILDHUB_SERVER = "https://buildhub.prod.mozaws.net/v1"
 
+RELEASE_CHANNEL = {
+    'devedition': 'aurora',
+    'firefox': 'release',
+}
 
-async def get_releases(product):
-    RELEASE_CHANNEL = {
-        'devedition': 'aurora',
-        'firefox': 'release',
-    }
+
+async def get_releases(product, version=None):
+    if version is None:
+        channel = RELEASE_CHANNEL[product]
+    else:
+        channel = get_version_channel(product, version)
 
     query = {
         "aggs": {
-            "by_version": {
+            "by_build_id": {
+                "aggs": {
+                    "versions": {
+                        "terms": {
+                            "field": "target.version"
+                        }
+                    }
+                },
                 "terms": {
-                    "field": "target.version",
-                    "size": 1000,
+                    "field": "build.id",
+                    "size": 2,
                     "order": {
                         "_term": "desc"
                     }
@@ -38,7 +50,7 @@ async def get_releases(product):
                         }
                     }, {
                         "term": {
-                            "target.channel": RELEASE_CHANNEL[product]
+                            "target.channel": channel
                         }
                     }
                 ]
@@ -56,9 +68,12 @@ async def get_releases(product):
                 raise TaskError(message, url=url)
 
             data = await response.json()
-        versions = sorted([r['key'] for r in data['aggregations']['by_version']['buckets']
-                           if strip_candidate_info(r['key']) == r['key']],
-                          key=lambda version: build_version_id(version))
+        versions = []
+        for build_id_bucket in data['aggregations']['by_build_id']['buckets']:
+            version_build_id = build_id_bucket["key"]
+            version = [r["key"] for r in build_id_bucket["versions"]["buckets"]
+                       if strip_candidate_info(r['key']) == r['key']][0]
+            versions.append((version_build_id, version))
 
         if not versions:
             message = "Couldn't find any version matching."

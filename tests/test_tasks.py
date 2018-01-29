@@ -67,23 +67,35 @@ class DeliveryTasksTest(asynctest.TestCase):
         url = "{}/buckets/build-hub/collections/releases/search".format(BUILDHUB_SERVER)
         self.mocked.post(url, status=200, body=json.dumps({
             "aggregations": {
-                "by_version": {
+                "by_build_id": {
                     "buckets": [
                         {
-                            "doc_count": 433,
-                            "key": "58.0b2"
+                            "versions": {
+                                "buckets": [
+                                    {
+                                        "doc_count": 388,
+                                        "key": "59.0b5rc1"
+                                    },
+                                    {
+                                        "doc_count": 192,
+                                        "key": "59.0b5"
+                                    }
+                                ]
+                            },
+                            "doc_count": 580,
+                            "key": "20180128191456"
                         }
                     ],
                 }
             }}))
         received = await get_releases('firefox')
-        assert received == ["58.0b2"]
+        assert received == [("20180128191456", "59.0b5")]
 
     async def test_get_releases_tasks_return_no_results(self):
         url = "{}/buckets/build-hub/collections/releases/search".format(BUILDHUB_SERVER)
         self.mocked.post(url, status=200, body=json.dumps({
             "aggregations": {
-                "by_version": {
+                "by_build_id": {
                     "buckets": [],
                 }
             }}))
