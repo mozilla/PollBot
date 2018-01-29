@@ -64,9 +64,6 @@ async def balrog_rules(product, version):
                                              ', '.join(sorted(set(old_build_id))))
                 else:
                     status = Status.EXISTS
-                    if rule['backgroundRate'] != 100:
-                        status = Status.INCOMPLETE
-
                     message = (
                         'Balrog rule is configured for the latest Nightly {} build ({}) '
                         'with an update rate of {}%')
