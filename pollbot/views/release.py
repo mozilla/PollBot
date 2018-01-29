@@ -69,19 +69,24 @@ CHECKS_TITLE = {
     "telemetry-update-parquet-uptake": "Telemetry Update Parquet Uptake",
 }
 
-ALL = [Channel.ESR, Channel.RELEASE, Channel.CANDIDATE, Channel.BETA, Channel.NIGHTLY]
+ALL = [Channel.ESR, Channel.RELEASE, Channel.CANDIDATE,
+       Channel.BETA, Channel.AURORA, Channel.NIGHTLY]
 
 CHECKS = OrderedDict(
     sorted({
         "archive": ALL,
-        "partner-repacks": [Channel.RELEASE, Channel.BETA, Channel.CANDIDATE],
-        "release-notes": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
+        "partner-repacks": [Channel.RELEASE, Channel.BETA, Channel.AURORA, Channel.CANDIDATE],
+        "release-notes": [Channel.ESR, Channel.RELEASE, Channel.BETA,
+                          Channel.AURORA, Channel.NIGHTLY],
         "security-advisories": [Channel.ESR, Channel.RELEASE],
-        "download-links": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
-        "product-details": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
-        "devedition-beta-matches": [Channel.BETA],
-        "balrog-rules": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
-        "bouncer": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.NIGHTLY],
+        "download-links": [Channel.ESR, Channel.RELEASE, Channel.BETA,
+                           Channel.AURORA, Channel.NIGHTLY],
+        "product-details": [Channel.ESR, Channel.RELEASE, Channel.BETA,
+                            Channel.AURORA, Channel.NIGHTLY],
+        "devedition-beta-matches": [Channel.BETA, Channel.AURORA],
+        "balrog-rules": [Channel.ESR, Channel.RELEASE, Channel.BETA,
+                         Channel.AURORA, Channel.NIGHTLY],
+        "bouncer": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.AURORA, Channel.NIGHTLY],
         "buildhub": ALL,
         "crash-stats-uptake": [Channel.ESR, Channel.RELEASE, Channel.BETA],
         "telemetry-update-parquet-uptake": "57.0a1",
@@ -93,7 +98,7 @@ IGNORES = {'devedition': ['crash-stats-uptake', 'partner-repacks']}
 
 @validate_product_version
 async def view_get_checks(request, product, version):
-    channel = get_version_channel(version)
+    channel = get_version_channel(product, version)
 
     proto = request.headers.get('X-Forwarded-Proto', 'http')
     host = request.headers['Host']

@@ -11,9 +11,9 @@ from .archives import get_locales
 
 
 async def release_notes(product, full_version):
-    channel = get_version_channel(full_version)
+    channel = get_version_channel(product, full_version)
     version = full_version
-    if channel is Channel.BETA:
+    if channel in (Channel.BETA, Channel.AURORA):
         parts = full_version.split('b')
         version = "{}beta".format(parts[0])
     elif channel is Channel.ESR:
@@ -79,7 +79,7 @@ async def release_notes(product, full_version):
 
 
 async def security_advisories(product, version):
-    channel = get_version_channel(version)
+    channel = get_version_channel(product, version)
     url = 'https://www.mozilla.org/en-US/security/known-vulnerabilities/{}/'.format(product)
     # Security advisories are always present for BETA and NIGHTLY
     # because we don't publish any.
@@ -117,7 +117,7 @@ async def security_advisories(product, version):
 
 
 async def download_links(product, version):
-    channel = get_version_channel(version)
+    channel = get_version_channel(product, version)
     if channel is Channel.ESR:
         url = "https://www.mozilla.org/en-US/{}/organizations/all/".format(product)
     elif channel is Channel.RELEASE:
@@ -135,7 +135,7 @@ async def download_links(product, version):
             body = await resp.text()
             d = pq(body)
 
-            if channel in (Channel.NIGHTLY, Channel.BETA):
+            if channel in (Channel.NIGHTLY, Channel.BETA, Channel.AURORA):
                 if product == 'devedition':
                     link_path = "#intro-download > .download-list > .os_linux64 > a"
                 elif channel is Channel.NIGHTLY:

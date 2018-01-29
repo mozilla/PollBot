@@ -70,7 +70,7 @@ async def get_query_info_from_title(session, query_title):
 
 
 async def update_parquet_uptake(product, version):
-    channel = get_version_channel(version)
+    channel = get_version_channel(product, version)
     if build_version_id(version) < build_version_id('57.0a1'):
         return build_task_response(Status.MISSING,
                                    "https://bugzilla.mozilla.org/show_bug.cgi?id=1384861",
