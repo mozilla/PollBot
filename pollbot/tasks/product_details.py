@@ -21,7 +21,7 @@ async def ongoing_versions(product):
 
 
 async def product_details(product, version):
-    if get_version_channel(version) is Channel.NIGHTLY:
+    if get_version_channel(product, version) is Channel.NIGHTLY:
         versions = await ongoing_versions(product)
         status = build_version_id(versions["nightly"]) >= build_version_id(version)
         message = "Last nightly version is {}".format(versions["nightly"])
@@ -45,9 +45,9 @@ async def product_details(product, version):
 
 
 async def devedition_and_beta_in_sync(product, version):
-    channel = get_version_channel(version)
+    channel = get_version_channel(product, version)
     url = "https://product-details.mozilla.org/1.0/firefox_versions.json"
-    if channel is Channel.BETA:
+    if channel in (Channel.BETA, Channel.AURORA):
         versions = await ongoing_versions(product)
         beta = versions["beta"]
         devedition = versions["devedition"]

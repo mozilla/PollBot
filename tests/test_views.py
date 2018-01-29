@@ -277,7 +277,7 @@ async def test_get_checks_for_devedition(cli):
     await check_response(cli, "/v1/devedition/56.0b6", body={
         "product": "devedition",
         "version": "56.0b6",
-        "channel": "beta",
+        "channel": "aurora",
         "checks": [
             {"url": "http://localhost/v1/devedition/56.0b6/archive",
              "title": "Archive Release", "actionable": True},

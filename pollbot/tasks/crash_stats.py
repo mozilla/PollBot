@@ -6,7 +6,7 @@ CRASH_STATS_SERVER = "https://crash-stats.mozilla.com/api"
 
 
 async def get_channel_versions(product, version):
-    channel = get_version_channel(version)
+    channel = get_version_channel(product, version)
     url = '{}/ProductVersions/?active=true&build_type={}&product={}'.format(
         CRASH_STATS_SERVER, channel.value, product)
     with get_session() as session:
@@ -26,10 +26,10 @@ def crash_stats_query_url(params):
 
 
 async def uptake(product, version):
-    channel = get_version_channel(version)
+    channel = get_version_channel(product, version)
     date = yesterday()
 
-    if channel is Channel.BETA:
+    if channel in (Channel.BETA, Channel.AURORA):
         current_version = version.split('b')[0]
         previous_version = int(version.split('.')[0]) - 1
         versions = ['{}b'.format(current_version), '{}.0b'.format(previous_version)]

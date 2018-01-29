@@ -28,7 +28,7 @@ async def get_release_info(release_mapping):
 
 
 async def balrog_rules(product, version):
-    channel = get_version_channel(version)
+    channel = get_version_channel(product, version)
     if channel is Channel.NIGHTLY:
         # In that case the rule doesn't change, so we grab the build IDs.
 
@@ -76,7 +76,7 @@ async def balrog_rules(product, version):
 
                 return build_task_response(status, url, message)
 
-    elif channel is Channel.BETA:
+    elif channel in (Channel.BETA, Channel.AURORA):
         rule_name = 'devedition' if product == 'devedition' else 'firefox-beta'
         url = 'https://aus-api.mozilla.org/api/v1/rules/{}'.format(rule_name)
     elif channel is Channel.ESR:

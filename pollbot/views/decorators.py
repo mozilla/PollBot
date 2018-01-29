@@ -23,8 +23,8 @@ def validate_product_version(func):
 
         if version:
             if product == "devedition":
-                channel = get_version_channel(version)
-                if channel is not Channel.BETA:
+                channel = get_version_channel(product, version)
+                if channel is not Channel.AURORA:
                     return web.json_response({
                         'status': 404,
                         'message': 'Invalid version number for devedition: {}'.format(version)

@@ -79,7 +79,7 @@ def get_buildhub_url(product, version, channel):
 
 
 async def get_build_ids_for_version(product, version, *, size=10):
-    channel = get_version_channel(strip_candidate_info(version))
+    channel = get_version_channel(product, strip_candidate_info(version))
     channel_value = channel.value.lower()
     if product == "devedition":
         channel_value = "aurora"
@@ -141,7 +141,7 @@ async def buildhub(product, version):
     except TaskError:
         status = False
 
-    channel = get_version_channel(strip_candidate_info(version))
+    channel = get_version_channel(product, strip_candidate_info(version))
     exists_message = 'Build IDs for this release: {}'
     missing_message = 'Buildhub does not contain any information about this release yet.'
 
