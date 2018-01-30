@@ -89,7 +89,8 @@ CHECKS = OrderedDict(
         "bouncer": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.AURORA, Channel.NIGHTLY],
         "buildhub": ALL,
         "crash-stats-uptake": [Channel.ESR, Channel.RELEASE, Channel.BETA],
-        "telemetry-main-summary-uptake": "57.0a1",
+        "telemetry-main-summary-uptake": [Channel.ESR, Channel.RELEASE, Channel.BETA,
+                                          Channel.AURORA, Channel.NIGHTLY],
     }.items(), key=lambda t: t[0]))
 
 NOT_ACTIONABLE = ['-uptake']
