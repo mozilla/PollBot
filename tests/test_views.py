@@ -444,12 +444,12 @@ async def test_beta_archive(cli):
 
 
 async def test_devedition_archive(cli):
-    await check_response(cli, "/v1/devedition/56.0b10/archive", body={
+    await check_response(cli, "/v1/devedition/59.0b5/archive", body={
         "status": Status.EXISTS.value,
         "message": "The archive exists at https://archive.mozilla.org/pub/devedition/releases"
-        "/56.0b10/ and all 95 locales are present for all platforms "
+        "/59.0b5/ and all 97 locales are present for all platforms "
         "(linux-i686, linux-x86_64, mac, win32, win64)",
-        "link": "https://archive.mozilla.org/pub/devedition/releases/56.0b10/"
+        "link": "https://archive.mozilla.org/pub/devedition/releases/59.0b5/"
     })
 
 

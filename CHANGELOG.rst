@@ -8,6 +8,7 @@ CHANGELOG
 - Use main_summary instead of update_parquet for the Telemetry uptake (#172)
 
 
+
 0.6.1 (2017-12-20)
 ------------------
 
