@@ -237,10 +237,10 @@ async def test_get_checks_for_nightly(cli):
             {'url': 'http://localhost/v1/firefox/57.0a1/bedrock/release-notes',
              'title': 'Release notes', 'actionable': True},
             {'url': 'http://localhost/v1/firefox/57.0a1/telemetry/migrated-from-previous-version',
-             'title': 'Telemetry - % of people having migrated from previous version',
+             'title': 'Telemetry - People having migrated from previous version',
              'actionable': False},
             {'url': 'http://localhost/v1/firefox/57.0a1/telemetry/restart-after-update',
-             'title': 'Telemetry - % of people having restarted after update',
+             'title': 'Telemetry - People having restarted after update',
              'actionable': False},
         ]
     })
@@ -317,10 +317,10 @@ async def test_get_checks_for_candidates(cli):
             {'title': 'Partner repacks', 'actionable': True,
              'url': 'http://localhost/v1/firefox/57.0rc6/archive/partner-repacks'},
             {'url': 'http://localhost/v1/firefox/57.0rc6/telemetry/migrated-from-previous-version',
-             'title': 'Telemetry - % of people having migrated from previous version',
+             'title': 'Telemetry - People having migrated from previous version',
              'actionable': False},
             {'url': 'http://localhost/v1/firefox/57.0rc6/telemetry/restart-after-update',
-             'title': 'Telemetry - % of people having restarted after update',
+             'title': 'Telemetry - People having restarted after update',
              'actionable': False},
         ]
     })

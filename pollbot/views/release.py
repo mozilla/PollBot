@@ -70,8 +70,8 @@ CHECKS_TITLE = {
     "balrog-rules": "Balrog update rules",
     "buildhub": "Buildhub release info",
     "crash-stats-uptake": "Crash Stats Uptake (24h latency)",
-    "telemetry-restart-after-update": "Telemetry - % of people having restarted after update",
-    "telemetry-migrated": "Telemetry - % of people having migrated from previous version",
+    "telemetry-restart-after-update": "Telemetry - People having restarted after update download",
+    "telemetry-migrated": "Telemetry - People having migrated from previous version",
 }
 
 ALL = [Channel.ESR, Channel.RELEASE, Channel.CANDIDATE,
