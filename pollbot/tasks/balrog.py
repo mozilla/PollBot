@@ -87,8 +87,6 @@ async def balrog_rules(product, version):
             build_ids, appVersions = await get_release_info(rule['mapping'])
 
             status = build_version_id(appVersions.pop()) >= build_version_id(version)
-            if status and rule['backgroundRate'] != 100:
-                status = Status.INCOMPLETE
 
             exists_message = (
                 'Balrog rule has been updated for {} ({}) with an update rate of {}%'
