@@ -68,7 +68,7 @@ CHECKS_TITLE = {
     "balrog-rules": "Balrog update rules",
     "buildhub": "Buildhub release info",
     "crash-stats-uptake": "Crash Stats Uptake (24h latency)",
-    "telemetry-update-parquet-uptake": "Telemetry Update Parquet Uptake",
+    "telemetry-update-parquet-uptake": "Telemetry - % of people having restarted after update",
 }
 
 ALL = [Channel.ESR, Channel.RELEASE, Channel.CANDIDATE,
