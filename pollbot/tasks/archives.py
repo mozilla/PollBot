@@ -27,12 +27,12 @@ JSON_HEADERS = {"Accept": "application/json"}
 
 
 async def get_locales(product, version):
-    channel = get_version_channel(version)
+    channel = get_version_channel(product, version)
     tag_product = 'FIREFOX'
     tag = "{}_{}_RELEASE".format(tag_product, version.replace('.', '_'))
     if channel is Channel.NIGHTLY:
         url = "https://hg.mozilla.org/mozilla-central/raw-file/tip/browser/locales/all-locales"
-    elif channel is Channel.BETA:
+    elif channel in (Channel.BETA, Channel.AURORA):
         url = ("https://hg.mozilla.org/releases/mozilla-beta/raw-file/{}/"
                "browser/locales/shipped-locales").format(tag)
     elif channel is Channel.RELEASE:
@@ -190,7 +190,7 @@ async def check_releases_files(url, product, version):
 
 
 def build_version_url(product, version):
-    channel = get_version_channel(version)
+    channel = get_version_channel(product, version)
     if channel is Channel.NIGHTLY:
         return 'https://archive.mozilla.org/pub/{}/nightly/latest-mozilla-central-l10n/'.format(
                 product)
@@ -207,7 +207,7 @@ def build_version_url(product, version):
 
 async def archives(product, version):
     with get_session() as session:
-        channel = get_version_channel(version)
+        channel = get_version_channel(product, version)
         url = build_version_url(product, version)
         if channel is Channel.NIGHTLY:
             message = "No archive found at {}".format(url)
@@ -241,7 +241,7 @@ async def archives(product, version):
 
 
 async def partner_repacks(product, version):
-    channel = get_version_channel(version)
+    channel = get_version_channel(product, version)
     with get_session() as session:
         if channel is Channel.CANDIDATE:
             url = build_version_url(product, version)

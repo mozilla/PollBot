@@ -22,13 +22,12 @@ async def get_release_info(release_mapping):
                 for platform in built_platforms:
                     platform_info = platforms[platform]['locales']["de"]
                     build_ids[platform] = platform_info['buildID']
-                    appVersions.add(platform_info['appVersion'])
-
+                    appVersions.add(platform_info['displayVersion'].replace(' Beta ', 'b'))
                 return build_ids, appVersions
 
 
 async def balrog_rules(product, version):
-    channel = get_version_channel(version)
+    channel = get_version_channel(product, version)
     if channel is Channel.NIGHTLY:
         # In that case the rule doesn't change, so we grab the build IDs.
 
@@ -73,7 +72,7 @@ async def balrog_rules(product, version):
 
                 return build_task_response(status, url, message)
 
-    elif channel is Channel.BETA:
+    elif channel in (Channel.BETA, Channel.AURORA):
         rule_name = 'devedition' if product == 'devedition' else 'firefox-beta'
         url = 'https://aus-api.mozilla.org/api/v1/rules/{}'.format(rule_name)
     elif channel is Channel.ESR:
@@ -88,7 +87,7 @@ async def balrog_rules(product, version):
             build_ids, appVersions = await get_release_info(rule['mapping'])
 
             status = build_version_id(appVersions.pop()) >= build_version_id(version)
-            if rule['backgroundRate'] != 100:
+            if status and rule['backgroundRate'] != 100:
                 status = Status.INCOMPLETE
 
             exists_message = (

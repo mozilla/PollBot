@@ -7,6 +7,7 @@ class Channel(Enum):
     RELEASE = "RELEASE"
     CANDIDATE = "CANDIDATE"
     BETA = "BETA"
+    AURORA = "AURORA"
     NIGHTLY = "NIGHTLY"
 
 
@@ -59,7 +60,7 @@ def build_version_id(version):
                                release_code, channel.zfill(3))
 
 
-def get_version_channel(version):  # pragma: no cover
+def get_version_channel(product, version):  # pragma: no cover
     if version.endswith('esr'):
         return Channel.ESR
     elif 'build' in version or 'rc' in version:
@@ -67,6 +68,8 @@ def get_version_channel(version):  # pragma: no cover
     elif 'a' in version:
         return Channel.NIGHTLY
     elif 'b' in version:
+        if product == 'devedition':
+            return Channel.AURORA
         return Channel.BETA
     else:
         return Channel.RELEASE

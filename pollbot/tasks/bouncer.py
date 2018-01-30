@@ -11,7 +11,7 @@ from . import get_session, heartbeat_factory, build_task_response
 async def bouncer(product, version):
     """Fetch bedrock download page to grab the bouncer download link and then make sure
     it redirects to the expected version."""
-    channel = get_version_channel(version)
+    channel = get_version_channel(product, version)
     channel_value = channel.value
 
     if channel is Channel.ESR:
@@ -36,7 +36,7 @@ async def bouncer(product, version):
                 link_path = "#intro-download > .download-list > .os_linux64 > a"
             elif channel is Channel.NIGHTLY:
                 link_path = "#desktop-nightly-download > .download-list > .os_linux64 > a"
-            elif channel is Channel.BETA:
+            elif channel in (Channel.BETA, Channel.AURORA):
                 link_path = "#desktop-beta-download > .download-list > .os_linux64 > a"
             else:  # channel in (Channel.RELEASE, Channel.ESR):
                 link_path = "#fr > .linux64 > a"
