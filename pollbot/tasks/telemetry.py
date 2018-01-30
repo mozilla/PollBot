@@ -26,7 +26,7 @@ async def put_query(session, query_title, version_name, query, *, query_id=None,
 
     payload = {
         "name": query_title,
-        "schedule": 3600,
+        "schedule": 50000,  # Twice a day
         "schedule_until": (date.today() + timedelta(days=7)).strftime(
             '%Y-%m-%dT%H:%M:%S'),
         "is_draft": True,
