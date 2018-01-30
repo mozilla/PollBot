@@ -89,7 +89,6 @@ async def main_summary_uptake(product, version):
             query_title = "Uptake {} {} {}"
             query_title = query_title.format(product.title(), channel.value, version_name)
 
-
         query = """
 WITH updated_t AS (
     SELECT COUNT(*) AS updated

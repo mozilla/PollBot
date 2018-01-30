@@ -8,7 +8,7 @@ from ..tasks.bedrock import release_notes, security_advisories, download_links
 from ..tasks.bouncer import bouncer
 from ..tasks.buildhub import get_releases
 from ..tasks.product_details import product_details, devedition_and_beta_in_sync
-from ..utils import Channel, get_version_channel, build_version_id
+from ..utils import Channel, get_version_channel
 from .decorators import validate_product_version
 
 logger = logging.getLogger(__package__)
