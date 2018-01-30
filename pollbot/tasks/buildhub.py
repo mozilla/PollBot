@@ -20,7 +20,7 @@ async def get_releases(product, version=None, *, max_releases=1000):
     if version is None:
         channel = RELEASE_CHANNEL[product]
     else:
-        channel = get_version_channel(product, version)
+        channel = get_version_channel(product, version).value.lower()
 
     query = {
         "aggs": {

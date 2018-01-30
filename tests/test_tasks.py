@@ -1116,6 +1116,90 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
                 }
             }}))
 
+    def _mock_buildhub_get_releases(self):
+        url = "{}/buckets/build-hub/collections/releases/search".format(BUILDHUB_SERVER)
+        self.mocked.post(url, status=200, body=json.dumps({
+            "aggregations": {
+                "by_build_id": {
+                    "buckets": [
+                        {
+                            "versions": {
+                                "buckets": [
+                                    {
+                                        "doc_count": 388,
+                                        "key": "59.0rc1"
+                                    },
+                                    {
+                                        "doc_count": 192,
+                                        "key": "59.0"
+                                    }
+                                ]
+                            },
+                            "doc_count": 580,
+                            "key": "20180128191456"
+                        },
+                        {
+                            "versions": {
+                                "buckets": [
+                                    {
+                                        "doc_count": 388,
+                                        "key": "58.0rc1"
+                                    },
+                                    {
+                                        "doc_count": 192,
+                                        "key": "58.0"
+                                    }
+                                ]
+                            },
+                            "doc_count": 580,
+                            "key": "20180125163041"
+                        },
+                    ]
+                }
+            }}))
+
+    def _mock_buildhub_get_releases_nightly(self):
+        url = "{}/buckets/build-hub/collections/releases/search".format(BUILDHUB_SERVER)
+        self.mocked.post(url, status=200, body=json.dumps({
+            "aggregations": {
+                "by_build_id": {
+                    "buckets": [
+                        {
+                            "versions": {
+                                "buckets": [
+                                    {
+                                        "doc_count": 388,
+                                        "key": "59.0a1rc1"
+                                    },
+                                    {
+                                        "doc_count": 192,
+                                        "key": "59.0a1"
+                                    }
+                                ]
+                            },
+                            "doc_count": 580,
+                            "key": "20180128191456"
+                        },
+                        {
+                            "versions": {
+                                "buckets": [
+                                    {
+                                        "doc_count": 388,
+                                        "key": "59.0a1rc1"
+                                    },
+                                    {
+                                        "doc_count": 192,
+                                        "key": "59.0a1"
+                                    }
+                                ]
+                            },
+                            "doc_count": 580,
+                            "key": "20180125163041"
+                        },
+                    ]
+                }
+            }}))
+
     async def test_buildhub_task_returns_missing_if_release_is_missing(self):
         url = "{}/buckets/build-hub/collections/releases/search".format(BUILDHUB_SERVER)
         self.mocked.post(url, status=200, body=json.dumps({
@@ -1161,6 +1245,20 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             }]
         self.mocked.get(url, status=200, body=json.dumps(body))
 
+    def _telemetry_mock_migrated_release_query(self, body=None):
+        url = ("{}/api/queries/search?q="
+               "Migrated+Firefox+RELEASE+from+58.0+%2820180125163041%29+to+"
+               "59.0+%2820180128191456%29&include_drafts=true")
+        url = url.format(telemetry.TELEMETRY_SERVER)
+        if body is None:
+            body = [{
+                "latest_query_data_id": 5678,
+                "id": 40197,
+                "name": "Migrated Firefox RELEASE from 58.0 (20180125163041) "
+                "to 59.0 (20180128191456)"
+            }]
+        self.mocked.get(url, status=200, body=json.dumps(body))
+
     def _telemetry_mock_nightly_query(self, body=None):
         record = {
             "latest_query_data_id": 5678,
@@ -1177,12 +1275,30 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         url = "{}/api/queries/40197".format(telemetry.TELEMETRY_SERVER)
         self.mocked.post(url, status=200, body=json.dumps(record))
 
+    def _telemetry_mock_migrated_nightly_query(self, body=None):
+        record = {
+            "latest_query_data_id": 5678,
+            "id": 40197,
+            "name": "Migrated Firefox NIGHTLY from 59.0a1 (20180125163041) "
+            "to 59.0a1 (20180128191456)"
+        }
+        if body is None:
+            body = [record]
+
+        url = ("{}/api/queries/search?q=Migrated+Firefox+NIGHTLY+from+59.0a1+"
+               "%2820180125163041%29+to+59.0a1+%2820180128191456%29&include_drafts=true")
+        url = url.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.get(url, status=200, body=json.dumps(body))
+
+        url = "{}/api/queries/40197".format(telemetry.TELEMETRY_SERVER)
+        self.mocked.post(url, status=200, body=json.dumps(record))
+
     def _telemetry_mock_query_result(self, body):
         url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
         self.mocked.get(url, status=200, body=json.dumps(body))
 
     async def test_telemetry_update_uptake_tasks_returns_error_for_previous_nightly(self):
-        received = await telemetry.update_parquet_uptake('firefox', '56.0a1')
+        received = await telemetry.restart_after_update('firefox', '56.0a1')
         assert received["status"] == Status.MISSING.value
         assert received["message"] == "Telemetry update-parquet metrics landed in Firefox Quantum"
 
@@ -1194,7 +1310,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             "name": "Uptake Firefox NIGHTLY 57.0a1 20170920"
         }])
 
-        received = await telemetry.update_parquet_uptake('firefox', '57.0a1')
+        received = await telemetry.restart_after_update('firefox', '57.0a1')
         assert received["status"] == Status.INCOMPLETE.value
         assert received["message"] == ("Query still processing.")
 
@@ -1205,7 +1321,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             "query_result": {"data": {"rows": []}}
         })
 
-        received = await telemetry.update_parquet_uptake('firefox', '57.0a1')
+        received = await telemetry.restart_after_update('firefox', '57.0a1')
         assert received["status"] == Status.ERROR.value
         assert received["message"] == ("No result found for your query.")
 
@@ -1218,7 +1334,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             ]}}
         })
 
-        received = await telemetry.update_parquet_uptake('firefox', '57.0a1')
+        received = await telemetry.restart_after_update('firefox', '57.0a1')
         assert received["status"] == Status.INCOMPLETE.value
         assert received["message"] == ("Telemetry uptake for version 57.0a1 "
                                        "(20171009192146) is 45.32%")
@@ -1240,7 +1356,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             ]}}
         })
 
-        received = await telemetry.update_parquet_uptake('firefox', '57.0a1')
+        received = await telemetry.restart_after_update('firefox', '57.0a1')
         assert received["status"] == Status.EXISTS.value
         assert received["message"] == ("Telemetry uptake for version 57.0a1 "
                                        "(20171009192146) is 65.43%")
@@ -1255,7 +1371,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             ]}}
         }))
 
-        received = await telemetry.update_parquet_uptake('firefox', '57.0a1')
+        received = await telemetry.restart_after_update('firefox', '57.0a1')
         assert received["status"] == Status.EXISTS.value
         assert received["message"] == ("Telemetry uptake for version 57.0a1 "
                                        "(20171009192146) is 65.43%")
@@ -1266,7 +1382,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
         self.mocked.get(url, status=404)
 
-        received = await telemetry.update_parquet_uptake('firefox', '57.0a1')
+        received = await telemetry.restart_after_update('firefox', '57.0a1')
         assert received["status"] == Status.MISSING.value
         assert received["message"] == "Query Result 5678 unavailable (HTTP 404)"
 
@@ -1279,7 +1395,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             ]}}
         })
 
-        received = await telemetry.update_parquet_uptake('firefox', '57.0')
+        received = await telemetry.restart_after_update('firefox', '57.0')
         assert received["status"] == Status.INCOMPLETE.value
         message = "Telemetry uptake for version 57.0 (20171009192146) is 45.32%"
         assert received["message"] == message
@@ -1293,7 +1409,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             ]}}
         })
 
-        received = await telemetry.update_parquet_uptake('firefox', '57.0')
+        received = await telemetry.restart_after_update('firefox', '57.0')
         assert received["status"] == Status.EXISTS.value
         message = "Telemetry uptake for version 57.0 (20171009192146) is 65.43%"
         assert received["message"] == message
@@ -1312,7 +1428,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             "id": 5678
         }))
 
-        received = await telemetry.update_parquet_uptake('firefox', '57.0a1')
+        received = await telemetry.restart_after_update('firefox', '57.0a1')
         assert received["status"] == Status.INCOMPLETE.value
         assert received["message"] == (
             "Telemetry uptake calculation for version 57.0a1 (20171009192146) is in progress"
@@ -1332,7 +1448,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             "id": 5678
         }))
 
-        received = await telemetry.update_parquet_uptake('firefox', '57.0')
+        received = await telemetry.restart_after_update('firefox', '57.0')
         assert received["status"] == Status.INCOMPLETE.value
         assert received["message"] == (
             "Telemetry uptake calculation for version 57.0 (20171009192146) is in progress"
@@ -1346,7 +1462,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         self.mocked.post(url, status=403)
 
         with pytest.raises(TaskError) as excinfo:
-            await telemetry.update_parquet_uptake('firefox', '57.0')
+            await telemetry.restart_after_update('firefox', '57.0')
         message = 'Unable to create the new query for 57.0 (20171009192146) (HTTP 403)'
         assert str(excinfo.value) == message
 
@@ -1363,6 +1479,193 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         self.mocked.post(url, status=403)
 
         with pytest.raises(TaskError) as excinfo:
-            await telemetry.update_parquet_uptake('firefox', '57.0')
+            await telemetry.restart_after_update('firefox', '57.0')
         message = 'Unable to execute the query n°1234 for 57.0 (20171009192146) (HTTP 403)'
+        assert str(excinfo.value) == message
+
+    async def test_telemetry_migrated_uptake_tasks_returns_error_for_previous_nightly(self):
+        received = await telemetry.migrated_from_previous_version('firefox', '56.0a1')
+        assert received["status"] == Status.MISSING.value
+        assert received["message"] == "Telemetry update-parquet metrics landed in Firefox Quantum"
+
+    async def test_telemetry_migrated_uptake_tasks_returns_incomplete_for_no_result(self):
+        self._mock_buildhub_get_releases_nightly()
+        self._telemetry_mock_migrated_nightly_query([{
+            "latest_query_data_id": None,
+            "id": 40197,
+            "name": "Migrated Firefox NIGHTLY from 59.0a1 (20180128191456) "
+            "to 59.0a1 (20180128191456)"
+        }])
+
+        received = await telemetry.migrated_from_previous_version('firefox', '59.0a1')
+        assert received["status"] == Status.INCOMPLETE.value
+        assert received["message"] == ("Query still processing.")
+
+    async def test_telemetry_migrated_uptake_tasks_returns_error_for_empty_results(self):
+        self._mock_buildhub_get_releases_nightly()
+        self._telemetry_mock_migrated_nightly_query()
+        self._telemetry_mock_query_result({
+            "query_result": {"data": {"rows": []}}
+        })
+
+        received = await telemetry.migrated_from_previous_version('firefox', '59.0a1')
+        assert received["status"] == Status.ERROR.value
+        assert received["message"] == ("No result found for your query.")
+
+    async def test_telemetry_migrated_uptake_tasks_returns_incomplete_for_low_nightly_uptake(self):
+        self._mock_buildhub_get_releases_nightly()
+        self._telemetry_mock_migrated_nightly_query()
+        self._telemetry_mock_query_result({
+            "query_result": {"data": {"rows": [
+                {"ratio": 0.4532, "updated": 19074, "total": 42088}
+            ]}}
+        })
+
+        received = await telemetry.migrated_from_previous_version('firefox', '59.0a1')
+        assert received["status"] == Status.INCOMPLETE.value
+        assert received["message"] == ("Telemetry uptake for version 59.0a1 "
+                                       "(20180128191456) is 45.32%")
+
+    async def test_telemetry_migrated_uptake_tasks_should_ignore_copied_queries(self):
+        self._mock_buildhub_get_releases_nightly()
+        self._telemetry_mock_migrated_nightly_query([{
+            "latest_query_data_id": 123456789,
+            "id": 40198,
+            "name": "Copy of (#40197) Uptake Firefox NIGHTLY 59.0a1 20170920"
+        }, {
+            "latest_query_data_id": 5678,
+            "id": 40197,
+            "name": "Uptake Firefox NIGHTLY 59.0a1 20170920"
+        }])
+        self._telemetry_mock_query_result({
+            "query_result": {"data": {"rows": [
+                {"ratio": 0.65432, "updated": 27236, "total": 42088}
+            ]}}
+        })
+
+        received = await telemetry.migrated_from_previous_version('firefox', '59.0a1')
+        assert received["status"] == Status.EXISTS.value
+        assert received["message"] == ("Telemetry uptake for version 59.0a1 "
+                                       "(20180128191456) is 65.43%")
+
+    async def test_telemetry_migrated_uptake_tasks_returns_exists_for_high_nightly_uptake(self):
+        self._mock_buildhub_get_releases_nightly()
+        self._telemetry_mock_migrated_nightly_query()
+        url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.get(url, status=200, body=json.dumps({
+            "query_result": {"data": {"rows": [
+                {"ratio": 0.65432, "updated": 27236, "total": 42088}
+            ]}}
+        }))
+
+        received = await telemetry.migrated_from_previous_version('firefox', '59.0a1')
+        assert received["status"] == Status.EXISTS.value
+        assert received["message"] == ("Telemetry uptake for version 59.0a1 "
+                                       "(20180128191456) is 65.43%")
+
+    async def test_telemetry_migrated_uptake_tasks_returns_missing_for_no_search_query(self):
+        self._mock_buildhub_get_releases_nightly()
+        self._telemetry_mock_migrated_nightly_query()
+        url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.get(url, status=404)
+
+        received = await telemetry.migrated_from_previous_version('firefox', '59.0a1')
+        assert received["status"] == Status.MISSING.value
+        assert received["message"] == "Query Result 5678 unavailable (HTTP 404)"
+
+    async def test_telemetry_migrated_uptake_tasks_returns_incomplete_for_low_release_uptake(self):
+        self._mock_buildhub_get_releases()
+        self._telemetry_mock_migrated_release_query()
+        self._telemetry_mock_query_result({
+            "query_result": {"data": {"rows": [
+                {"ratio": 0.4532, "updated": 19074, "total": 42088}
+            ]}}
+        })
+
+        received = await telemetry.migrated_from_previous_version('firefox', '59.0')
+        assert received["status"] == Status.INCOMPLETE.value
+        message = "Telemetry uptake for version 59.0 (20180128191456) is 45.32%"
+        assert received["message"] == message
+
+    async def test_telemetry_migrated_uptake_tasks_returns_incomplete_for_high_release(self):
+        self._mock_buildhub_get_releases()
+        self._telemetry_mock_migrated_release_query()
+        self._telemetry_mock_query_result({
+            "query_result": {"data": {"rows": [
+                {"ratio": 0.65432, "updated": 27236, "total": 42088}
+            ]}}
+        })
+
+        received = await telemetry.migrated_from_previous_version('firefox', '59.0')
+        assert received["status"] == Status.EXISTS.value
+        message = "Telemetry uptake for version 59.0 (20180128191456) is 65.43%"
+        assert received["message"] == message
+
+    async def test_telemetry_migrated_uptake_creates_the_query_if_not_found_for_nightly(self):
+        self._mock_buildhub_get_releases_nightly()
+        self._telemetry_mock_migrated_nightly_query([])
+
+        url = '{}/api/queries'.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.post(url, status=200, body=json.dumps({
+            "id": 1234
+        }))
+
+        url = '{}/api/query_results'.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.post(url, status=200, body=json.dumps({
+            "id": 5678
+        }))
+
+        received = await telemetry.migrated_from_previous_version('firefox', '59.0a1')
+        assert received["status"] == Status.INCOMPLETE.value
+        assert received["message"] == (
+            "Telemetry uptake calculation for version 59.0a1 (20180128191456) is in progress"
+        )
+
+    async def test_telemetry_migrated_uptake_creates_the_query_if_not_found_for_release(self):
+        self._mock_buildhub_get_releases()
+        self._telemetry_mock_migrated_release_query([])
+
+        url = '{}/api/queries'.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.post(url, status=200, body=json.dumps({
+            "id": 1234
+        }))
+
+        url = '{}/api/query_results'.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.post(url, status=200, body=json.dumps({
+            "id": 5678
+        }))
+
+        received = await telemetry.migrated_from_previous_version('firefox', '59.0')
+        assert received["status"] == Status.INCOMPLETE.value
+        assert received["message"] == (
+            "Telemetry uptake calculation for version 59.0 (20180128191456) is in progress"
+        )
+
+    async def test_telemetry_migrated_uptake_return_error_if_the_query_creation_failed(self):
+        self._mock_buildhub_get_releases()
+        self._telemetry_mock_migrated_release_query([])
+
+        url = '{}/api/queries'.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.post(url, status=403)
+
+        with pytest.raises(TaskError) as excinfo:
+            await telemetry.migrated_from_previous_version('firefox', '59.0')
+        message = 'Unable to create the new query for 59.0 (20180128191456) (HTTP 403)'
+        assert str(excinfo.value) == message
+
+    async def test_telemetry_migrated_uptake_return_error_if_the_query_execution_failed(self):
+        self._mock_buildhub_get_releases()
+        self._telemetry_mock_migrated_release_query([])
+
+        url = '{}/api/queries'.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.post(url, status=200, body=json.dumps({
+            "id": 1234
+        }))
+
+        url = '{}/api/query_results'.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.post(url, status=403)
+
+        with pytest.raises(TaskError) as excinfo:
+            await telemetry.migrated_from_previous_version('firefox', '59.0')
+        message = 'Unable to execute the query n°1234 for 59.0 (20180128191456) (HTTP 403)'
         assert str(excinfo.value) == message

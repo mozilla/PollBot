@@ -44,7 +44,9 @@ devedition_beta_check = status_response(devedition_and_beta_in_sync)
 balrog_rules = status_response(balrog.balrog_rules)
 buildhub_check = status_response(buildhub.buildhub)
 crash_stats_uptake = status_response(crash_stats.uptake)
-telemetry_uptake = status_response(telemetry.update_parquet_uptake)
+telemetry_restart_after_update = status_response(telemetry.restart_after_update)
+telemetry_migrated_from_previous_version = status_response(
+    telemetry.migrated_from_previous_version)
 
 
 @validate_product_version
@@ -68,7 +70,8 @@ CHECKS_TITLE = {
     "balrog-rules": "Balrog update rules",
     "buildhub": "Buildhub release info",
     "crash-stats-uptake": "Crash Stats Uptake (24h latency)",
-    "telemetry-update-parquet-uptake": "Telemetry - % of people having restarted after update",
+    "telemetry-restart-after-update": "Telemetry - % of people having restarted after update",
+    "telemetry-migrated": "Telemetry - % of people having migrated from previous version",
 }
 
 ALL = [Channel.ESR, Channel.RELEASE, Channel.CANDIDATE,
@@ -91,10 +94,11 @@ CHECKS = OrderedDict(
         "bouncer": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.AURORA, Channel.NIGHTLY],
         "buildhub": ALL,
         "crash-stats-uptake": [Channel.ESR, Channel.RELEASE, Channel.BETA],
-        "telemetry-update-parquet-uptake": "57.0a1",
+        "telemetry-restart-after-update": "57.0a1",
+        "telemetry-migrated": "57.0a1",
     }.items(), key=lambda t: t[0]))
 
-NOT_ACTIONABLE = ['-uptake']
+NOT_ACTIONABLE = ['-uptake', 'telemetry-']
 IGNORES = {'devedition': ['crash-stats-uptake', 'partner-repacks']}
 
 

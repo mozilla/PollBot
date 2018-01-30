@@ -142,7 +142,7 @@ async def test_status_response_validates_product_name(cli):
     assert resp.status == 404
     assert json.loads(resp.body.decode()) == {
         'status': 404,
-        'message': 'Invalid product: invalid-product not in ('firefox', 'devedition')',
+        'message': "Invalid product: invalid-product not in ('firefox', 'devedition')"
     }
 
 
@@ -156,7 +156,7 @@ async def test_status_response_validates_version(cli):
     assert resp.status == 404
     assert json.loads(resp.body.decode()) == {
         'status': 404,
-        'message': 'Invalid version number: invalid-version',
+        'message': "Invalid version number: invalid-version"
     }
 
 
@@ -170,14 +170,14 @@ async def test_status_response_validates_devedition_version(cli):
     assert resp.status == 404
     assert json.loads(resp.body.decode()) == {
         'status': 404,
-        'message': 'Invalid version number for devedition: 58.0',
+        'message': "Invalid version number for devedition: 58.0"
     }
 
 
 async def test_get_releases_response_validates_product_name(cli):
     await check_response(cli, '/v1/invalid-product', body={
         'status': 404,
-        'message': 'Invalid product: invalid-product not in ('firefox', 'devedition')'
+        'message': "Invalid product: invalid-product not in ('firefox', 'devedition')"
     }, status=404)
 
 
@@ -198,14 +198,14 @@ async def test_403_errors_are_json_responses(cli):
 async def test_404_pages_are_json_responses(cli):
     await check_response(cli, '/not-found', body={
         'status': 404,
-        'message': 'Page '/not-found' not found'
+        'message': "Page '/not-found' not found"
     }, status=404)
 
 
 async def test_handle_views_that_return_404_pages_are_json_responses(cli):
     await check_response(cli, '/error-404', body={
         'status': 404,
-        'message': 'Page '/error-404' not found'
+        'message': "Page '/error-404' not found"
     }, status=404)
 
 
@@ -236,7 +236,10 @@ async def test_get_checks_for_nightly(cli):
              'title': 'Product details', 'actionable': True},
             {'url': 'http://localhost/v1/firefox/57.0a1/bedrock/release-notes',
              'title': 'Release notes', 'actionable': True},
-            {'url': 'http://localhost/v1/firefox/57.0a1/telemetry/update-parquet-uptake',
+            {'url': 'http://localhost/v1/firefox/57.0a1/telemetry/migrated-from-previous-version',
+             'title': 'Telemetry - % of people having migrated from previous version',
+             'actionable': False},
+            {'url': 'http://localhost/v1/firefox/57.0a1/telemetry/restart-after-update',
              'title': 'Telemetry - % of people having restarted after update',
              'actionable': False},
         ]
@@ -313,9 +316,12 @@ async def test_get_checks_for_candidates(cli):
              'title': 'Buildhub release info', 'actionable': True},
             {'title': 'Partner repacks', 'actionable': True,
              'url': 'http://localhost/v1/firefox/57.0rc6/archive/partner-repacks'},
-            {'title': 'Telemetry - % of people having restarted after update',
-             'actionable': False,
-             'url': 'http://localhost/v1/firefox/57.0rc6/telemetry/update-parquet-uptake'},
+            {'url': 'http://localhost/v1/firefox/57.0rc6/telemetry/migrated-from-previous-version',
+             'title': 'Telemetry - % of people having migrated from previous version',
+             'actionable': False},
+            {'url': 'http://localhost/v1/firefox/57.0rc6/telemetry/restart-after-update',
+             'title': 'Telemetry - % of people having restarted after update',
+             'actionable': False},
         ]
     })
 
@@ -381,7 +387,7 @@ async def test_get_checks_for_esr(cli):
 async def test_get_checks_response_validates_product_name(cli):
     await check_response(cli, '/v1/invalid-product/56.0', body={
         'status': 404,
-        'message': 'Invalid product: invalid-product not in ('firefox', 'devedition')'
+        'message': "Invalid product: invalid-product not in ('firefox', 'devedition')"
     }, status=404)
 
 
@@ -665,7 +671,7 @@ async def test_release_product_details_devedition_and_beta_versions_matches(cli)
     url = '/v1/firefox/54.0/product-details/devedition-beta-versions-matches'
     await check_response(cli, url, body={
         'status': Status.MISSING.value,
-        'message': 'No devedition and beta check for 'release' releases',
+        'message': "No devedition and beta check for 'release' releases",
         'link': 'https://product-details.mozilla.org/1.0/firefox_versions.json'
     })
 
@@ -746,7 +752,7 @@ async def test_version_view_return_404_if_missing_file(cli):
                              status=404,
                              body={
                                  'status': 404,
-                                 'message': 'Page '/v1/__version__' not found'
+                                 'message': "Page '/v1/__version__' not found"
                              })
 
 
@@ -759,7 +765,7 @@ async def test_version_view_return_200(cli):
 async def test_ongoing_versions_response_validates_product_name(cli):
     await check_response(cli, '/v1/invalid-product/ongoing-versions', body={
         'status': 404,
-        'message': 'Invalid product: invalid-product not in ('firefox', 'devedition')'
+        'message': "Invalid product: invalid-product not in ('firefox', 'devedition')"
     }, status=404)
 
 

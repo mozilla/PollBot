@@ -5,6 +5,7 @@ API Changelog
 ----------------
 
 - Add bouncer checks and endpoints.
+- Add telemetry "percentage of users having migrated" metric.
 
 
 1.2 (2017-09-25)

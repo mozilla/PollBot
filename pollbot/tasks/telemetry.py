@@ -5,7 +5,7 @@ from urllib.parse import urlencode
 from pollbot.exceptions import TaskError
 from pollbot.utils import Status, Channel, get_version_channel, build_version_id
 from . import get_session, build_task_response, heartbeat_factory
-from .buildhub import get_build_ids_for_version
+from .buildhub import get_build_ids_for_version, get_releases
 
 
 TELEMETRY_SERVER = "https://sql.telemetry.mozilla.org"
@@ -63,13 +63,14 @@ async def get_query_info_from_title(session, query_title):
     query_url = "{}/api/queries/search?{}".format(TELEMETRY_SERVER, query_params)
     async with session.get(query_url) as resp:
         body = await resp.json()
-
         if body:
+            if 'message' in body:
+                raise TaskError("STMO: {}".format(body['message']))
             body = [query for query in body if not query['name'].startswith('Copy of')]
             return body[0] if len(body) > 0 else None
 
 
-async def update_parquet_uptake(product, version):
+async def restart_after_update(product, version):
     channel = get_version_channel(product, version)
     if build_version_id(version) < build_version_id('57.0a1'):
         return build_task_response(Status.MISSING,
@@ -161,6 +162,95 @@ FROM updated_t, total_t
         query_id = await put_query(session, query_title, version_name, query)
         url = "{}/queries/{}".format(TELEMETRY_SERVER, query_id)
         message = 'Telemetry uptake calculation for version {} is in progress'.format(version_name)
+        return build_task_response(Status.INCOMPLETE, url, message)
+
+
+async def migrated_from_previous_version(product, version):
+    channel = get_version_channel(product, version)
+    if build_version_id(version) < build_version_id('57.0a1'):
+        return build_task_response(Status.MISSING,
+                                   "https://bugzilla.mozilla.org/show_bug.cgi?id=1384861",
+                                   "Telemetry update-parquet metrics landed in Firefox Quantum")
+
+    with get_session(headers=get_telemetry_auth_header()) as session:
+        # Get the build IDs for this channel
+        build_ids = await get_releases(product, version, max_releases=2)
+
+        last_build_id, last_version = build_ids[0]
+        last_version_name = "{} ({})".format(last_version, last_build_id)
+        previous_build_id, previous_version = build_ids[1]
+        previous_version_name = "{} ({})".format(previous_version, previous_build_id)
+
+        query_title = "Migrated {} {} from {} to {}".format(product.title(), channel.value,
+                                                            previous_version_name,
+                                                            last_version_name)
+
+        query = """
+WITH updated_t AS (
+    SELECT COUNT(*) AS updated
+    FROM telemetry_update_parquet
+    WHERE submission_date_s3 >= '201712'
+      AND payload.reason = 'success'
+      AND environment.build.build_id = '{last_build_id}'
+),
+total_t AS (
+    SELECT COUNT(*) AS total
+    FROM telemetry_update_parquet
+    WHERE submission_date_s3 >= '201712'
+      AND payload.reason = 'success'
+      AND environment.build.build_id = '{previous_build_id}'
+)
+SELECT updated * 1.0 / total as ratio, updated, total
+FROM updated_t, total_t
+""".format(last_build_id=last_build_id, previous_build_id=previous_build_id)
+
+        query_info = await get_query_info_from_title(session, query_title)
+
+        if query_info:
+            # In that case the query already exists
+            latest_query_data_id = query_info["latest_query_data_id"]
+
+            # In case the query processing didn't start, the last_query_data_id can be None.
+            if latest_query_data_id is None:
+                url = "{}/queries/{}".format(TELEMETRY_SERVER, query_info['id'])
+                return build_task_response(Status.INCOMPLETE, url, "Query still processing.")
+
+            # Get the results if we know the query results ID
+            url = "{}/api/query_results/{}".format(TELEMETRY_SERVER, latest_query_data_id)
+            async with session.get(url) as resp:
+                if resp.status != 200:
+                    return build_task_response(
+                        Status.MISSING, url,
+                        "Query Result {} unavailable (HTTP {})".format(latest_query_data_id,
+                                                                       resp.status))
+
+                body = await resp.json()
+                # If no data are matching the query, we may have an empty list of results,
+                if not body["query_result"]["data"]["rows"]:
+                    url = "{}/queries/{}".format(TELEMETRY_SERVER, query_info['id'])
+                    return build_task_response(Status.ERROR, url,
+                                               "No result found for your query.")
+
+                data = body["query_result"]["data"]["rows"][0]
+
+            # version_users = data["updated"]
+            # total_users = data["total"]
+            ratio = data["ratio"]
+
+            if ratio < 0.5:
+                status = Status.INCOMPLETE
+            else:
+                status = Status.EXISTS
+            url = "{}/queries/{}".format(TELEMETRY_SERVER, query_info["id"])
+            message = 'Telemetry uptake for version {} is {:.2f}%'.format(
+                last_version_name, ratio * 100)
+
+            return build_task_response(status, url, message)
+
+        query_id = await put_query(session, query_title, last_version_name, query)
+        url = "{}/queries/{}".format(TELEMETRY_SERVER, query_id)
+        message = 'Telemetry uptake calculation for version {} is in progress'.format(
+            last_version_name)
         return build_task_response(Status.INCOMPLETE, url, message)
 
 
