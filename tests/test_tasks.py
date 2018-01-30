@@ -21,7 +21,7 @@ from pollbot.tasks.buildhub import get_releases
 from pollbot.tasks.product_details import (product_details, ongoing_versions,
                                            devedition_and_beta_in_sync)
 from pollbot.views.utilities import heartbeat
-from pollbot.utils import Status
+from pollbot.utils import Status, yesterday
 
 
 HERE = os.path.dirname(__file__)
@@ -1137,10 +1137,10 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         assert received["status"] == Status.EXISTS.value
         assert received["message"] == "Build IDs for this release: 20170914024831"
 
-    def _telemetry_mock_release_query(self, body=None):
+    def _telemetry_mock_release_query(self, body=None, *, build_id='20171009192146'):
         url = ("{}/api/queries/search?q="
-               "Uptake+Firefox+RELEASE+57.0+%2820171009192146%29&include_drafts=true")
-        url = url.format(telemetry.TELEMETRY_SERVER)
+               "Uptake+Firefox+RELEASE+57.0+%28{}%29&include_drafts=true")
+        url = url.format(telemetry.TELEMETRY_SERVER, build_id)
         if body is None:
             body = [{
                 "latest_query_data_id": 5678,
@@ -1201,7 +1201,8 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         assert str(excinfo.value) == message
 
     async def test_telemetry_update_uptake_tasks_returns_incomplete_for_low_nightly_uptake(self):
-        self._mock_buildhub_search()
+        build_id = "{}192146".format(yesterday(formating='%Y%m%d'))
+        self._mock_buildhub_search(build_id)
         self._telemetry_mock_nightly_query()
         self._telemetry_mock_query_result({
             "query_result": {"data": {"rows": [
@@ -1212,10 +1213,11 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         received = await telemetry.main_summary_uptake('firefox', '57.0a1')
         assert received["status"] == Status.INCOMPLETE.value
         assert received["message"] == ("Telemetry uptake for version 57.0a1 "
-                                       "(20171009192146) is 45.32%")
+                                       "({}) is 45.32%".format(build_id))
 
     async def test_telemetry_update_uptake_tasks_should_ignore_copied_queries(self):
-        self._mock_buildhub_search()
+        build_id = "{}192146".format(yesterday(formating='%Y%m%d'))
+        self._mock_buildhub_search(build_id)
         self._telemetry_mock_nightly_query([{
             "latest_query_data_id": 123456789,
             "id": 40198,
@@ -1234,10 +1236,11 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         received = await telemetry.main_summary_uptake('firefox', '57.0a1')
         assert received["status"] == Status.EXISTS.value
         assert received["message"] == ("Telemetry uptake for version 57.0a1 "
-                                       "(20171009192146) is 65.43%")
+                                       "({}) is 65.43%".format(build_id))
 
     async def test_telemetry_update_uptake_tasks_returns_exists_for_high_nightly_uptake(self):
-        self._mock_buildhub_search()
+        build_id = "{}192146".format(yesterday(formating='%Y%m%d'))
+        self._mock_buildhub_search(build_id)
         self._telemetry_mock_nightly_query()
         url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
         self.mocked.get(url, status=200, body=json.dumps({
@@ -1249,7 +1252,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         received = await telemetry.main_summary_uptake('firefox', '57.0a1')
         assert received["status"] == Status.EXISTS.value
         assert received["message"] == ("Telemetry uptake for version 57.0a1 "
-                                       "(20171009192146) is 65.43%")
+                                       "({}) is 65.43%".format(build_id))
 
     async def test_telemetry_update_uptake_tasks_returns_missing_for_no_search_query(self):
         self._mock_buildhub_search()
@@ -1262,8 +1265,9 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         assert received["message"] == "Query Result 5678 unavailable (HTTP 404)"
 
     async def test_telemetry_update_uptake_tasks_returns_incomplete_for_low_release_uptake(self):
-        self._mock_buildhub_search()
-        self._telemetry_mock_release_query()
+        build_id = "{}192146".format(yesterday(formating='%Y%m%d'))
+        self._mock_buildhub_search(build_id)
+        self._telemetry_mock_release_query(build_id=build_id)
         self._telemetry_mock_query_result({
             "query_result": {"data": {"rows": [
                 {"ratio": 0.4532, "updated": 19074, "total": 42088}
@@ -1272,12 +1276,13 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
 
         received = await telemetry.main_summary_uptake('firefox', '57.0')
         assert received["status"] == Status.INCOMPLETE.value
-        message = "Telemetry uptake for version 57.0 (20171009192146) is 45.32%"
+        message = "Telemetry uptake for version 57.0 ({}) is 45.32%".format(build_id)
         assert received["message"] == message
 
     async def test_telemetry_update_uptake_tasks_returns_incomplete_for_high_release_uptake(self):
-        self._mock_buildhub_search()
-        self._telemetry_mock_release_query()
+        build_id = "{}192146".format(yesterday(formating='%Y%m%d'))
+        self._mock_buildhub_search(build_id)
+        self._telemetry_mock_release_query(build_id=build_id)
         self._telemetry_mock_query_result({
             "query_result": {"data": {"rows": [
                 {"ratio": 0.65432, "updated": 27236, "total": 42088}
@@ -1286,11 +1291,12 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
 
         received = await telemetry.main_summary_uptake('firefox', '57.0')
         assert received["status"] == Status.EXISTS.value
-        message = "Telemetry uptake for version 57.0 (20171009192146) is 65.43%"
+        message = "Telemetry uptake for version 57.0 ({}) is 65.43%".format(build_id)
         assert received["message"] == message
 
     async def test_telemetry_update_uptake_creates_the_query_if_not_found_for_nightly(self):
-        self._mock_buildhub_search()
+        build_id = "{}192146".format(yesterday(formating='%Y%m%d'))
+        self._mock_buildhub_search(build_id)
         self._telemetry_mock_nightly_query([])
 
         url = '{}/api/queries'.format(telemetry.TELEMETRY_SERVER)
@@ -1306,7 +1312,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         received = await telemetry.main_summary_uptake('firefox', '57.0a1')
         assert received["status"] == Status.INCOMPLETE.value
         assert received["message"] == (
-            "Telemetry uptake calculation for version 57.0a1 (20171009192146) is in progress"
+            "Telemetry uptake calculation for version 57.0a1 ({}) is in progress".format(build_id)
         )
 
     async def test_telemetry_update_uptake_creates_the_query_if_not_found_for_release(self):
