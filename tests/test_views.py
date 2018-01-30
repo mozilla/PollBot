@@ -236,8 +236,8 @@ async def test_get_checks_for_nightly(cli):
              "title": "Product details", "actionable": True},
             {"url": "http://localhost/v1/firefox/57.0a1/bedrock/release-notes",
              "title": "Release notes", "actionable": True},
-            {"url": "http://localhost/v1/firefox/57.0a1/telemetry/update-parquet-uptake",
-             "title": "Telemetry Update Parquet Uptake", "actionable": False},
+            {"url": "http://localhost/v1/firefox/57.0a1/telemetry/main-summary-uptake",
+             "title": "Telemetry Main Summary Uptake (24h latency)", "actionable": False},
         ]
     })
 
@@ -312,8 +312,8 @@ async def test_get_checks_for_candidates(cli):
              "title": "Buildhub release info", "actionable": True},
             {'title': 'Partner repacks', "actionable": True,
              'url': 'http://localhost/v1/firefox/57.0rc6/archive/partner-repacks'},
-            {'title': 'Telemetry Update Parquet Uptake', "actionable": False,
-             'url': 'http://localhost/v1/firefox/57.0rc6/telemetry/update-parquet-uptake'},
+            {'title': 'Telemetry Main Summary Uptake (24h latency)', "actionable": False,
+             'url': 'http://localhost/v1/firefox/57.0rc6/telemetry/main-summary-uptake'},
         ]
     })
 

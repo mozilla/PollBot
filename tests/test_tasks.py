@@ -1169,11 +1169,6 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
         self.mocked.get(url, status=200, body=json.dumps(body))
 
-    async def test_telemetry_update_uptake_tasks_returns_error_for_previous_nightly(self):
-        received = await telemetry.update_parquet_uptake('firefox', '56.0a1')
-        assert received["status"] == Status.MISSING.value
-        assert received["message"] == "Telemetry update-parquet metrics landed in Firefox Quantum"
-
     async def test_telemetry_update_uptake_tasks_returns_incomplete_for_no_result(self):
         self._mock_buildhub_search()
         self._telemetry_mock_nightly_query([{
@@ -1182,7 +1177,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             "name": "Uptake Firefox NIGHTLY 57.0a1 20170920"
         }])
 
-        received = await telemetry.update_parquet_uptake('firefox', '57.0a1')
+        received = await telemetry.main_summary_uptake('firefox', '57.0a1')
         assert received["status"] == Status.INCOMPLETE.value
         assert received["message"] == ("Query still processing.")
 
@@ -1193,9 +1188,17 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             "query_result": {"data": {"rows": []}}
         })
 
-        received = await telemetry.update_parquet_uptake('firefox', '57.0a1')
+        received = await telemetry.main_summary_uptake('firefox', '57.0a1')
         assert received["status"] == Status.ERROR.value
         assert received["message"] == ("No result found for your query.")
+
+    async def test_telemetry_update_uptake_tasks_returns_error_if_not_authenticated(self):
+        self._mock_buildhub_search()
+        self._telemetry_mock_nightly_query({'message': 'You are not authenticated'})
+        with pytest.raises(TaskError) as excinfo:
+            await telemetry.main_summary_uptake('firefox', '57.0a1')
+        message = 'STMO: You are not authenticated'
+        assert str(excinfo.value) == message
 
     async def test_telemetry_update_uptake_tasks_returns_incomplete_for_low_nightly_uptake(self):
         self._mock_buildhub_search()
@@ -1206,7 +1209,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             ]}}
         })
 
-        received = await telemetry.update_parquet_uptake('firefox', '57.0a1')
+        received = await telemetry.main_summary_uptake('firefox', '57.0a1')
         assert received["status"] == Status.INCOMPLETE.value
         assert received["message"] == ("Telemetry uptake for version 57.0a1 "
                                        "(20171009192146) is 45.32%")
@@ -1228,7 +1231,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             ]}}
         })
 
-        received = await telemetry.update_parquet_uptake('firefox', '57.0a1')
+        received = await telemetry.main_summary_uptake('firefox', '57.0a1')
         assert received["status"] == Status.EXISTS.value
         assert received["message"] == ("Telemetry uptake for version 57.0a1 "
                                        "(20171009192146) is 65.43%")
@@ -1243,7 +1246,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             ]}}
         }))
 
-        received = await telemetry.update_parquet_uptake('firefox', '57.0a1')
+        received = await telemetry.main_summary_uptake('firefox', '57.0a1')
         assert received["status"] == Status.EXISTS.value
         assert received["message"] == ("Telemetry uptake for version 57.0a1 "
                                        "(20171009192146) is 65.43%")
@@ -1254,7 +1257,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
         self.mocked.get(url, status=404)
 
-        received = await telemetry.update_parquet_uptake('firefox', '57.0a1')
+        received = await telemetry.main_summary_uptake('firefox', '57.0a1')
         assert received["status"] == Status.MISSING.value
         assert received["message"] == "Query Result 5678 unavailable (HTTP 404)"
 
@@ -1267,7 +1270,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             ]}}
         })
 
-        received = await telemetry.update_parquet_uptake('firefox', '57.0')
+        received = await telemetry.main_summary_uptake('firefox', '57.0')
         assert received["status"] == Status.INCOMPLETE.value
         message = "Telemetry uptake for version 57.0 (20171009192146) is 45.32%"
         assert received["message"] == message
@@ -1281,7 +1284,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             ]}}
         })
 
-        received = await telemetry.update_parquet_uptake('firefox', '57.0')
+        received = await telemetry.main_summary_uptake('firefox', '57.0')
         assert received["status"] == Status.EXISTS.value
         message = "Telemetry uptake for version 57.0 (20171009192146) is 65.43%"
         assert received["message"] == message
@@ -1300,7 +1303,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             "id": 5678
         }))
 
-        received = await telemetry.update_parquet_uptake('firefox', '57.0a1')
+        received = await telemetry.main_summary_uptake('firefox', '57.0a1')
         assert received["status"] == Status.INCOMPLETE.value
         assert received["message"] == (
             "Telemetry uptake calculation for version 57.0a1 (20171009192146) is in progress"
@@ -1320,7 +1323,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             "id": 5678
         }))
 
-        received = await telemetry.update_parquet_uptake('firefox', '57.0')
+        received = await telemetry.main_summary_uptake('firefox', '57.0')
         assert received["status"] == Status.INCOMPLETE.value
         assert received["message"] == (
             "Telemetry uptake calculation for version 57.0 (20171009192146) is in progress"
@@ -1334,7 +1337,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         self.mocked.post(url, status=403)
 
         with pytest.raises(TaskError) as excinfo:
-            await telemetry.update_parquet_uptake('firefox', '57.0')
+            await telemetry.main_summary_uptake('firefox', '57.0')
         message = 'Unable to create the new query for 57.0 (20171009192146) (HTTP 403)'
         assert str(excinfo.value) == message
 
@@ -1351,6 +1354,6 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         self.mocked.post(url, status=403)
 
         with pytest.raises(TaskError) as excinfo:
-            await telemetry.update_parquet_uptake('firefox', '57.0')
+            await telemetry.main_summary_uptake('firefox', '57.0')
         message = 'Unable to execute the query n°1234 for 57.0 (20171009192146) (HTTP 403)'
         assert str(excinfo.value) == message

@@ -280,10 +280,10 @@ paths:
       tags:
       - Status
 
-  /{product}/{version}/telemetry/update-parquet-uptake:
+  /{product}/{version}/telemetry/main-summary-uptake:
     get:
-      summary: "checks what is the version uptake with telemetry update info"
-      operationId: "checkTelemetryUpdateParquetUptake"
+      summary: "checks what is the version uptake with telemetry main summary info"
+      operationId: "checkTelemetryMainSummaryUptake"
       produces:
       - "application/json"
       parameters:

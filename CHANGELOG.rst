@@ -5,7 +5,7 @@ CHANGELOG
 ------------------
 
 - Order checks putting non actionable checks at the end. (#163)
-- Fix Telemetry query. Refs `Bug 1429048 <https://bugzilla.mozilla.org/show_bug.cgi?id=1429048#c9>`_
+- Use main_summary instead of update_parquet for the Telemetry uptake (#172)
 
 
 0.6.1 (2017-12-20)
