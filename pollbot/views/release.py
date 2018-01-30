@@ -109,15 +109,9 @@ async def view_get_checks(request, product, version):
 
     for check_name, channels in CHECKS.items():
         check_related_to_version = False
-        if isinstance(channels, list):
-            if channel in channels:
-                # List of related channels
-                check_related_to_version = True
-        else:
-            # We set the min version.
-            min_version = channels
-            if build_version_id(version) >= build_version_id(min_version):
-                check_related_to_version = True
+        if channel in channels:
+            # List of related channels
+            check_related_to_version = True
 
         if product in IGNORES:
             if check_name in IGNORES[product]:
