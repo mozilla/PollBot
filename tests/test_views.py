@@ -269,6 +269,9 @@ async def test_get_checks_for_beta(cli):
              "title": "Release notes", "actionable": True},
             {"url": "http://localhost/v1/firefox/56.0b6/crash-stats/uptake",
              "title": "Crash Stats Uptake (24h latency)", "actionable": False},
+            {"url": "http://localhost/v1/firefox/56.0b6/telemetry/main-summary-uptake",
+             "title": "Telemetry Main Summary Uptake (24h latency)", "actionable": False},
+
         ]
     })
 
@@ -296,6 +299,8 @@ async def test_get_checks_for_devedition(cli):
              "title": "Product details", "actionable": True},
             {"url": "http://localhost/v1/devedition/56.0b6/bedrock/release-notes",
              "title": "Release notes", "actionable": True},
+            {"url": "http://localhost/v1/devedition/56.0b6/telemetry/main-summary-uptake",
+             "title": "Telemetry Main Summary Uptake (24h latency)", "actionable": False},
         ]
     })
 
@@ -312,8 +317,6 @@ async def test_get_checks_for_candidates(cli):
              "title": "Buildhub release info", "actionable": True},
             {'title': 'Partner repacks', "actionable": True,
              'url': 'http://localhost/v1/firefox/57.0rc6/archive/partner-repacks'},
-            {'title': 'Telemetry Main Summary Uptake (24h latency)', "actionable": False,
-             'url': 'http://localhost/v1/firefox/57.0rc6/telemetry/main-summary-uptake'},
         ]
     })
 
@@ -344,6 +347,8 @@ async def test_get_checks_for_release(cli):
              "title": "Security advisories", "actionable": True},
             {"url": "http://localhost/v1/firefox/54.0/crash-stats/uptake",
              "title": "Crash Stats Uptake (24h latency)", "actionable": False},
+            {'title': 'Telemetry Main Summary Uptake (24h latency)', "actionable": False,
+             'url': 'http://localhost/v1/firefox/54.0/telemetry/main-summary-uptake'},
         ]
     })
 
@@ -372,6 +377,8 @@ async def test_get_checks_for_esr(cli):
              "title": "Security advisories", "actionable": True},
             {"url": "http://localhost/v1/firefox/52.3.0esr/crash-stats/uptake",
              "title": "Crash Stats Uptake (24h latency)", "actionable": False},
+            {"url": "http://localhost/v1/firefox/52.3.0esr/telemetry/main-summary-uptake",
+             "title": "Telemetry Main Summary Uptake (24h latency)", "actionable": False},
         ]
     })
 
