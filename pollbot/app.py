@@ -70,8 +70,13 @@ def get_app(loop=None):
                                 release.bouncer_download_links, name="bouncer"))
     cors.add(app.router.add_get('/v1/{product}/{version}/buildhub',
                                 release.buildhub_check, name="buildhub"))
-    cors.add(app.router.add_get('/v1/{product}/{version}/telemetry/update-parquet-uptake',
-                                release.telemetry_uptake, name="telemetry-update-parquet-uptake"))
+    cors.add(app.router.add_get('/v1/{product}/{version}/telemetry/restart-after-update',
+                                release.telemetry_restart_after_update,
+                                name="telemetry-restart-after-update"))
+    cors.add(app.router.add_get(
+        '/v1/{product}/{version}/telemetry/migrated-from-previous-version',
+        release.telemetry_migrated_from_previous_version,
+        name="telemetry-migrated"))
 
     # Swagger UI and documentation
     setup_swagger(app,
