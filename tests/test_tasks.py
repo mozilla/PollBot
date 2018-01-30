@@ -1297,6 +1297,14 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         url = '{}/api/query_results/5678'.format(telemetry.TELEMETRY_SERVER)
         self.mocked.get(url, status=200, body=json.dumps(body))
 
+    async def test_telemetry_update_uptake_tasks_returns_error_if_not_authenticated(self):
+        self._mock_buildhub_search()
+        self._telemetry_mock_nightly_query({'message': 'You are not authenticated'})
+        with pytest.raises(TaskError) as excinfo:
+            await telemetry.restart_after_update('firefox', '57.0a1')
+        message = 'STMO: You are not authenticated'
+        assert str(excinfo.value) == message
+
     async def test_telemetry_update_uptake_tasks_returns_error_for_previous_nightly(self):
         received = await telemetry.restart_after_update('firefox', '56.0a1')
         assert received["status"] == Status.MISSING.value
@@ -1336,7 +1344,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
 
         received = await telemetry.restart_after_update('firefox', '57.0a1')
         assert received["status"] == Status.INCOMPLETE.value
-        assert received["message"] == ("Telemetry uptake for version 57.0a1 "
+        assert received["message"] == ("Restart rate for version 57.0a1 "
                                        "(20171009192146) is 45.32%")
 
     async def test_telemetry_update_uptake_tasks_should_ignore_copied_queries(self):
@@ -1358,7 +1366,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
 
         received = await telemetry.restart_after_update('firefox', '57.0a1')
         assert received["status"] == Status.EXISTS.value
-        assert received["message"] == ("Telemetry uptake for version 57.0a1 "
+        assert received["message"] == ("Restart rate for version 57.0a1 "
                                        "(20171009192146) is 65.43%")
 
     async def test_telemetry_update_uptake_tasks_returns_exists_for_high_nightly_uptake(self):
@@ -1373,7 +1381,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
 
         received = await telemetry.restart_after_update('firefox', '57.0a1')
         assert received["status"] == Status.EXISTS.value
-        assert received["message"] == ("Telemetry uptake for version 57.0a1 "
+        assert received["message"] == ("Restart rate for version 57.0a1 "
                                        "(20171009192146) is 65.43%")
 
     async def test_telemetry_update_uptake_tasks_returns_missing_for_no_search_query(self):
@@ -1397,7 +1405,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
 
         received = await telemetry.restart_after_update('firefox', '57.0')
         assert received["status"] == Status.INCOMPLETE.value
-        message = "Telemetry uptake for version 57.0 (20171009192146) is 45.32%"
+        message = "Restart rate for version 57.0 (20171009192146) is 45.32%"
         assert received["message"] == message
 
     async def test_telemetry_update_uptake_tasks_returns_incomplete_for_high_release_uptake(self):
@@ -1411,7 +1419,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
 
         received = await telemetry.restart_after_update('firefox', '57.0')
         assert received["status"] == Status.EXISTS.value
-        message = "Telemetry uptake for version 57.0 (20171009192146) is 65.43%"
+        message = "Restart rate for version 57.0 (20171009192146) is 65.43%"
         assert received["message"] == message
 
     async def test_telemetry_update_uptake_creates_the_query_if_not_found_for_nightly(self):
@@ -1431,7 +1439,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         received = await telemetry.restart_after_update('firefox', '57.0a1')
         assert received["status"] == Status.INCOMPLETE.value
         assert received["message"] == (
-            "Telemetry uptake calculation for version 57.0a1 (20171009192146) is in progress"
+            "Restart rate calculation for version 57.0a1 (20171009192146) is in progress"
         )
 
     async def test_telemetry_update_uptake_creates_the_query_if_not_found_for_release(self):
@@ -1451,7 +1459,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         received = await telemetry.restart_after_update('firefox', '57.0')
         assert received["status"] == Status.INCOMPLETE.value
         assert received["message"] == (
-            "Telemetry uptake calculation for version 57.0 (20171009192146) is in progress"
+            "Restart rate calculation for version 57.0 (20171009192146) is in progress"
         )
 
     async def test_telemetry_update_uptake_return_error_if_the_query_creation_failed(self):
@@ -1523,7 +1531,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
 
         received = await telemetry.migrated_from_previous_version('firefox', '59.0a1')
         assert received["status"] == Status.INCOMPLETE.value
-        assert received["message"] == ("Telemetry uptake for version 59.0a1 "
+        assert received["message"] == ("Migration rate for version 59.0a1 "
                                        "(20180128191456) is 45.32%")
 
     async def test_telemetry_migrated_uptake_tasks_should_ignore_copied_queries(self):
@@ -1545,7 +1553,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
 
         received = await telemetry.migrated_from_previous_version('firefox', '59.0a1')
         assert received["status"] == Status.EXISTS.value
-        assert received["message"] == ("Telemetry uptake for version 59.0a1 "
+        assert received["message"] == ("Migration rate for version 59.0a1 "
                                        "(20180128191456) is 65.43%")
 
     async def test_telemetry_migrated_uptake_tasks_returns_exists_for_high_nightly_uptake(self):
@@ -1560,7 +1568,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
 
         received = await telemetry.migrated_from_previous_version('firefox', '59.0a1')
         assert received["status"] == Status.EXISTS.value
-        assert received["message"] == ("Telemetry uptake for version 59.0a1 "
+        assert received["message"] == ("Migration rate for version 59.0a1 "
                                        "(20180128191456) is 65.43%")
 
     async def test_telemetry_migrated_uptake_tasks_returns_missing_for_no_search_query(self):
@@ -1584,7 +1592,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
 
         received = await telemetry.migrated_from_previous_version('firefox', '59.0')
         assert received["status"] == Status.INCOMPLETE.value
-        message = "Telemetry uptake for version 59.0 (20180128191456) is 45.32%"
+        message = "Migration rate for version 59.0 (20180128191456) is 45.32%"
         assert received["message"] == message
 
     async def test_telemetry_migrated_uptake_tasks_returns_incomplete_for_high_release(self):
@@ -1598,7 +1606,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
 
         received = await telemetry.migrated_from_previous_version('firefox', '59.0')
         assert received["status"] == Status.EXISTS.value
-        message = "Telemetry uptake for version 59.0 (20180128191456) is 65.43%"
+        message = "Migration rate for version 59.0 (20180128191456) is 65.43%"
         assert received["message"] == message
 
     async def test_telemetry_migrated_uptake_creates_the_query_if_not_found_for_nightly(self):
@@ -1618,7 +1626,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         received = await telemetry.migrated_from_previous_version('firefox', '59.0a1')
         assert received["status"] == Status.INCOMPLETE.value
         assert received["message"] == (
-            "Telemetry uptake calculation for version 59.0a1 (20180128191456) is in progress"
+            "Migration rate calculation for version 59.0a1 (20180128191456) is in progress"
         )
 
     async def test_telemetry_migrated_uptake_creates_the_query_if_not_found_for_release(self):
@@ -1638,7 +1646,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         received = await telemetry.migrated_from_previous_version('firefox', '59.0')
         assert received["status"] == Status.INCOMPLETE.value
         assert received["message"] == (
-            "Telemetry uptake calculation for version 59.0 (20180128191456) is in progress"
+            "Migration rate calculation for version 59.0 (20180128191456) is in progress"
         )
 
     async def test_telemetry_migrated_uptake_return_error_if_the_query_creation_failed(self):

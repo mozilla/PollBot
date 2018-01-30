@@ -154,14 +154,14 @@ FROM updated_t, total_t
             else:
                 status = Status.EXISTS
             url = "{}/queries/{}".format(TELEMETRY_SERVER, query_info["id"])
-            message = 'Telemetry uptake for version {} is {:.2f}%'.format(
+            message = 'Restart rate for version {} is {:.2f}%'.format(
                 version_name, ratio * 100)
 
             return build_task_response(status, url, message)
 
         query_id = await put_query(session, query_title, version_name, query)
         url = "{}/queries/{}".format(TELEMETRY_SERVER, query_id)
-        message = 'Telemetry uptake calculation for version {} is in progress'.format(version_name)
+        message = 'Restart rate calculation for version {} is in progress'.format(version_name)
         return build_task_response(Status.INCOMPLETE, url, message)
 
 
@@ -242,14 +242,14 @@ FROM updated_t, total_t
             else:
                 status = Status.EXISTS
             url = "{}/queries/{}".format(TELEMETRY_SERVER, query_info["id"])
-            message = 'Telemetry uptake for version {} is {:.2f}%'.format(
+            message = 'Migration rate for version {} is {:.2f}%'.format(
                 last_version_name, ratio * 100)
 
             return build_task_response(status, url, message)
 
         query_id = await put_query(session, query_title, last_version_name, query)
         url = "{}/queries/{}".format(TELEMETRY_SERVER, query_id)
-        message = 'Telemetry uptake calculation for version {} is in progress'.format(
+        message = 'Migration rate calculation for version {} is in progress'.format(
             last_version_name)
         return build_task_response(Status.INCOMPLETE, url, message)
 
