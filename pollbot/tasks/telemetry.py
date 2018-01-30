@@ -78,8 +78,9 @@ async def main_summary_uptake(product, version):
         # Get the build IDs for this channel
         build_ids = await get_build_ids_for_version(product, version)
 
+        submission_date = yesterday(formating='%Y%m%d')
         if channel is Channel.NIGHTLY:
-            build_ids = build_ids[:4]  # Take the last two days to see metrics.
+            build_ids = [bid for bid in build_ids if bid > submission_date]
             version_name = "{} ({})".format(version, ", ".join(build_ids))
             query_title = "Uptake {} {}"
             query_title = query_title.format(product.title(), channel.value)
@@ -88,7 +89,6 @@ async def main_summary_uptake(product, version):
             query_title = "Uptake {} {} {}"
             query_title = query_title.format(product.title(), channel.value, version_name)
 
-        submission_date = yesterday(formating='%Y%m%d')
 
         query = """
 WITH updated_t AS (
