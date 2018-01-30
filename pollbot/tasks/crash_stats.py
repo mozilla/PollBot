@@ -12,7 +12,7 @@ async def get_channel_versions(product, version):
     with get_session() as session:
         async with session.get(url) as resp:
             body = await resp.json()
-            versions = [h['version'] for h in body['hits'][:5]]
+            versions = [h['version'] for h in body['hits'][:15]]
             if version not in versions:
                 versions.extend([h['version'] for h in body['hits'] if h['version'] == version])
             return versions
