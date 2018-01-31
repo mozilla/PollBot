@@ -95,6 +95,7 @@ WITH updated_t AS (
     FROM main_summary
     WHERE submission_date_s3 >= '{submission_date}'
       AND app_build_id IN ({build_ids})
+      AND normalized_channel = '{channel}'
 ),
 total_t AS (
     SELECT COUNT(*) AS total
