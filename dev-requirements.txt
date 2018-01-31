@@ -2,7 +2,7 @@ aioresponses
 asynctest
 flake8
 mock
-pytest
+pytest==3.3.2  # pytest-sugar  # https://github.com/Frozenball/pytest-sugar/pull/133
 pytest-aiohttp
 pytest-cache
 pytest-cover
