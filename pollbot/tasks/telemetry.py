@@ -3,7 +3,7 @@ from datetime import date, timedelta
 from urllib.parse import urlencode
 
 from pollbot.exceptions import TaskError
-from pollbot.utils import Status, Channel, get_version_channel, build_version_id
+from pollbot.utils import Status, Channel, get_version_channel, yesterday
 from . import get_session, build_task_response, heartbeat_factory
 from .buildhub import get_build_ids_for_version
 
@@ -26,7 +26,7 @@ async def put_query(session, query_title, version_name, query, *, query_id=None,
 
     payload = {
         "name": query_title,
-        "schedule": 3600,
+        "schedule": 50000,  # Twice a day
         "schedule_until": (date.today() + timedelta(days=7)).strftime(
             '%Y-%m-%dT%H:%M:%S'),
         "is_draft": True,
@@ -65,23 +65,22 @@ async def get_query_info_from_title(session, query_title):
         body = await resp.json()
 
         if body:
+            if 'message' in body:
+                raise TaskError("STMO: {}".format(body['message']))
             body = [query for query in body if not query['name'].startswith('Copy of')]
             return body[0] if len(body) > 0 else None
 
 
-async def update_parquet_uptake(product, version):
+async def main_summary_uptake(product, version):
     channel = get_version_channel(product, version)
-    if build_version_id(version) < build_version_id('57.0a1'):
-        return build_task_response(Status.MISSING,
-                                   "https://bugzilla.mozilla.org/show_bug.cgi?id=1384861",
-                                   "Telemetry update-parquet metrics landed in Firefox Quantum")
 
     with get_session(headers=get_telemetry_auth_header()) as session:
         # Get the build IDs for this channel
         build_ids = await get_build_ids_for_version(product, version)
 
+        submission_date = yesterday(formating='%Y%m%d')
         if channel is Channel.NIGHTLY:
-            build_ids = build_ids[:1]
+            build_ids = [bid for bid in build_ids if bid > submission_date]
             version_name = "{} ({})".format(version, ", ".join(build_ids))
             query_title = "Uptake {} {}"
             query_title = query_title.format(product.title(), channel.value)
@@ -93,22 +92,22 @@ async def update_parquet_uptake(product, version):
         query = """
 WITH updated_t AS (
     SELECT COUNT(*) AS updated
-    FROM telemetry_update_parquet
-    WHERE payload.reason = 'success'
-      AND environment.build.build_id IN ({build_ids})
-      AND submission_date_s3 >= '20171201'
+    FROM main_summary
+    WHERE submission_date_s3 >= '{submission_date}'
+      AND app_build_id IN ({build_ids})
+      AND normalized_channel = '{channel}'
 ),
 total_t AS (
-    SELECT COUNT(*) AS total, payload.target_version AS version
-    FROM telemetry_update_parquet
-    WHERE payload.reason = 'ready'
-      AND payload.target_build_id IN ({build_ids})
-      AND submission_date_s3 >= '20171201'
-      GROUP BY 2
+    SELECT COUNT(*) AS total
+    FROM main_summary
+    WHERE submission_date_s3 >= '{submission_date}'
+      AND normalized_channel = '{channel}'
 )
-SELECT updated * 1.0 / total as ratio, updated, total, version
+SELECT updated * 1.0 / total as ratio, updated, total
 FROM updated_t, total_t
-""".format(build_ids=', '.join(["'{}'".format(bid) for bid in build_ids]))
+""".format(build_ids=', '.join(["'{}'".format(bid) for bid in build_ids]),
+           submission_date=submission_date,
+           channel=channel.value.lower())
 
         query_info = await get_query_info_from_title(session, query_title)
 

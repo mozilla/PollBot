@@ -8,7 +8,7 @@ from ..tasks.bedrock import release_notes, security_advisories, download_links
 from ..tasks.bouncer import bouncer
 from ..tasks.buildhub import get_releases
 from ..tasks.product_details import product_details, devedition_and_beta_in_sync
-from ..utils import Channel, get_version_channel, build_version_id
+from ..utils import Channel, get_version_channel
 from .decorators import validate_product_version
 
 logger = logging.getLogger(__package__)
@@ -44,7 +44,7 @@ devedition_beta_check = status_response(devedition_and_beta_in_sync)
 balrog_rules = status_response(balrog.balrog_rules)
 buildhub_check = status_response(buildhub.buildhub)
 crash_stats_uptake = status_response(crash_stats.uptake)
-telemetry_uptake = status_response(telemetry.update_parquet_uptake)
+telemetry_uptake = status_response(telemetry.main_summary_uptake)
 
 
 @validate_product_version
@@ -66,7 +66,7 @@ CHECKS_TITLE = {
     "balrog-rules": "Balrog update rules",
     "buildhub": "Buildhub release info",
     "crash-stats-uptake": "Crash Stats Uptake (24h latency)",
-    "telemetry-update-parquet-uptake": "Telemetry Update Parquet Uptake",
+    "telemetry-main-summary-uptake": "Telemetry Main Summary Uptake (24h latency)",
 }
 
 ALL = [Channel.ESR, Channel.RELEASE, Channel.CANDIDATE,
@@ -89,7 +89,8 @@ CHECKS = OrderedDict(
         "bouncer": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.AURORA, Channel.NIGHTLY],
         "buildhub": ALL,
         "crash-stats-uptake": [Channel.ESR, Channel.RELEASE, Channel.BETA],
-        "telemetry-update-parquet-uptake": "57.0a1",
+        "telemetry-main-summary-uptake": [Channel.ESR, Channel.RELEASE, Channel.BETA,
+                                          Channel.AURORA, Channel.NIGHTLY],
     }.items(), key=lambda t: t[0]))
 
 NOT_ACTIONABLE = ['-uptake']
@@ -108,15 +109,9 @@ async def view_get_checks(request, product, version):
 
     for check_name, channels in CHECKS.items():
         check_related_to_version = False
-        if isinstance(channels, list):
-            if channel in channels:
-                # List of related channels
-                check_related_to_version = True
-        else:
-            # We set the min version.
-            min_version = channels
-            if build_version_id(version) >= build_version_id(min_version):
-                check_related_to_version = True
+        if channel in channels:
+            # List of related channels
+            check_related_to_version = True
 
         if product in IGNORES:
             if check_name in IGNORES[product]:
