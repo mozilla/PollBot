@@ -32,8 +32,13 @@ async def release_notes(product, full_version):
 
             localized_count = 0
             http_count = 0
+            coming_soon = False
 
             if body:
+
+                if 'are coming soon!' in body:
+                    coming_soon = True
+
                 d = pq(body)
 
                 domains = ['https://addons.mozilla.org',
@@ -63,7 +68,10 @@ async def release_notes(product, full_version):
                                                        'links' if localized_count > 1 else 'link')
                 status = Status.INCOMPLETE
 
-            if localized_count and http_count:
+            if coming_soon:
+                exists_message += ' but show a `coming soon` message.'
+                status = Status.INCOMPLETE
+            elif localized_count and http_count:
                 exists_message += ' and '
             elif http_count:
                 exists_message += ' but '
@@ -75,6 +83,7 @@ async def release_notes(product, full_version):
                 exists_message = exists_message.format(http_count,
                                                        'links' if localized_count > 1 else 'link')
                 status = Status.INCOMPLETE
+
             return build_task_response(status, url, exists_message, missing_message)
 
 

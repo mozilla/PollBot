@@ -6,7 +6,7 @@ CHANGELOG
 
 - Order checks putting non actionable checks at the end. (#163)
 - Use main_summary instead of update_parquet for the Telemetry uptake (#172)
-
+- Handle `coming soon` release notes status (#182)
 
 
 0.6.1 (2017-12-20)
