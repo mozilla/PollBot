@@ -1,12 +1,23 @@
 CHANGELOG
 =========
 
-0.7.0 (unreleased)
+1.0.0 (2018-01-31)
 ------------------
 
+- Add validation rules for release notes links (HTTPS, locale free). (#160)
+- Read the correct mercurial shipped locale file for release candidates (#161)
+- Add an actionnable flag for tasks (#162)
 - Order checks putting non actionable checks at the end. (#163)
+- Add support for devedition checks (#166)
+- Add a whatsdeployed link in the contribute.json file (#168)
 - Use main_summary instead of update_parquet for the Telemetry uptake (#172)
-- Handle `coming soon` release notes status (#182)
+- Calculate the crash-stats uptake including Beta previous version. (#174)
+- Use the ``aurora`` channel for devedition checks (#177)
+- Fix Balrog beta and devedition version comparison (#178)
+- Display the backgroundRate value but do not use it to mark the check as incomplete (#180)
+- Handle ``coming soon`` release notes status (#182)
+- Take more versions into account for the crash-stats query (#184)
+- Use the DEVEDITION specific Mercurial tag for shipped-locales (#185)
 
 
 0.6.1 (2017-12-20)
