@@ -146,6 +146,37 @@ class DeliveryTasksTest(asynctest.TestCase):
                                        "the URL and 1 link should use the HTTPS protocol "
                                        "rather than HTTP.")
 
+    async def test_releasenotes_tasks_returns_incomplete_if_coming_soon(self):
+        url = ('https://hg.mozilla.org/mozilla-central/raw-file/tip/browser/locales/all-locales')
+        self.mocked.get(url, status=200, body=SHIPPED_LOCALES_BODY)
+        url = 'https://www.mozilla.org/en-US/firefox/60.0a1/releasenotes/'
+        self.mocked.get(url, status=200,
+                        body='''
+<html>
+  <body>
+    <div id="main-content">
+     <div class="latest-release" >
+        <div class="container">
+          <div class="version">
+            <h2>60.0a1</h2>
+            <h3>Firefox Nightly</h3>
+          </div>
+          <div class="description">
+              <h2>The notes for this release are not yet publicly available,
+                  but are coming soon! Please check this page again later.</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+''')
+
+        received = await release_notes('firefox', '60.0a1')
+        assert received["status"] == Status.INCOMPLETE.value
+        assert received["message"] == ("Release notes were found for version 60.0a1 "
+                                       "but show a `coming soon` message.")
+
     async def test_releasenotes_tasks_strip_esr_from_version_number(self):
         url = 'https://www.mozilla.org/en-US/firefox/52.3.0/releasenotes/'
         self.mocked.get(url, status=200)
