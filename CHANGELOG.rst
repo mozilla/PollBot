@@ -6,7 +6,7 @@ CHANGELOG
 
 - Add validation rules for release notes links (HTTPS, locale free). (#160)
 - Read the correct mercurial shipped locale file for release candidates (#161)
-- Add an actionnable flag for tasks (#162)
+- Add an actionable flag for tasks (#162)
 - Order checks putting non actionable checks at the end. (#163)
 - Add support for devedition checks (#166)
 - Add a whatsdeployed link in the contribute.json file (#168)
