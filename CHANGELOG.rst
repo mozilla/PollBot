@@ -4,7 +4,7 @@ CHANGELOG
 1.1.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Improve Telemetry ``main_summary`` query performances. (#188)
 
 
 1.0.0 (2018-01-31)
