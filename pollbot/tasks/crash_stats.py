@@ -1,5 +1,5 @@
 from urllib.parse import urlencode, quote
-from pollbot.utils import Status, Channel, get_version_channel, yesterday
+from pollbot.utils import Status, get_version_channel, yesterday
 from . import get_session, build_task_response, heartbeat_factory
 
 CRASH_STATS_SERVER = "https://crash-stats.mozilla.com/api"
@@ -26,7 +26,6 @@ def crash_stats_query_url(params):
 
 
 async def uptake(product, version):
-    channel = get_version_channel(product, version)
     date = yesterday()
 
     versions = await get_channel_versions(product, version)
