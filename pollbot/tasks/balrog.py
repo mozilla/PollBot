@@ -7,7 +7,7 @@ from . import get_session, build_task_response, heartbeat_factory
 
 async def get_release_info(release_mapping):
     release_url = 'https://aus-api.mozilla.org/api/v1/releases/{}'.format(release_mapping)
-    with get_session() as session:
+    async with get_session() as session:
             async with session.get(release_url) as resp:
                 body = await resp.json()
                 platforms = body['platforms']
@@ -34,7 +34,7 @@ async def balrog_rules(product, version):
         # There are case were Nightly is deactivated, in that case
         # the mapping is not nightly-latest anymore
         url = 'https://aus-api.mozilla.org/api/v1/rules/firefox-nightly'
-        with get_session() as session:
+        async with get_session() as session:
             async with session.get(url) as resp:
                 rule = await resp.json()
                 status = rule['mapping'] == 'Firefox-mozilla-central-nightly-latest'
@@ -81,7 +81,7 @@ async def balrog_rules(product, version):
     else:
         url = 'https://aus-api.mozilla.org/api/v1/rules/firefox-release'
 
-    with get_session() as session:
+    async with get_session() as session:
         async with session.get(url) as resp:
             rule = await resp.json()
             build_ids, appVersions = await get_release_info(rule['mapping'])

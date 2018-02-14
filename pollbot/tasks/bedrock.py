@@ -24,7 +24,7 @@ async def release_notes(product, full_version):
 
     url = 'https://www.mozilla.org/en-US/{}/{}/releasenotes/'.format(product, version)
 
-    with get_session() as session:
+    async with get_session() as session:
         async with session.get(url, allow_redirects=False) as resp:
             status = resp.status == 200
 
@@ -99,7 +99,7 @@ async def security_advisories(product, version):
             message="Security advisories are never published for {} releases".format(
                 channel.value.lower()))
 
-    with get_session() as session:
+    async with get_session() as session:
         async with session.get(url) as resp:
             if resp.status != 200:
                 msg = 'Security advisories page not available  ({})'.format(resp.status)
@@ -136,7 +136,7 @@ async def download_links(product, version):
         if product == 'devedition':
             url = 'https://www.mozilla.org/en-US/firefox/developer/'
 
-    with get_session() as session:
+    async with get_session() as session:
         async with session.get(url) as resp:
             if resp.status != 200:
                 msg = 'Download page not available  ({})'.format(resp.status)

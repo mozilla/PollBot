@@ -1,5 +1,5 @@
 from urllib.parse import urlencode, quote
-from pollbot.utils import Status, Channel, get_version_channel, yesterday
+from pollbot.utils import Status, get_version_channel, yesterday
 from . import get_session, build_task_response, heartbeat_factory
 
 CRASH_STATS_SERVER = "https://crash-stats.mozilla.com/api"
@@ -9,7 +9,7 @@ async def get_channel_versions(product, version):
     channel = get_version_channel(product, version)
     url = '{}/ProductVersions/?active=true&build_type={}&product={}'.format(
         CRASH_STATS_SERVER, channel.value, product)
-    with get_session() as session:
+    async with get_session() as session:
         async with session.get(url) as resp:
             body = await resp.json()
             versions = [h['version'] for h in body['hits'][:15]]
@@ -26,15 +26,9 @@ def crash_stats_query_url(params):
 
 
 async def uptake(product, version):
-    channel = get_version_channel(product, version)
     date = yesterday()
 
-    if channel in (Channel.BETA, Channel.AURORA):
-        current_version = version.split('b')[0]
-        previous_version = int(version.split('.')[0]) - 1
-        versions = ['{}b'.format(current_version), '{}.0b'.format(previous_version)]
-    else:
-        versions = await get_channel_versions(product, version)
+    versions = await get_channel_versions(product, version)
 
     version_params = [("versions", x) for x in versions]
     params = [("start_date", date),
@@ -43,7 +37,7 @@ async def uptake(product, version):
     params.extend(version_params)
     url = crash_stats_query_url(params)
 
-    with get_session() as session:
+    async with get_session() as session:
         async with session.get(url) as resp:
             body = await resp.json()
             if not body['hits']:

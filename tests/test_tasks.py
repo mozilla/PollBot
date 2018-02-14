@@ -560,6 +560,48 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         assert body["status"] == Status.EXISTS.value
         assert body["message"] == "Crash-Stats uptake for version 52.0.2 is 58.82%"
 
+    async def test_crash_stats_tasks_adds_the_selected_version_if_missing(self):
+        url = '{}/ProductVersions/?active=true&build_type=BETA&product=firefox'
+        url = url.format(CRASH_STATS_SERVER)
+        self.mocked.get(url, status=200,
+                        body='{"hits": ['
+                        '{"version":"59.0b"}, '
+                        '{"version":"59.0b9"}, '
+                        '{"version":"59.0b8"}, '
+                        '{"version":"59.0b7"}, '
+                        '{"version":"59.0b6"}, '
+                        '{"version":"59.0b5"}, '
+                        '{"version":"59.0b4"}, '
+                        '{"version":"59.0b3"}, '
+                        '{"version":"58.0b"}, '
+                        '{"version":"58.0b99"}, '
+                        '{"version":"58.0b16"}, '
+                        '{"version":"58.0b15"}, '
+                        '{"version":"58.0b14"}, '
+                        '{"version":"58.0b13"}, '
+                        '{"version":"58.0b12"}, '
+                        '{"version":"58.0b11"}, '
+                        '{"version":"58.0b10"}], '
+                        '"total": 2}')
+
+        date = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+
+        url = ('{}/ADI/?start_date={}&end_date={}&platforms=Windows&platforms=Linux&'
+               'platforms=Mac%20OS%20X&product=firefox&versions=59.0b&versions=59.0b9&'
+               'versions=59.0b8&versions=59.0b7&versions=59.0b6&versions=59.0b5&'
+               'versions=59.0b4&versions=59.0b3&versions=58.0b&versions=58.0b99&'
+               'versions=58.0b16&versions=58.0b15&versions=58.0b14&versions=58.0b13&'
+               'versions=58.0b12&versions=58.0b10')
+        url = url.format(CRASH_STATS_SERVER, date, date)
+        self.mocked.get(url, status=200, body=json.dumps({
+            "hits": [{"version": "59.0b9", "adi_count": 500},
+                     {"version": "58.0b12", "adi_count": 3000},
+                     {"version": "58.0b10", "adi_count": 5000}],
+            "total": 3}))
+        body = await crash_stats_uptake('firefox', '58.0b10')
+        assert body["status"] == Status.EXISTS.value
+        assert body["message"] == "Crash-Stats uptake for version 58.0b10 is 58.82%"
+
     async def test_download_links_tasks_returns_true_if_version_matches(self):
         url = 'https://www.mozilla.org/en-US/firefox/all/'
         self.mocked.get(url, status=200, body='<html data-latest-firefox="52.0.2"></html>')

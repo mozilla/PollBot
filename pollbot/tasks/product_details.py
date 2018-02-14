@@ -4,7 +4,7 @@ from . import get_session, heartbeat_factory, build_task_response
 
 
 async def ongoing_versions(product):
-    with get_session() as session:
+    async with get_session() as session:
         url = 'https://product-details.mozilla.org/1.0/firefox_versions.json'
         async with session.get(url) as resp:
             if resp.status != 200:
@@ -28,7 +28,7 @@ async def product_details(product, version):
         url = "https://product-details.mozilla.org/1.0/{}_versions.json".format(product)
         return build_task_response(status, url, message)
 
-    with get_session() as session:
+    async with get_session() as session:
         url = 'https://product-details.mozilla.org/1.0/firefox.json'
         async with session.get(url) as resp:
             if resp.status != 200:

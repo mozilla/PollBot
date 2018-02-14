@@ -47,7 +47,7 @@ async def get_locales(product, version):
         url = ('https://archive.mozilla.org/pub/{}/candidates/{}-candidates/build{}'
                '/linux-x86_64/en-US/firefox-{}.txt')
         url = url.format(product, version, build, version)
-        with get_session() as session:
+        async with get_session() as session:
             async with session.get(url) as resp:
                 if resp.status != 200:
                     msg = '{} not available (HTTP {})'.format(url, resp.status)
@@ -61,7 +61,7 @@ async def get_locales(product, version):
         url = ("https://hg.mozilla.org/releases/{}/raw-file/{}/"
                "browser/locales/shipped-locales").format(branch, tag)
 
-    with get_session() as session:
+    async with get_session() as session:
         async with session.get(url) as resp:
             if resp.status != 200:
                 msg = '{} not available (HTTP {})'.format(url, resp.status)
@@ -142,7 +142,7 @@ async def check_nightly_releases_files(url, files, product, version):
 
 
 async def get_platform_locale(url, platform):
-    with get_session() as session:
+    async with get_session() as session:
         url = '{}/{}/'.format(url.rstrip('/'), platform)
         async with session.get(url, headers=JSON_HEADERS) as resp:
             if resp.status != 200:
@@ -206,7 +206,7 @@ def build_version_url(product, version):
 
 
 async def archives(product, version):
-    with get_session() as session:
+    async with get_session() as session:
         channel = get_version_channel(product, version)
         url = build_version_url(product, version)
         if channel is Channel.NIGHTLY:
@@ -242,7 +242,7 @@ async def archives(product, version):
 
 async def partner_repacks(product, version):
     channel = get_version_channel(product, version)
-    with get_session() as session:
+    async with get_session() as session:
         if channel is Channel.CANDIDATE:
             url = build_version_url(product, version)
             version = strip_candidate_info(version)

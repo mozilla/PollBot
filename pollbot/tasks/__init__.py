@@ -24,7 +24,7 @@ def get_session(*, headers=None):
 
 def heartbeat_factory(url, headers=None):
     async def heartbeat():
-        with get_session() as session:
+        async with get_session() as session:
             async with session.get(url, headers=headers, timeout=10) as resp:
                 if resp.status == 200:
                     return True
