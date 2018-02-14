@@ -11,6 +11,9 @@ from .buildhub import get_build_ids_for_version
 TELEMETRY_SERVER = "https://sql.telemetry.mozilla.org"
 TELEMETRY_API_KEY = os.getenv("TELEMETRY_API_KEY")
 ATHENA_DATASOURCE_ID = 26
+# https://docs.telemetry.mozilla.org/datasets/batch_view/main_summary/reference.html \
+#    #background-and-caveats
+TELEMETRY_CACHED_SAMPLE = 42
 
 
 def get_telemetry_auth_header():
@@ -89,29 +92,30 @@ async def main_summary_uptake(product, version):
             query_title = "Uptake {} {} {}"
             query_title = query_title.format(product.title(), channel.value, version_name)
 
-        # There are 100 samples, so we take the one from sample_id=42
+        # There are 100 samples, so we take the one from sample_id=${TELEMETRY_CACHED_SAMPLE}
         # and we grow its value by a 100 times
         query = """
-WITH updated_t AS (
-    SELECT COUNT(DISTINCT client_id)*100 AS updated
-    FROM main_summary
-    WHERE submission_date_s3 >= '{submission_date}'
-      AND app_build_id IN ({build_ids})
-      AND normalized_channel = '{channel}'
-      AND sample_id = '42'
-),
-total_t AS (
-    SELECT COUNT(DISTINCT client_id)*100 AS total
-    FROM main_summary
-    WHERE submission_date_s3 >= '{submission_date}'
-      AND normalized_channel = '{channel}'
-      AND sample_id = '42'
-)
-SELECT updated * 1.0 / total as ratio, updated, total
-FROM updated_t, total_t
+            WITH updated_t AS (
+                SELECT COUNT(DISTINCT client_id)*100 AS updated
+                FROM main_summary
+                WHERE submission_date_s3 >= '{submission_date}'
+                  AND app_build_id IN ({build_ids})
+                  AND normalized_channel = '{channel}'
+                  AND sample_id = '{sample_id}'
+            ),
+            total_t AS (
+                SELECT COUNT(DISTINCT client_id)*100 AS total
+                FROM main_summary
+                WHERE submission_date_s3 >= '{submission_date}'
+                  AND normalized_channel = '{channel}'
+                  AND sample_id = '{sample_id}'
+            )
+            SELECT updated * 1.0 / total as ratio, updated, total
+            FROM updated_t, total_t
 """.format(build_ids=', '.join(["'{}'".format(bid) for bid in build_ids]),
            submission_date=submission_date,
-           channel=channel.value.lower())
+           channel=channel.value.lower(),
+           sample_id=TELEMETRY_CACHED_SAMPLE)
 
         query_info = await get_query_info_from_title(session, query_title)
 
