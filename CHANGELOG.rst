@@ -1,10 +1,10 @@
 CHANGELOG
 =========
 
-1.2.0 (unreleased)
+1.1.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Improve the Telemetry query to always update the yesterday filter. (#193)
 
 
 1.1.0 (2018-02-14)

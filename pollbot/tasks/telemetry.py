@@ -98,7 +98,7 @@ async def main_summary_uptake(product, version):
             WITH updated_t AS (
                 SELECT COUNT(DISTINCT client_id)*100 AS updated
                 FROM main_summary
-                WHERE submission_date_s3 >= '{submission_date}'
+                WHERE submission_date_s3 >= date_format(current_date - interval '1' day, '%Y%m%d')
                   AND app_build_id IN ({build_ids})
                   AND normalized_channel = '{channel}'
                   AND sample_id = '{sample_id}'
@@ -106,14 +106,13 @@ async def main_summary_uptake(product, version):
             total_t AS (
                 SELECT COUNT(DISTINCT client_id)*100 AS total
                 FROM main_summary
-                WHERE submission_date_s3 >= '{submission_date}'
+                WHERE submission_date_s3 >= date_format(current_date - interval '1' day, '%Y%m%d')
                   AND normalized_channel = '{channel}'
                   AND sample_id = '{sample_id}'
             )
             SELECT updated * 1.0 / total as ratio, updated, total
             FROM updated_t, total_t
 """.format(build_ids=', '.join(["'{}'".format(bid) for bid in build_ids]),
-           submission_date=submission_date,
            channel=channel.value.lower(),
            sample_id=TELEMETRY_CACHED_SAMPLE)
 
