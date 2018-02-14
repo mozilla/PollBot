@@ -89,19 +89,23 @@ async def main_summary_uptake(product, version):
             query_title = "Uptake {} {} {}"
             query_title = query_title.format(product.title(), channel.value, version_name)
 
+        # There are 100 samples, so we take the one from sample_id=42
+        # and we grow its value by a 100 times
         query = """
 WITH updated_t AS (
-    SELECT COUNT(*) AS updated
+    SELECT COUNT(DISTINCT client_id)*100 AS updated
     FROM main_summary
     WHERE submission_date_s3 >= '{submission_date}'
       AND app_build_id IN ({build_ids})
       AND normalized_channel = '{channel}'
+      AND sample_id = '42'
 ),
 total_t AS (
-    SELECT COUNT(*) AS total
+    SELECT COUNT(DISTINCT client_id)*100 AS total
     FROM main_summary
     WHERE submission_date_s3 >= '{submission_date}'
       AND normalized_channel = '{channel}'
+      AND sample_id = '42'
 )
 SELECT updated * 1.0 / total as ratio, updated, total
 FROM updated_t, total_t
