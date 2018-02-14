@@ -46,7 +46,7 @@ async def get_releases(product):
         },
         "size": 0
     }
-    with get_session() as session:
+    async with get_session() as session:
         url = '{}/buckets/build-hub/collections/releases/search'
         url = url.format(BUILDHUB_SERVER)
         async with session.post(url, data=json.dumps(query)) as response:
@@ -117,7 +117,7 @@ async def get_build_ids_for_version(product, version, *, size=10):
         },
         "size": 0
     }
-    with get_session() as session:
+    async with get_session() as session:
         url = '{}/buckets/build-hub/collections/releases/search'
         url = url.format(BUILDHUB_SERVER)
         async with session.post(url, data=json.dumps(query)) as response:

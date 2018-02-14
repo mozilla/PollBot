@@ -24,7 +24,7 @@ async def bouncer(product, version):
             bedrock_url = 'https://www.mozilla.org/en-US/firefox/developer/'
             channel_value = "DEVEDITION"
 
-    with get_session() as session:
+    async with get_session() as session:
         async with session.get(bedrock_url) as resp:
             if resp.status != 200:
                 msg = 'Download page not available  ({})'.format(resp.status)

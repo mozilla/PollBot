@@ -9,7 +9,7 @@ async def get_channel_versions(product, version):
     channel = get_version_channel(product, version)
     url = '{}/ProductVersions/?active=true&build_type={}&product={}'.format(
         CRASH_STATS_SERVER, channel.value, product)
-    with get_session() as session:
+    async with get_session() as session:
         async with session.get(url) as resp:
             body = await resp.json()
             versions = [h['version'] for h in body['hits'][:15]]
@@ -43,7 +43,7 @@ async def uptake(product, version):
     params.extend(version_params)
     url = crash_stats_query_url(params)
 
-    with get_session() as session:
+    async with get_session() as session:
         async with session.get(url) as resp:
             body = await resp.json()
             if not body['hits']:

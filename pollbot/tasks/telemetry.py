@@ -74,7 +74,7 @@ async def get_query_info_from_title(session, query_title):
 async def main_summary_uptake(product, version):
     channel = get_version_channel(product, version)
 
-    with get_session(headers=get_telemetry_auth_header()) as session:
+    async with get_session(headers=get_telemetry_auth_header()) as session:
         # Get the build IDs for this channel
         build_ids = await get_build_ids_for_version(product, version)
 

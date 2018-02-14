@@ -17,7 +17,7 @@ CHANGELOG = read_file('CHANGELOG.rst')
 CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 
 REQUIREMENTS = [
-    'aiohttp',
+    'aiohttp<3',
     'aiohttp_cors',
     'aiohttp-swagger',
     'ruamel.yaml',
@@ -39,7 +39,6 @@ setup(name='pollbot',
       classifiers=[
           "Programming Language :: Python",
           "Programming Language :: Python :: 3",
-          "Programming Language :: Python :: 3.5",
           "Programming Language :: Python :: 3.6",
           "Programming Language :: Python :: Implementation :: CPython",
           "Topic :: Internet :: WWW/HTTP",
