@@ -516,11 +516,11 @@ async def test_release_crash_stats_uptake(cli):
 
 
 async def test_beta_crash_stats_uptake(cli):
-    resp = await check_response(cli, "/v1/firefox/59.0b9/crash-stats/uptake")
+    resp = await check_response(cli, "/v1/firefox/58.0b5/crash-stats/uptake")
     body = await resp.json()
     assert body['status'] == Status.INCOMPLETE.value
     assert body['link'].startswith("https://crash-stats.mozilla.com/api/ADI/")
-    assert body['message'].startswith("Crash-Stats uptake for version 59.0b9 is")
+    assert body['message'].startswith("Crash-Stats uptake for version 58.0b5 is")
 
 
 async def test_release_balrog_rules(cli):
