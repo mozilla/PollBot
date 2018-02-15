@@ -223,6 +223,9 @@ paths:
               beta:
                 type: "string"
                 description: "Current Firefox Beta version"
+              devedition:
+                type: "string"
+                description: "Current Firefox Devedition version"
               nightly:
                 type: "string"
                 description: "Current Firefox Nightly version"
