@@ -4,7 +4,7 @@ CHANGELOG
 1.2.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Update the whatsdeployed URL.
 
 
 1.1.1 (2018-02-14)
