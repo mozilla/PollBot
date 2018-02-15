@@ -30,7 +30,10 @@ def render_yaml_file(filename):
 
 
 async def oas_spec(request):
-    return render_yaml_file("api.yaml")
+    with open(os.path.join(HERE, "..", 'api.yaml')) as stream:
+        content = yaml.safe_load(stream)
+    content['host'] = request.headers['Host']
+    return web.json_response(content)
 
 
 async def contribute_json(request):

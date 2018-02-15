@@ -5,6 +5,7 @@ CHANGELOG
 ------------------
 
 - Update the whatsdeployed URL.
+- Add host to the OpenAPI specification.
 
 
 1.1.1 (2018-02-14)
