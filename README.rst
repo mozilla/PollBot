@@ -62,3 +62,5 @@ However you can configure the following parameters using environment variables:
 +-----------------------+-------------------------------------------------+
 | ``TELEMETRY_API_KEY`` | API KEY to use to query the Telemetry Service   |
 +-----------------------+-------------------------------------------------+
+| ``TELEMETRY_USER_ID`` | Telemetry User ID to select user query only.    |
++-----------------------+-------------------------------------------------+
