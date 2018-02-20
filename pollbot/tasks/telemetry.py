@@ -10,6 +10,7 @@ from .buildhub import get_build_ids_for_version
 
 TELEMETRY_SERVER = "https://sql.telemetry.mozilla.org"
 TELEMETRY_API_KEY = os.getenv("TELEMETRY_API_KEY")
+TELEMETRY_USER_ID = os.getenv("TELEMETRY_USER_ID")
 ATHENA_DATASOURCE_ID = 26
 # https://docs.telemetry.mozilla.org/datasets/batch_view/main_summary/reference.html \
 #    #background-and-caveats
@@ -70,7 +71,9 @@ async def get_query_info_from_title(session, query_title):
         if body:
             if 'message' in body:
                 raise TaskError("STMO: {}".format(body['message']))
-            body = [query for query in body if not query['name'].startswith('Copy of')]
+            body = [query for query in body
+                    if not query['name'].startswith('Copy of') and
+                    query['user']['id'] == TELEMETRY_USER_ID]
             return body[0] if len(body) > 0 else None
 
 

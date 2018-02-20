@@ -4,7 +4,7 @@ CHANGELOG
 1.2.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Only search for queries created by this user. (fixes #195)
 
 
 1.1.2 (2018-02-15)

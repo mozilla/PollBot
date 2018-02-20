@@ -20,6 +20,7 @@ from pollbot.tasks.bouncer import bouncer
 from pollbot.tasks.buildhub import get_releases
 from pollbot.tasks.product_details import (product_details, ongoing_versions,
                                            devedition_and_beta_in_sync)
+from pollbot.tasks.telemetry import TELEMETRY_USER_ID
 from pollbot.views.utilities import heartbeat
 from pollbot.utils import Status, yesterday
 
@@ -1218,7 +1219,10 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             body = [{
                 "latest_query_data_id": 5678,
                 "id": 40197,
-                "name": "Uptake Firefox RELEASE 57.0 (20171009192146)"
+                "name": "Uptake Firefox RELEASE 57.0 (20171009192146)",
+                "user": {
+                    "id": TELEMETRY_USER_ID
+                }
             }]
         self.mocked.get(url, status=200, body=json.dumps(body))
 
@@ -1226,7 +1230,10 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         record = {
             "latest_query_data_id": 5678,
             "id": 40197,
-            "name": "Uptake Firefox NIGHTLY"
+            "name": "Uptake Firefox NIGHTLY",
+            "user": {
+                "id": TELEMETRY_USER_ID
+            }
         }
         if body is None:
             body = [record]
@@ -1247,7 +1254,10 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         self._telemetry_mock_nightly_query([{
             "latest_query_data_id": None,
             "id": 40197,
-            "name": "Uptake Firefox NIGHTLY 57.0a1 20170920"
+            "name": "Uptake Firefox NIGHTLY 57.0a1 20170920",
+            "user": {
+                "id": TELEMETRY_USER_ID
+            }
         }])
 
         received = await telemetry.main_summary_uptake('firefox', '57.0a1')
@@ -1294,11 +1304,17 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         self._telemetry_mock_nightly_query([{
             "latest_query_data_id": 123456789,
             "id": 40198,
-            "name": "Copy of (#40197) Uptake Firefox NIGHTLY 57.0a1 20170920"
+            "name": "Copy of (#40197) Uptake Firefox NIGHTLY 57.0a1 20170920",
+            "user": {
+                "id": TELEMETRY_USER_ID
+            }
         }, {
             "latest_query_data_id": 5678,
             "id": 40197,
-            "name": "Uptake Firefox NIGHTLY 57.0a1 20170920"
+            "name": "Uptake Firefox NIGHTLY 57.0a1 20170920",
+            "user": {
+                "id": TELEMETRY_USER_ID
+            }
         }])
         self._telemetry_mock_query_result({
             "query_result": {"data": {"rows": [
@@ -1371,6 +1387,34 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         build_id = "{}192146".format(yesterday(formating='%Y%m%d'))
         self._mock_buildhub_search(build_id)
         self._telemetry_mock_nightly_query([])
+
+        url = '{}/api/queries'.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.post(url, status=200, body=json.dumps({
+            "id": 1234
+        }))
+
+        url = '{}/api/query_results'.format(telemetry.TELEMETRY_SERVER)
+        self.mocked.post(url, status=200, body=json.dumps({
+            "id": 5678
+        }))
+
+        received = await telemetry.main_summary_uptake('firefox', '57.0a1')
+        assert received["status"] == Status.INCOMPLETE.value
+        assert received["message"] == (
+            "Telemetry uptake calculation for version 57.0a1 ({}) is in progress".format(build_id)
+        )
+
+    async def test_telemetry_update_uptake_creates_the_query_if_not_found_for_this_user(self):
+        build_id = "{}192146".format(yesterday(formating='%Y%m%d'))
+        self._mock_buildhub_search(build_id)
+        self._telemetry_mock_nightly_query([{
+            "latest_query_data_id": 5678,
+            "id": 40197,
+            "name": "Uptake Firefox NIGHTLY 57.0a1 20170920",
+            "user": {
+                "id": 'unknown'
+            }
+        }])
 
         url = '{}/api/queries'.format(telemetry.TELEMETRY_SERVER)
         self.mocked.post(url, status=200, body=json.dumps({
