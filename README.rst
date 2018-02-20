@@ -1,7 +1,7 @@
 PollBot
 =======
 
-|coc| |travis| |master-coverage|
+|coc| |travis| |master-coverage| |whatsdeployed|
 
 .. |coc| image:: https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg
     :target: https://github.com/mozilla/PollBot/blob/master/CODE_OF_CONDUCT.md
@@ -21,6 +21,9 @@ PollBot
 
 .. |pypi| image:: https://img.shields.io/pypi/v/pollbot.svg
     :target: https://pypi.python.org/pypi/pollbot
+    
+ .. |whatsdeployed| image:: https://img.shields.io/badge/whatsdeployed-prod-orange.svg
+     :target: https://whatsdeployed.io/s-D5S
 
 PollBot is an hardworking little robot (microservice) that frees its
 human masters from the toilsome task of polling for the state of
