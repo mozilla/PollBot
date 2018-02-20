@@ -13,4 +13,4 @@ multidict==4.1.0
 pyquery==1.4.0
 PyYAML==3.12
 ruamel.yaml==0.15.35
-yarl==1.1.0
+yarl==1.1.1
