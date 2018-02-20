@@ -22,7 +22,7 @@ PollBot
 .. |pypi| image:: https://img.shields.io/pypi/v/pollbot.svg
     :target: https://pypi.python.org/pypi/pollbot
     
-.. |whatsdeployed| image:: https://img.shields.io/badge/whatsdeployed-prod-orange.svg
+.. |whatsdeployed| image:: https://img.shields.io/badge/whatsdeployed-dev%20stage%20prod-green.svg
      :target: https://whatsdeployed.io/s-D5S
 
 PollBot is an hardworking little robot (microservice) that frees its
