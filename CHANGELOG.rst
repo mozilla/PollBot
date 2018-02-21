@@ -4,7 +4,7 @@ CHANGELOG
 1.2.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix TELEMETRY_USER_ID comparison.
 
 
 1.1.3 (2018-02-20)
