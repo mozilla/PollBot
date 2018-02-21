@@ -1221,7 +1221,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
                 "id": 40197,
                 "name": "Uptake Firefox RELEASE 57.0 (20171009192146)",
                 "user": {
-                    "id": TELEMETRY_USER_ID
+                    "id": int(TELEMETRY_USER_ID)
                 }
             }]
         self.mocked.get(url, status=200, body=json.dumps(body))
@@ -1232,7 +1232,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             "id": 40197,
             "name": "Uptake Firefox NIGHTLY",
             "user": {
-                "id": TELEMETRY_USER_ID
+                "id": int(TELEMETRY_USER_ID)
             }
         }
         if body is None:
@@ -1256,7 +1256,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             "id": 40197,
             "name": "Uptake Firefox NIGHTLY 57.0a1 20170920",
             "user": {
-                "id": TELEMETRY_USER_ID
+                "id": int(TELEMETRY_USER_ID)
             }
         }])
 
@@ -1306,14 +1306,14 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             "id": 40198,
             "name": "Copy of (#40197) Uptake Firefox NIGHTLY 57.0a1 20170920",
             "user": {
-                "id": TELEMETRY_USER_ID
+                "id": int(TELEMETRY_USER_ID)
             }
         }, {
             "latest_query_data_id": 5678,
             "id": 40197,
             "name": "Uptake Firefox NIGHTLY 57.0a1 20170920",
             "user": {
-                "id": TELEMETRY_USER_ID
+                "id": int(TELEMETRY_USER_ID)
             }
         }])
         self._telemetry_mock_query_result({
