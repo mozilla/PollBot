@@ -48,8 +48,8 @@ jobs:
               exit 0
             fi
 
-            docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
             echo "${DOCKER_TAG}"
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker tag app "${DOCKER_TAG}"
             docker images
             docker push "${DOCKER_TAG}"
