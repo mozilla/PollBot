@@ -33,11 +33,6 @@ jobs:
             docker build --pull -t app .
 
       - run:
-          name: Run the app
-          command: make run
-          background: true
-
-      - run:
           name: Run tests
           command: docker run -it app /bin/bash /app/scripts/run-tests.sh
 
