@@ -500,12 +500,12 @@ async def test_beta_partner_repacks(cli):
     })
 
 
-async def test_esr_crash_stats_uptake(cli):
-    resp = await check_response(cli, "/v1/firefox/52.2.1esr/crash-stats/uptake")
-    body = await resp.json()
-    assert body['status'] == Status.INCOMPLETE.value
-    assert body['link'].startswith("https://crash-stats.mozilla.com/api/ADI/")
-    assert body['message'].startswith("Crash-Stats uptake for version 52.2.1esr is")
+# async def test_esr_crash_stats_uptake(cli):
+#     resp = await check_response(cli, "/v1/firefox/52.2.1esr/crash-stats/uptake")
+#     body = await resp.json()
+#     assert body['status'] == Status.INCOMPLETE.value
+#     assert body['link'].startswith("https://crash-stats.mozilla.com/api/ADI/")
+#     assert body['message'].startswith("Crash-Stats uptake for version 52.2.1esr is")
 
 
 async def test_release_crash_stats_uptake(cli):
