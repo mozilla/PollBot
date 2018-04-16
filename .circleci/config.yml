@@ -42,10 +42,10 @@ jobs:
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               DOCKER_TAG="${DOCKERHUB_REPO}:latest"
             elif [ -z "${CIRCLE_TAG}" ]; then
-              DOCKER_TAG="${DOCKERHUB_REPO}:${CIRCLE_TAG}"
-            else
               echo "Not a tag or master branch build"
               exit 0
+            else
+              DOCKER_TAG="${DOCKERHUB_REPO}:${CIRCLE_TAG}"
             fi
 
             echo "${DOCKER_TAG}"
