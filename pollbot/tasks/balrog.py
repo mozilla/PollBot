@@ -20,7 +20,7 @@ async def get_release_info(release_mapping):
                 appVersions = set()
 
                 for platform in built_platforms:
-                    platform_info = platforms[platform]['locales']["de"]
+                    platform_info = next (iter (platforms[platform]['locales'].values()))
                     build_ids[platform] = platform_info['buildID']
                     appVersions.add(platform_info['displayVersion'].replace(' Beta ', 'b'))
                 return build_ids, appVersions
