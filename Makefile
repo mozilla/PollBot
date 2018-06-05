@@ -46,12 +46,11 @@ build-requirements:
 	$(TEMPDIR)/bin/pip install -Ue .
 	$(TEMPDIR)/bin/pip freeze | grep -v -- '-e' > requirements.txt
 
-NAME := pollbot
 SOURCE := $(shell git config remote.origin.url | sed -e 's|git@|https://|g' | sed -e 's|github.com:|github.com/|g')
 VERSION := $(shell git describe --always --tag)
 COMMIT := $(shell git log --pretty=format:'%H' -n 1)
 version-file:
-	echo '{"name":"$(NAME)","version":"$(VERSION)","source":"$(SOURCE)","commit":"$(COMMIT)"}' > version.json
+	echo '{"build":"Manual build","version":"$(VERSION)","source":"$(SOURCE)","commit":"$(COMMIT)"}' > version.json
 
 serve: install version-file
 	$(VENV)/bin/pollbot
