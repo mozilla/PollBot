@@ -7,7 +7,7 @@ import ruamel.yaml as yaml
 from aiohttp import web
 
 from pollbot.tasks import (
-    archives, balrog, bedrock, buildhub, crash_stats, product_details, telemetry, bouncer
+    archives, balrog, bedrock, buildhub, product_details, telemetry, bouncer
 )
 
 
@@ -54,7 +54,6 @@ async def heartbeat(request):
                                 bedrock.heartbeat(),
                                 bouncer.heartbeat(),
                                 buildhub.heartbeat(),
-                                crash_stats.heartbeat(),
                                 product_details.heartbeat(),
                                 telemetry.heartbeat())
     status = all(info) and 200 or 503
@@ -63,7 +62,6 @@ async def heartbeat(request):
                               "bedrock": info[2],
                               "bouncer": info[3],
                               "buildhub": info[4],
-                              "crash-stats": info[5],
-                              "product-details": info[6],
-                              "telemetry": info[7]},
+                              "product-details": info[5],
+                              "telemetry": info[6]},
                              status=status)

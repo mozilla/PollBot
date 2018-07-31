@@ -211,8 +211,6 @@ paths:
           description: "successful operation"
           schema:
             type: object
-            required:
-            - "status"
             properties:
               esr:
                 type: "string"
@@ -253,23 +251,6 @@ paths:
     get:
       summary: "checks if the partner-repacks are downloadable"
       operationId: "checkArchivePartnerRepacks"
-      produces:
-      - "application/json"
-      parameters:
-      - $ref: "#/parameters/product"
-      - $ref: "#/parameters/version"
-      responses:
-        "200":
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/existanceStatus"
-      tags:
-      - Status
-
-  /{product}/{version}/crash-stats/uptake:
-    get:
-      summary: "checks what is the version uptake with crash-stats info"
-      operationId: "checkCrashStatsUptake"
       produces:
       - "application/json"
       parameters:

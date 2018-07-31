@@ -268,8 +268,6 @@ async def test_get_checks_for_beta(cli):
              "title": "Product details", "actionable": True},
             {"url": "http://localhost/v1/firefox/56.0b6/bedrock/release-notes",
              "title": "Release notes", "actionable": True},
-            {"url": "http://localhost/v1/firefox/56.0b6/crash-stats/uptake",
-             "title": "Crash Stats Uptake (24h latency)", "actionable": False},
             {"url": "http://localhost/v1/firefox/56.0b6/telemetry/main-summary-uptake",
              "title": "Telemetry Main Summary Uptake (24h latency)", "actionable": False},
 
@@ -346,8 +344,6 @@ async def test_get_checks_for_release(cli):
              "title": "Release notes", "actionable": True},
             {"url": "http://localhost/v1/firefox/54.0/bedrock/security-advisories",
              "title": "Security advisories", "actionable": True},
-            {"url": "http://localhost/v1/firefox/54.0/crash-stats/uptake",
-             "title": "Crash Stats Uptake (24h latency)", "actionable": False},
             {'title': 'Telemetry Main Summary Uptake (24h latency)', "actionable": False,
              'url': 'http://localhost/v1/firefox/54.0/telemetry/main-summary-uptake'},
         ]
@@ -376,8 +372,6 @@ async def test_get_checks_for_esr(cli):
              "title": "Release notes", "actionable": True},
             {"url": "http://localhost/v1/firefox/52.3.0esr/bedrock/security-advisories",
              "title": "Security advisories", "actionable": True},
-            {"url": "http://localhost/v1/firefox/52.3.0esr/crash-stats/uptake",
-             "title": "Crash Stats Uptake (24h latency)", "actionable": False},
             {"url": "http://localhost/v1/firefox/52.3.0esr/telemetry/main-summary-uptake",
              "title": "Telemetry Main Summary Uptake (24h latency)", "actionable": False},
         ]
@@ -498,30 +492,6 @@ async def test_beta_partner_repacks(cli):
         "firefox/candidates/56.0b10-candidates/build1/",
         "link": "https://archive.mozilla.org/pub/firefox/candidates/56.0b10-candidates/build1/"
     })
-
-
-async def test_esr_crash_stats_uptake(cli):
-    resp = await check_response(cli, "/v1/firefox/52.7.4esr/crash-stats/uptake")
-    body = await resp.json()
-    assert body['status'] in (Status.EXISTS.value, Status.INCOMPLETE.value)
-    assert body['link'].startswith("https://crash-stats.mozilla.com/api/ADI/")
-    assert body['message'].startswith("Crash-Stats uptake for version 52.7.4esr is")
-
-
-async def test_release_crash_stats_uptake(cli):
-    resp = await check_response(cli, "/v1/firefox/58.0/crash-stats/uptake")
-    body = await resp.json()
-    assert body['status'] == Status.INCOMPLETE.value
-    assert body['link'].startswith("https://crash-stats.mozilla.com/api/ADI/")
-    assert body['message'].startswith("Crash-Stats uptake for version 58.0 is")
-
-
-async def test_beta_crash_stats_uptake(cli):
-    resp = await check_response(cli, "/v1/firefox/59.0b9/crash-stats/uptake")
-    body = await resp.json()
-    assert body['status'] == Status.INCOMPLETE.value
-    assert body['link'].startswith("https://crash-stats.mozilla.com/api/ADI/")
-    assert body['message'].startswith("Crash-Stats uptake for version 59.0b9 is")
 
 
 async def test_release_balrog_rules(cli):
@@ -740,7 +710,6 @@ async def test_heartbeat(cli):
                              "bedrock": True,
                              "bouncer": True,
                              "buildhub": True,
-                             "crash-stats": True,
                              "product-details": True,
                              "telemetry": False,
                          })
