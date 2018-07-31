@@ -211,8 +211,6 @@ paths:
           description: "successful operation"
           schema:
             type: object
-            required:
-            - "status"
             properties:
               esr:
                 type: "string"
