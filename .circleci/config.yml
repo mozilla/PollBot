@@ -32,11 +32,19 @@ jobs:
             docker info
             docker build --pull -t app .
 
-      - run:
+  test:
+    machine: true
+    working_directory: ~/PollBot
+    steps:
+      - run_tests:
           name: Run tests
           command: docker run -it app /bin/bash /app/scripts/run-tests.sh
 
-      - deploy:
+  deploy:
+    machine: true
+    working_directory: ~/PollBot
+    steps:
+      - publish:
           name: Push to Dockerhub
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
@@ -68,7 +76,17 @@ workflows:
 
   build-test-push:
     jobs:
-      - build:
+      - test:
+          requires:
+            - build
           filters:
             tags:
               only: /.*/
+      - deploy:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
