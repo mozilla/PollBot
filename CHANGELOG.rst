@@ -5,6 +5,7 @@ CHANGELOG
 ------------------
 
 - API change: remove the crash stats ADI endpoint. (#219)
+- API change: fix the api.yaml: the ongoing-versions endpoint doesn't return a status.
 
 
 1.1.5 (2018-05-16)

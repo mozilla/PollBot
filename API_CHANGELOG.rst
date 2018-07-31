@@ -6,6 +6,8 @@ API Changelog
 
 - Add bouncer checks and endpoints.
 - Remove the crash stats ADI endpoint.
+- The ongoing-versions endpoint doesn't return a status: fixed the api.yaml
+  file
 
 
 1.2 (2017-09-25)
