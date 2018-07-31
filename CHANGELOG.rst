@@ -4,7 +4,13 @@ CHANGELOG
 1.2.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- API change: remove the crash stats ADI endpoint. (#219)
+
+
+1.1.5 (2018-05-16)
+------------------
+
+- Bug fix: loosen a test that was too strict.
 
 
 1.1.4 (2018-02-21)

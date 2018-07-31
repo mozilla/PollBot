@@ -5,6 +5,7 @@ API Changelog
 ----------------
 
 - Add bouncer checks and endpoints.
+- Remove the crash stats ADI endpoint.
 
 
 1.2 (2017-09-25)

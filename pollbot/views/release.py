@@ -2,7 +2,7 @@ import logging
 from aiohttp import web
 from collections import OrderedDict
 
-from ..tasks import balrog, buildhub, crash_stats, telemetry
+from ..tasks import balrog, buildhub, telemetry
 from ..tasks.archives import archives, partner_repacks
 from ..tasks.bedrock import release_notes, security_advisories, download_links
 from ..tasks.bouncer import bouncer
@@ -43,7 +43,6 @@ product_details = status_response(product_details)
 devedition_beta_check = status_response(devedition_and_beta_in_sync)
 balrog_rules = status_response(balrog.balrog_rules)
 buildhub_check = status_response(buildhub.buildhub)
-crash_stats_uptake = status_response(crash_stats.uptake)
 telemetry_uptake = status_response(telemetry.main_summary_uptake)
 
 
@@ -65,7 +64,6 @@ CHECKS_TITLE = {
     "devedition-beta-matches": "Devedition and Beta versions matches",
     "balrog-rules": "Balrog update rules",
     "buildhub": "Buildhub release info",
-    "crash-stats-uptake": "Crash Stats Uptake (24h latency)",
     "telemetry-main-summary-uptake": "Telemetry Main Summary Uptake (24h latency)",
 }
 
@@ -88,13 +86,12 @@ CHECKS = OrderedDict(
                          Channel.AURORA, Channel.NIGHTLY],
         "bouncer": [Channel.ESR, Channel.RELEASE, Channel.BETA, Channel.AURORA, Channel.NIGHTLY],
         "buildhub": ALL,
-        "crash-stats-uptake": [Channel.ESR, Channel.RELEASE, Channel.BETA],
         "telemetry-main-summary-uptake": [Channel.ESR, Channel.RELEASE, Channel.BETA,
                                           Channel.AURORA, Channel.NIGHTLY],
     }.items(), key=lambda t: t[0]))
 
 NOT_ACTIONABLE = ['-uptake']
-IGNORES = {'devedition': ['crash-stats-uptake', 'partner-repacks']}
+IGNORES = {'devedition': ['partner-repacks']}
 
 
 @validate_product_version
