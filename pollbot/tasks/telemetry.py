@@ -71,7 +71,7 @@ async def get_query_info_from_title(session, query_title):
         if body:
             if 'message' in body:
                 raise TaskError("STMO: {}".format(body['message']))
-            body = [query for query in body
+            body = [query for query in body['results']
                     if not query['name'].startswith('Copy of') and
                     query['user']['id'] == int(TELEMETRY_USER_ID)]
             return body[0] if len(body) > 0 else None
