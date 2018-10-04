@@ -1059,14 +1059,18 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
                "Uptake+Firefox+RELEASE+57.0+%28{}%29&include_drafts=true")
         url = url.format(telemetry.TELEMETRY_SERVER, build_id)
         if body is None:
-            body = [{
-                "latest_query_data_id": 5678,
-                "id": 40197,
-                "name": "Uptake Firefox RELEASE 57.0 (20171009192146)",
-                "user": {
-                    "id": int(TELEMETRY_USER_ID)
-                }
-            }]
+            body = {
+                "results": [
+                    {
+                        "latest_query_data_id": 5678,
+                        "id": 40197,
+                        "name": "Uptake Firefox RELEASE 57.0 (20171009192146)",
+                        "user": {
+                            "id": int(TELEMETRY_USER_ID)
+                        }
+                    }
+                ]
+            }
         self.mocked.get(url, status=200, body=json.dumps(body))
 
     def _telemetry_mock_nightly_query(self, body=None):
@@ -1079,7 +1083,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             }
         }
         if body is None:
-            body = [record]
+            body = {"results": [record]}
 
         url = ("{}/api/queries/search?q=Uptake+Firefox+NIGHTLY&include_drafts=true")
         url = url.format(telemetry.TELEMETRY_SERVER)
@@ -1094,14 +1098,18 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
 
     async def test_telemetry_update_uptake_tasks_returns_incomplete_for_no_result(self):
         self._mock_buildhub_search()
-        self._telemetry_mock_nightly_query([{
-            "latest_query_data_id": None,
-            "id": 40197,
-            "name": "Uptake Firefox NIGHTLY 57.0a1 20170920",
-            "user": {
-                "id": int(TELEMETRY_USER_ID)
-            }
-        }])
+        self._telemetry_mock_nightly_query({
+            "results": [
+                {
+                    "latest_query_data_id": None,
+                    "id": 40197,
+                    "name": "Uptake Firefox NIGHTLY 57.0a1 20170920",
+                    "user": {
+                        "id": int(TELEMETRY_USER_ID)
+                    }
+                }
+            ]
+        })
 
         received = await telemetry.main_summary_uptake('firefox', '57.0a1')
         assert received["status"] == Status.INCOMPLETE.value
@@ -1144,21 +1152,26 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
     async def test_telemetry_update_uptake_tasks_should_ignore_copied_queries(self):
         build_id = "{}192146".format(yesterday(formating='%Y%m%d'))
         self._mock_buildhub_search(build_id)
-        self._telemetry_mock_nightly_query([{
-            "latest_query_data_id": 123456789,
-            "id": 40198,
-            "name": "Copy of (#40197) Uptake Firefox NIGHTLY 57.0a1 20170920",
-            "user": {
-                "id": int(TELEMETRY_USER_ID)
-            }
-        }, {
-            "latest_query_data_id": 5678,
-            "id": 40197,
-            "name": "Uptake Firefox NIGHTLY 57.0a1 20170920",
-            "user": {
-                "id": int(TELEMETRY_USER_ID)
-            }
-        }])
+        self._telemetry_mock_nightly_query({
+            "results": [
+                {
+                    "latest_query_data_id": 123456789,
+                    "id": 40198,
+                    "name": "Copy of (#40197) Uptake Firefox NIGHTLY 57.0a1 20170920",
+                    "user": {
+                        "id": int(TELEMETRY_USER_ID)
+                    }
+                },
+                {
+                    "latest_query_data_id": 5678,
+                    "id": 40197,
+                    "name": "Uptake Firefox NIGHTLY 57.0a1 20170920",
+                    "user": {
+                        "id": int(TELEMETRY_USER_ID)
+                    }
+                }
+            ]
+        })
         self._telemetry_mock_query_result({
             "query_result": {"data": {"rows": [
                 {"ratio": 0.65432, "updated": 27236, "total": 42088}
@@ -1250,14 +1263,18 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
     async def test_telemetry_update_uptake_creates_the_query_if_not_found_for_this_user(self):
         build_id = "{}192146".format(yesterday(formating='%Y%m%d'))
         self._mock_buildhub_search(build_id)
-        self._telemetry_mock_nightly_query([{
-            "latest_query_data_id": 5678,
-            "id": 40197,
-            "name": "Uptake Firefox NIGHTLY 57.0a1 20170920",
-            "user": {
-                "id": 'unknown'
-            }
-        }])
+        self._telemetry_mock_nightly_query({
+            "results": [
+                {
+                    "latest_query_data_id": 5678,
+                    "id": 40197,
+                    "name": "Uptake Firefox NIGHTLY 57.0a1 20170920",
+                    "user": {
+                        "id": 'unknown'
+                    }
+                }
+            ]
+        })
 
         url = '{}/api/queries'.format(telemetry.TELEMETRY_SERVER)
         self.mocked.post(url, status=200, body=json.dumps({
