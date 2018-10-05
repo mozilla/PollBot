@@ -4,6 +4,7 @@ CHANGELOG
 1.3.0 (unreleased)
 ------------------
 
+- Telemetry: Read the paginated results instead of from the body. (#226)
 
 1.2.0 (2018-07-31)
 ------------------
