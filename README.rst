@@ -39,6 +39,13 @@ provide, at a minimum, these API resources:
 #. download links are on mozilla.org and they work
 #. security advisories are published and links work 
 
+Deployment
+----------
+
+* Dev - https://pollbot.dev.mozaws.net/v1/
+* Stage - https://pollbot.stage.mozaws.net/v1/
+* Prod - https://pollbot.services.mozilla.com/v1/
+
 License
 -------
 
