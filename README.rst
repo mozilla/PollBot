@@ -21,7 +21,7 @@ PollBot
 
 .. |pypi| image:: https://img.shields.io/pypi/v/pollbot.svg
     :target: https://pypi.python.org/pypi/pollbot
-    
+
 .. |whatsdeployed| image:: https://img.shields.io/badge/whatsdeployed-dev%20stage%20prod-green.svg
      :target: https://whatsdeployed.io/s-D5S
 
@@ -37,7 +37,35 @@ provide, at a minimum, these API resources:
 #. release notes published
 #. product-details.mozilla.org JSON contains the release
 #. download links are on mozilla.org and they work
-#. security advisories are published and links work 
+#. security advisories are published and links work
+
+Development
+-----------
+
+Create a virtualenv with Python 3.6 and then install *all* the dependencies:
+
+.. code-block:: shell
+
+    pip install -e ".[dev]"
+
+Now you should be able to run the `tox` suite:
+
+.. code-block:: shell
+
+    tox
+
+To start the development server you need two things:
+
+1. ``TELEMETRY_API_KEY`` - See https://sql.telemetry.mozilla.org/users/me
+2. ``TELEMETRY_USER_ID`` - **TBD**
+
+Equipped with these you can now run:
+
+.. code-block:: shell
+
+    TELEMETRY_API_KEY=yourapikey TELEMETRY_USER_ID=000 pollbot
+
+That should start a server on ``http://0.0.0.0:8000``.
 
 Deployment
 ----------
