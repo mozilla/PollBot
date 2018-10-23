@@ -12,15 +12,15 @@ HERE = os.path.dirname(__file__)
 
 
 def get_app(loop=None):
-    # Make sure the Telemetry user ID is configured
-    uid = os.getenv('TELEMETRY_USER_ID')
-    try:
-        int(uid)
-    except (ValueError, TypeError):
-        print("ERROR: Please make sure you've defined a valid TELEMETRY_USER_ID "
-              "environment variable.",
-              file=sys.stderr)
-        exit(1)
+    # # Make sure the Telemetry user ID is configured
+    # uid = os.getenv('TELEMETRY_USER_ID')
+    # try:
+    #     int(uid)
+    # except (ValueError, TypeError):
+    #     print("ERROR: Please make sure you've defined a valid TELEMETRY_USER_ID "
+    #           "environment variable.",
+    #           file=sys.stderr)
+    #     exit(1)
 
     app = web.Application(loop=loop)
 
