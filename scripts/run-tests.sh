@@ -4,7 +4,6 @@
 set -e
 set -x
 
-export TELEMETRY_USER_ID=502
 python3 -m venv /tmp/tests
 /tmp/tests/bin/pip install -U pip
 ls -l /app

@@ -1,8 +1,5 @@
 import os
-from datetime import date, timedelta
-from urllib.parse import urlencode
 
-from pollbot.exceptions import TaskError
 from pollbot.utils import Status, Channel, get_version_channel, yesterday
 from . import get_session, build_task_response, heartbeat_factory
 from .buildhub import get_build_ids_for_version
@@ -10,14 +7,9 @@ from .buildhub import get_build_ids_for_version
 
 TELEMETRY_SERVER = "https://sql.telemetry.mozilla.org"
 TELEMETRY_API_KEY = os.getenv("TELEMETRY_API_KEY")
-# TELEMETRY_USER_ID = os.getenv("TELEMETRY_USER_ID")
 TELEMETRY_UPTAKE_QUERY_ID = int(os.getenv(
     "POLLBOT_TELEMETRY_UPTAKE_QUERY_ID",  59383)
 )
-# ATHENA_DATASOURCE_ID = 26
-# https://docs.telemetry.mozilla.org/datasets/batch_view/main_summary/reference.html \
-#    #background-and-caveats
-# TELEMETRY_CACHED_SAMPLE = 42
 
 
 class TelemetryUptakeConfigurationError(Exception):
@@ -26,21 +18,6 @@ class TelemetryUptakeConfigurationError(Exception):
 
 def get_telemetry_auth_header():
     return {"Authorization": "Key {}".format(TELEMETRY_API_KEY)}.copy()
-
-
-async def get_query_info_from_title(session, query_title):
-    query_params = urlencode({"include_drafts": "true", "q": query_title})
-    query_url = "{}/api/queries/search?{}".format(TELEMETRY_SERVER, query_params)
-    async with session.get(query_url) as resp:
-        body = await resp.json()
-
-        if body:
-            if 'message' in body:
-                raise TaskError("STMO: {}".format(body['message']))
-            body = [query for query in body['results']
-                    if not query['name'].startswith('Copy of') and
-                    query['user']['id'] == int(TELEMETRY_USER_ID)]
-            return body[0] if len(body) > 0 else None
 
 
 async def get_saved_query_by_id(session, query_id):

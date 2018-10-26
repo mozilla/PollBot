@@ -4,6 +4,15 @@ CHANGELOG
 1.3.0 (unreleased)
 ------------------
 
+- Telemetry Uptake completely rewritten. Instead of creating a new query
+  for each buildIDs+channel combo, we now have a specific known saved
+  query that is run every 24h in Redash. PollBot now only queries its
+  results. Also, the results isn't 1 number (row) but is grouped by
+  channel and buildIDs and the Python code loops over the records (roughly
+  6,000 rows) and extras the ``updated`` number for the buildIDs and
+  channels that belongs to the query.
+  No more need for a TELEMETRY_USER_ID.
+
 - Telemetry: Read the paginated results instead of from the body. (#226)
 
 1.2.0 (2018-07-31)

@@ -19,7 +19,6 @@ from pollbot.tasks.bouncer import bouncer
 from pollbot.tasks.buildhub import get_releases
 from pollbot.tasks.product_details import (product_details, ongoing_versions,
                                            devedition_and_beta_in_sync)
-# from pollbot.tasks.telemetry import TELEMETRY_USER_ID
 from pollbot.views.utilities import heartbeat
 from pollbot.utils import Status, yesterday
 
@@ -1078,7 +1077,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
                 {
                     "latest_query_data_id": 123456,
                     "id": 40197,
-                    "name": "XXX??",
+                    "name": "Not important",
                 }
             ]
         })
@@ -1101,7 +1100,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         }, status=404)
 
         with pytest.raises(telemetry.TelemetryUptakeConfigurationError) as exc:
-            received = await telemetry.main_summary_uptake('firefox', '57.0a1')
+            await telemetry.main_summary_uptake('firefox', '57.0a1')
         assert "The saved Telemetry Uptake query can't be found." in str(exc.value)
 
     async def test_telemetry_uptake_tasks_incomplete(self):
