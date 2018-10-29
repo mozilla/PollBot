@@ -19,10 +19,11 @@ async def release_notes(product, full_version):
     elif channel is Channel.ESR:
         version = re.sub('esr$', '', full_version)
 
-    if product == 'devedition':
-        product = 'firefox'
-
-    url = 'https://www.mozilla.org/en-US/{}/{}/releasenotes/'.format(product, version)
+    # The release notes for Devedition is actually under Firefox.
+    url = 'https://www.mozilla.org/en-US/{}/{}/releasenotes/'.format(
+        'firefox' if product == 'devedition' else product,
+        version
+    )
 
     async with get_session() as session:
         async with session.get(url, allow_redirects=False) as resp:
