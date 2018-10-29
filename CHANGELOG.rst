@@ -1,8 +1,8 @@
 CHANGELOG
 =========
 
-1.3.0 (unreleased)
-------------------
+unreleased
+----------
 
 - Telemetry Uptake completely rewritten. Instead of creating a new query
   for each buildIDs+channel combo, we now have a specific known saved
@@ -12,6 +12,9 @@ CHANGELOG
   6,000 rows) and extras the ``updated`` number for the buildIDs and
   channels that belongs to the query.
   No more need for a TELEMETRY_USER_ID.
+
+1.2.1 (2018-10-05)
+------------------
 
 - Telemetry: Read the paginated results instead of from the body. (#226)
 
