@@ -4,6 +4,10 @@ CHANGELOG
 1.3.0 (2018-10-29)
 ------------------
 
+- Release notes for DevEdition gets it's locales from the correct file on
+  www.mozilla.org now.
+  See https://github.com/mozilla/PollBot/issues/231
+
 - Telemetry Uptake completely rewritten. Instead of creating a new query
   for each buildIDs+channel combo, we now have a specific known saved
   query that is run every 24h in Redash. PollBot now only queries its
