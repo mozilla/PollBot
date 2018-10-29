@@ -52,7 +52,7 @@ DEV_REQUIREMENTS = {
 
 setup(
     name='pollbot',
-    version='1.2.1',
+    version='1.3.1',
     description='A service that polls other services about releases deliveries.',
     long_description="{}\n\n{}\n\n{}".format(README, CHANGELOG, CONTRIBUTORS),
     license='Mozilla Public License 2.0',
