@@ -56,7 +56,7 @@ serve: install version-file
 	$(VENV)/bin/pollbot
 
 tests-once: install-dev version-file
-	TELEMETRY_USER_ID=502 $(VENV)/bin/py.test --cov-report term-missing --cov-fail-under 100 --cov pollbot tests -s
+	$(VENV)/bin/py.test --cov-report term-missing --cov-fail-under 100 --cov pollbot tests -s
 
 flake8: install-dev
 	$(VENV)/bin/flake8 pollbot tests

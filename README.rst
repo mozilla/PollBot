@@ -54,16 +54,16 @@ Now you should be able to run the `tox` suite:
 
     tox
 
-To start the development server you need two things:
+To start the development server you need:
 
-1. ``TELEMETRY_API_KEY`` - See https://sql.telemetry.mozilla.org/users/me
-2. ``TELEMETRY_USER_ID`` - **TBD**
+``TELEMETRY_API_KEY`` - See https://sql.telemetry.mozilla.org/users/me
+
 
 Equipped with these you can now run:
 
 .. code-block:: shell
 
-    TELEMETRY_API_KEY=yourapikey TELEMETRY_USER_ID=000 pollbot
+    TELEMETRY_API_KEY=yourapikey pollbot
 
 That should start a server on ``http://0.0.0.0:8000``.
 
@@ -99,6 +99,4 @@ However you can configure the following parameters using environment variables:
 |                       | seconds. Set it to 0 to set it to no-cache      |
 +-----------------------+-------------------------------------------------+
 | ``TELEMETRY_API_KEY`` | API KEY to use to query the Telemetry Service   |
-+-----------------------+-------------------------------------------------+
-| ``TELEMETRY_USER_ID`` | Telemetry User ID to select user query only.    |
 +-----------------------+-------------------------------------------------+
