@@ -1,8 +1,8 @@
 CHANGELOG
 =========
 
-unreleased
-----------
+1.3.0 (2018-10-29)
+------------------
 
 - Telemetry Uptake completely rewritten. Instead of creating a new query
   for each buildIDs+channel combo, we now have a specific known saved
