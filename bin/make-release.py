@@ -223,7 +223,7 @@ def main(
             tag_body,
             name=tag_name,
         )
-        print(dir(release))
+        print(release)
 
         print('\n')
         print(' 🎉  ALL DONE! 🎊 ')
