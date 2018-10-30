@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+1.4.0 (2018-10-30)
+------------------
+
+- Nightly buildIDs depends on the *local* time (#237)
+
+- new make-release script
+
+
+
 1.3.0 (2018-10-29)
 ------------------
 
