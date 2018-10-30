@@ -89,4 +89,5 @@ def is_valid_version(version):
 
 
 def yesterday(*, formating='%Y-%m-%d', days=1):
-    return(datetime.date.today() - datetime.timedelta(days=days)).strftime(formating)
+    then = datetime.datetime.utcnow() - datetime.timedelta(days=days)
+    return then.strftime(formating)

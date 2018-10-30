@@ -1,6 +1,12 @@
+import datetime
+
 import pytest
 from pollbot.tasks.archives import verdict
-from pollbot.utils import build_version_id, get_version_from_filename
+from pollbot.utils import (
+    build_version_id,
+    get_version_from_filename,
+    yesterday,
+)
 
 
 VERSIONS = [
@@ -56,3 +62,10 @@ VERDICTS = [
 def test_verdict_can_handle_pluralization(missing_locales, missing_files, message):
     _, explaination = verdict('url', ['1', '2'], missing_locales, missing_files)
     assert explaination == message
+
+
+def test_yesterday():
+    utc_today = datetime.datetime.utcnow()
+    utc_yesterday = utc_today - datetime.timedelta(days=1)
+    result = yesterday(formating="%d-%H:%M")
+    assert result == utc_yesterday.strftime("%d-%H:%M")
