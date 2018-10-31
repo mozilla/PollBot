@@ -22,8 +22,8 @@ PollBot
 .. |pypi| image:: https://img.shields.io/pypi/v/pollbot.svg
     :target: https://pypi.python.org/pypi/pollbot
 
-.. |whatsdeployed| image:: https://img.shields.io/badge/whatsdeployed-dev%20stage%20prod-green.svg
-     :target: https://whatsdeployed.io/s-D5S
+.. |whatsdeployed| image:: https://img.shields.io/badge/whatsdeployed-stage,prod-green.svg
+    :target: https://whatsdeployed.io/s-olI
 
 PollBot is an hardworking little robot (microservice) that frees its
 human masters from the toilsome task of polling for the state of
@@ -70,9 +70,15 @@ That should start a server on ``http://0.0.0.0:8000``.
 Deployment
 ----------
 
-* Dev - https://pollbot.dev.mozaws.net/v1/
 * Stage - https://pollbot.stage.mozaws.net/v1/
 * Prod - https://pollbot.services.mozilla.com/v1/
+
+Stage is automatically upgraded when new releases are made. A release is
+basically a tag with the same name. To make a release run:
+
+.. code-block:: shell
+
+    ./bin/make-release.py --help
 
 License
 -------
