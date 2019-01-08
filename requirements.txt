@@ -11,6 +11,6 @@ lxml==4.1.1
 MarkupSafe==1.0
 multidict==4.1.0
 pyquery==1.4.0
-PyYAML==3.12
+PyYAML==4.2b4
 ruamel.yaml==0.15.35
 yarl==1.1.1

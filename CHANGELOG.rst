@@ -1,14 +1,18 @@
 CHANGELOG
 =========
 
+1.4.1 (2019-01-04)
+------------------
+
+- Upgrading PyYaml 4.2b4
+
+
 1.4.0 (2018-10-30)
 ------------------
 
 - Nightly buildIDs depends on the *local* time (#237)
 
 - new make-release script
-
-
 
 1.3.0 (2018-10-29)
 ------------------
