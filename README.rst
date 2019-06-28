@@ -36,30 +36,29 @@ provide, at a minimum, these API resources:
 Development
 -----------
 
-Create a virtualenv with Python 3.6 and then install *all* the dependencies:
+Create a local dev environment:
 
 .. code-block:: shell
 
-    pip install -e ".[dev]"
+   make build
 
-Now you should be able to run the `tox` suite:
+Then you can run various dev-related tasks. For a list, see:
 
 .. code-block:: shell
 
-    tox
+   make help
 
-To start the development server you need:
+To start the development server you need this in your ``.env``:
 
 ``TELEMETRY_API_KEY`` - See https://sql.telemetry.mozilla.org/users/me
 
-
-Equipped with these you can now run:
+Equipped with these you can now run PollBot:
 
 .. code-block:: shell
 
-    TELEMETRY_API_KEY=yourapikey pollbot
+   make run
 
-That should start a server on ``http://0.0.0.0:8000``.
+That should start a server on ``http://localhost:9876``.
 
 Deployment
 ----------

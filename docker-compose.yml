@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: local/pollbot_app
+    env_file:
+      - .env
+    ports:
+      - "9876:9876"
+    volumes:
+      - .:/app

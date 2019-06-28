@@ -1,80 +1,65 @@
-VIRTUALENV = virtualenv --python=python3.6
-VENV := $(shell echo $${VIRTUAL_ENV-.venv})
-PYTHON = $(VENV)/bin/python3
-DEV_STAMP = $(VENV)/.dev_env_installed.stamp
-INSTALL_STAMP = $(VENV)/.install.stamp
-TEMPDIR := $(shell mktemp -du)
+DC := $(shell which docker-compose)
 
-.IGNORE: clean distclean maintainer-clean
-.PHONY: all install virtualenv tests
+.PHONY: help
+help: default
 
-OBJECTS = .venv .coverage
-
-help:
+.PHONY: default
+default:
 	@echo "Please use 'make <target>' where <target> is one of"
-	@echo "  install                     install dependencies and prepare environment"
-	@echo "  install-dev                 install dependencies and everything needed to run tests"
-	@echo "  build-requirements          install all requirements and freeze them in requirements.txt"
-	@echo "  serve                       start the kinto server on default port"
-	@echo "  flake8                      run the flake8 linter"
-	@echo "  tests                       run all the tests with all the supported python interpreters (same as travis)"
-	@echo "  tests-once                  only run the tests once with the default python interpreter"
-	@echo "  clean                       remove *.pyc files and __pycache__ directory"
-	@echo "  distclean                   remove *.egg-info files and *.egg, build and dist directories"
-	@echo "  maintainer-clean            remove the .tox and the .venv directories"
+	@echo ""
+	@echo "  build       - build local dev environment"
+	@echo "  run         - start the kinto server on default port"
+	@echo "  lint        - run the linter"
+	@echo "  test        - run tests"
+	@echo "  shell       - run a bash shell in the container"
+	@echo "  clean       - remove build artifacts"
+	@echo ""
 	@echo "Check the Makefile to know exactly what each target is doing."
 
-all: install
-install: $(INSTALL_STAMP)
-$(INSTALL_STAMP): $(PYTHON) setup.py
-	$(VENV)/bin/pip install -U pip
-	$(VENV)/bin/pip install -Ue .
-	touch $(INSTALL_STAMP)
+.docker-build:
+	make build
 
-install-dev: $(INSTALL_STAMP) $(DEV_STAMP)
-$(DEV_STAMP): $(PYTHON)
-	$(VENV)/bin/pip install -Ue ".[dev]"
-	touch $(DEV_STAMP)
+.PHONY: build
+build: .env
+	${DC} build app
+	touch .docker-build
 
-virtualenv: $(PYTHON)
-$(PYTHON):
-	$(VIRTUALENV) $(VENV)
-
-build-requirements:
-	$(VIRTUALENV) $(TEMPDIR)
-	$(TEMPDIR)/bin/pip install -U pip
-	$(TEMPDIR)/bin/pip install -Ue .
-	$(TEMPDIR)/bin/pip freeze | grep -v -- '-e' > requirements.txt
+.env:
+	@if [ ! -f .env ]; \
+	then \
+	echo "Copying env-dist to .env..."; \
+	cp env-dist .env; \
+	fi
 
 SOURCE := $(shell git config remote.origin.url | sed -e 's|git@|https://|g' | sed -e 's|github.com:|github.com/|g')
 VERSION := $(shell git describe --always --tag)
 COMMIT := $(shell git log --pretty=format:'%H' -n 1)
+
+.PHONY: version-file
 version-file:
 	echo '{"build":"Manual build","version":"$(VERSION)","source":"$(SOURCE)","commit":"$(COMMIT)"}' > version.json
 
-serve: install version-file
-	$(VENV)/bin/pollbot
+.PHONY: install-local
+install-local:
+# Need to do this to create the pollbot.egg-info in the repo directory.
+# FIXME(willkg): This is gross, but "works".
+	${DC} run --rm --user 0 app pip install -e /app
 
-tests-once: install-dev version-file
-	$(VENV)/bin/py.test --cov-report term-missing --cov-fail-under 100 --cov pollbot tests -s
+.PHONY: run
+run: .docker-build .env version-file install-local
+	${DC} run --rm app /usr/local/bin/pollbot
 
-flake8: install-dev
-	$(VENV)/bin/flake8 pollbot tests
+.PHONY: test
+test: .docker-build .env install-local
+	${DC} run --rm --no-deps app /bin/bash -c "/usr/local/bin/pytest tests -s"
 
-tests: install-dev version-file
-	$(VENV)/bin/tox
+.PHONY: lint
+lint: .docker-build .env
+	${DC} run --rm --no-deps app /bin/bash -c "/usr/local/bin/flake8 pollbot tests"
+
+.PHONY: shell
+shell: .docker-build .env
+	${DC} run --rm --no-deps app /bin/bash
 
 clean:
-	find . -name '__pycache__' -type d | xargs rm -fr
-
-distclean: clean
-	rm -fr *.egg *.egg-info/ dist/ build/
-
-maintainer-clean: distclean
-	rm -fr .venv/ .tox/
-
-docker-build:
-	docker build -t mozilla/pollbot .
-
-docker-test:
-	docker run -it  mozilla/pollbot /bin/bash /app/scripts/run-tests.sh
+	rm .docker-build

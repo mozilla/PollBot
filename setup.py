@@ -16,39 +16,7 @@ README = read_file('README.rst')
 CHANGELOG = read_file('CHANGELOG.rst')
 CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 
-REQUIREMENTS = [
-    'aiohttp<3',
-    'aiohttp_cors',
-    'aiohttp-swagger',
-    'ruamel.yaml',
-    'pyquery',
-]
-
-ENTRY_POINTS = {
-    'console_scripts': [
-        'pollbot = pollbot.__main__:main'
-    ]
-}
-
-DEV_REQUIREMENTS = {
-    "docs": [],
-    "tests": [
-        "aioresponses",
-        "asynctest",
-        "flake8",
-        "mock",
-        "pytest",
-        "pytest-aiohttp",
-        "pytest-cache",
-        "pytest-cover",
-        "pytest-sugar",
-        "swagger-spec-validator",
-        "tox",
-        "wheel",
-        "zest.releaser",
-        "aiohttp<3",
-    ]
-}
+# Note: Requirements are maintained in the requirements.txt file.
 
 setup(
     name='pollbot',
@@ -72,12 +40,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=REQUIREMENTS,
-    extras_require={
-        "docs": DEV_REQUIREMENTS["docs"],
-        "tests": DEV_REQUIREMENTS["tests"],
-        "dev": DEV_REQUIREMENTS["docs"] + DEV_REQUIREMENTS["tests"],
+    entry_points={
+        'console_scripts': ['pollbot=pollbot.__main__:main']
     },
-    test_suite="tests",
-    entry_points=ENTRY_POINTS,
 )

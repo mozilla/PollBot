@@ -1,3 +1,4 @@
+# Prod
 aiohttp==2.3.10
 aiohttp-cors==0.6.0
 aiohttp-swagger==1.0.5
@@ -14,3 +15,17 @@ pyquery==1.4.0
 PyYAML==4.2b4
 ruamel.yaml==0.15.35
 yarl==1.1.1
+
+# Dev
+aioresponses
+asynctest
+flake8
+mock
+pytest
+pytest-aiohttp
+pytest-cache
+pytest-cover
+pytest-sugar
+swagger-spec-validator
+tox
+zest.releaser
