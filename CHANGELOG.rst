@@ -17,6 +17,15 @@ CHANGELOG
 1.3.0 (2018-10-29)
 ------------------
 
+API changes:
+
+- Add bouncer checks and endpoints.
+- Remove the crash stats ADI endpoint.
+- The ongoing-versions endpoint doesn't return a status: fixed the api.yaml
+  file
+
+Everything else
+
 - Release notes for DevEdition gets it's locales from the correct file on
   www.mozilla.org now.
   See https://github.com/mozilla/PollBot/issues/231
@@ -38,8 +47,16 @@ CHANGELOG
 1.2.0 (2018-07-31)
 ------------------
 
-- API change: remove the crash stats ADI endpoint. (#219)
-- API change: fix the api.yaml: the ongoing-versions endpoint doesn't return a status.
+API changes:
+
+- remove the crash stats ADI endpoint. (#219)
+- fix the api.yaml: the ongoing-versions endpoint doesn't return a status.
+- Add balrog checks and endpoints.
+- Add buildhub checks and endpoints.
+- Add Crash-Stats uptake check and endpoint.
+- Add partner-repacks task and endpoint.
+- Add Telemetry update parquet uptake check and endpoint.
+- Remove multiple nightly archive checks.
 
 
 1.1.5 (2018-05-16)
@@ -75,6 +92,20 @@ CHANGELOG
 
 1.1.0 (2018-02-14)
 ------------------
+
+API changes:
+
+- Add multi channel handling.
+- Add archive-date and archive-date-l10n checks and endpoints for nightly.
+- Add the ongoing-versions endpoint.
+- Add the list of checks for a given version endpoint.
+- The security advisories tasks for nightly and beta now returns a "missing" status.
+- archive-date and archive-date-l10n return a missing status for
+  anything else than nightly versions.
+- Add the devedition-beta-versions-matches endpoint and task.
+- Add Cache-Control headers.
+
+Everything else:
 
 - Improve Telemetry ``main_summary`` query performances. (#188)
 
