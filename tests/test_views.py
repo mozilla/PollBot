@@ -5,6 +5,7 @@ import os.path
 import ruamel.yaml as yaml
 
 from aiohttp import web, ClientError
+import pytest
 
 from pollbot import __version__ as pollbot_version, HTTP_API_VERSION, PRODUCTS
 from pollbot.app import get_app
@@ -589,6 +590,9 @@ async def test_devedition_bedrock_download_links(cli):
     assert body['link'].startswith(url_prefix)
 
 
+# FIXME(willkg): This fails because mozilla.org redid their /firefox/all/ page.
+# See https://github.com/mozilla/PollBot/issues/247
+@pytest.mark.xfail
 async def test_release_bouncer_download_links(cli):
     resp = await check_response(cli, "/v1/firefox/54.0/bouncer")
     body = await resp.json()
