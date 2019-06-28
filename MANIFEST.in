@@ -1,2 +1,2 @@
-include *.rst LICENSE Makefile tox.ini
+include *.rst LICENSE Makefile
 include pollbot/*.yaml
