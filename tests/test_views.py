@@ -1,11 +1,10 @@
 import json
-import mock
-import pytest
 import os.path
-import ruamel.yaml as yaml
 
 from aiohttp import web, ClientError
+import mock
 import pytest
+import ruamel.yaml as yaml
 
 from pollbot import __version__ as pollbot_version, HTTP_API_VERSION, PRODUCTS
 from pollbot.app import get_app
