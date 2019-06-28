@@ -8,23 +8,23 @@ from . import get_session, build_task_response, heartbeat_factory
 async def get_release_info(release_mapping):
     release_url = 'https://aus-api.mozilla.org/api/v1/releases/{}'.format(release_mapping)
     async with get_session() as session:
-            async with session.get(release_url) as resp:
-                body = await resp.json()
-                platforms = body['platforms']
-                built_platforms = [x for x in platforms.keys() if 'locales' in platforms[x]]
-                if not built_platforms:
-                    raise TaskError('No platform with locales were found in {}'.format(
-                        sorted(platforms.keys())), url=release_url)
+        async with session.get(release_url) as resp:
+            body = await resp.json()
+            platforms = body['platforms']
+            built_platforms = [x for x in platforms.keys() if 'locales' in platforms[x]]
+            if not built_platforms:
+                raise TaskError('No platform with locales were found in {}'.format(
+                    sorted(platforms.keys())), url=release_url)
 
-                build_ids = {}
-                appVersions = set()
+            build_ids = {}
+            appVersions = set()
 
-                for platform in built_platforms:
-                    # any value is fine since all locales share the same buildID and displayVersion
-                    platform_info = [x for x in platforms[platform]['locales'].values()][0]
-                    build_ids[platform] = platform_info['buildID']
-                    appVersions.add(platform_info['displayVersion'].replace(' Beta ', 'b'))
-                return build_ids, appVersions
+            for platform in built_platforms:
+                # any value is fine since all locales share the same buildID and displayVersion
+                platform_info = [x for x in platforms[platform]['locales'].values()][0]
+                build_ids[platform] = platform_info['buildID']
+                appVersions.add(platform_info['displayVersion'].replace(' Beta ', 'b'))
+            return build_ids, appVersions
 
 
 async def balrog_rules(product, version):

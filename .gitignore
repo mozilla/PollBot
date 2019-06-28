@@ -9,3 +9,5 @@ __pycache__/
 .coverage
 .tox/
 .pytest_cache/
+.env
+.docker-build

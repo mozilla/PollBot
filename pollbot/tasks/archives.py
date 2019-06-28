@@ -170,8 +170,8 @@ async def check_releases_files(url, product, version):
     for i, platform_locale in enumerate(platform_locales):
         platform = RELEASE_PLATFORMS[i]
         if platform == 'mac' and 'ja-JP-mac' in platform_locale:
-                platform_locale.add('ja')
-                platform_locale.remove('ja-JP-mac')
+            platform_locale.add('ja')
+            platform_locale.remove('ja-JP-mac')
         for d in locales ^ platform_locale:
             missing[d].add(platform)
 

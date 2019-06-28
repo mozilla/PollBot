@@ -1,34 +1,28 @@
 PollBot
 =======
 
-|coc| |travis| |master-coverage| |whatsdeployed|
-
-.. |coc| image:: https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg
-    :target: https://github.com/mozilla/PollBot/blob/master/CODE_OF_CONDUCT.md
-    :alt: Code of conduct
-
-.. |travis| image:: https://travis-ci.org/mozilla/PollBot.svg?branch=master
-    :target: https://travis-ci.org/mozilla/PollBot
-
-.. |master-coverage| image::
-    https://coveralls.io/repos/mozilla/PollBot/badge.svg?branch=master
-    :alt: Coverage
-    :target: https://coveralls.io/r/mozilla/PollBot
-
-.. |readthedocs| image:: https://readthedocs.org/projects/pollbot/badge/?version=latest
-    :target: https://pollbot.readthedocs.io/en/latest/
-    :alt: Documentation Status
-
-.. |pypi| image:: https://img.shields.io/pypi/v/pollbot.svg
-    :target: https://pypi.python.org/pypi/pollbot
-
-.. |whatsdeployed| image:: https://img.shields.io/badge/whatsdeployed-stage,prod-green.svg
-    :target: https://whatsdeployed.io/s-olI
+.. image:: https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg
+   :alt: Code of conduct
+   :target: https://github.com/mozilla/PollBot/blob/master/CODE_OF_CONDUCT.md
+.. image:: https://travis-ci.org/mozilla/PollBot.svg?branch=master
+   :alt: Travis CI status
+   :target: https://travis-ci.org/mozilla/PollBot
+.. image:: https://coveralls.io/repos/mozilla/PollBot/badge.svg?branch=master
+   :alt: Coverage
+   :target: https://coveralls.io/r/mozilla/PollBot
+.. image:: https://readthedocs.org/projects/pollbot/badge/?version=latest
+   :alt: Documentation Status
+   :target: https://pollbot.readthedocs.io/en/latest/
+.. image:: https://img.shields.io/pypi/v/pollbot.svg
+   :alg: PyPI
+   :target: https://pypi.python.org/pypi/pollbot
+.. image:: https://img.shields.io/badge/whatsdeployed-stage,prod-green.svg
+   :alt: What's Deployed
+   :target: https://whatsdeployed.io/s-olI
 
 PollBot is an hardworking little robot (microservice) that frees its
 human masters from the toilsome task of polling for the state of
 things during the Firefox release process.
-
 
 `Version 1.0 <https://github.com/mozilla/PollBot/projects/1>`_ will
 provide, at a minimum, these API resources:
@@ -42,30 +36,29 @@ provide, at a minimum, these API resources:
 Development
 -----------
 
-Create a virtualenv with Python 3.6 and then install *all* the dependencies:
+Create a local dev environment:
 
 .. code-block:: shell
 
-    pip install -e ".[dev]"
+   make build
 
-Now you should be able to run the `tox` suite:
+Then you can run various dev-related tasks. For a list, see:
 
 .. code-block:: shell
 
-    tox
+   make help
 
-To start the development server you need:
+To start the development server you need this in your ``.env``:
 
 ``TELEMETRY_API_KEY`` - See https://sql.telemetry.mozilla.org/users/me
 
-
-Equipped with these you can now run:
+Equipped with these you can now run PollBot:
 
 .. code-block:: shell
 
-    TELEMETRY_API_KEY=yourapikey pollbot
+   make run
 
-That should start a server on ``http://0.0.0.0:8000``.
+That should start a server on ``http://localhost:9876``.
 
 Deployment
 ----------
