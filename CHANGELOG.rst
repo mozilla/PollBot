@@ -1,17 +1,21 @@
 CHANGELOG
 =========
 
-1.4.1 (2019-01-04)
+1.4.1 (2019-07-01)
 ------------------
 
 - Upgrading PyYaml 4.2b4
+- Update Jinja2
+- Switch from Buildhub to Buildhub2 (#244)
+- Fix CoC (#243)
+- Pin requirements (#234)
+- Rework local development environment so it's Docker-based
 
 
 1.4.0 (2018-10-30)
 ------------------
 
 - Nightly buildIDs depends on the *local* time (#237)
-
 - new make-release script
 
 1.3.0 (2018-10-29)
