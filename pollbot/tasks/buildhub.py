@@ -8,7 +8,9 @@ from pollbot.utils import (
 from . import get_session, build_task_response, heartbeat_factory
 
 
-BUILDHUB_SERVER = "https://buildhub.prod.mozaws.net/v1"
+BUILDHUB_HEARTBEAT = "https://buildhub.moz.tools/__heartbeat__"
+BUILDHUB_API = "https://buildhub.moz.tools/api/search"
+BUILDHUB_WEB = "https://buildhub.moz.tools/"
 
 
 async def get_releases(product):
@@ -47,12 +49,10 @@ async def get_releases(product):
         "size": 0
     }
     async with get_session() as session:
-        url = '{}/buckets/build-hub/collections/releases/search'
-        url = url.format(BUILDHUB_SERVER)
-        async with session.post(url, data=json.dumps(query)) as response:
+        async with session.post(BUILDHUB_API, data=json.dumps(query)) as response:
             if response.status != 200:
                 message = "Buildhub is not available ({})".format(response.status)
-                url = "https://mozilla-services.github.io/buildhub/?products[0]={}".format(product)
+                url = "{}?products[0]={}".format(BUILDHUB_WEB, product)
                 raise TaskError(message, url=url)
 
             data = await response.json()
@@ -62,7 +62,7 @@ async def get_releases(product):
 
         if not versions:
             message = "Couldn't find any version matching."
-            url = "https://mozilla-services.github.io/buildhub/?products[0]={}".format(product)
+            url = "{}?products[0]={}".format(BUILDHUB_WEB, product)
             raise TaskError(message, url=url)
 
         return versions
@@ -73,9 +73,9 @@ def get_buildhub_url(product, version, channel):
     if product == "devedition":
         channel_value = "aurora"
 
-    url = ("https://mozilla-services.github.io/buildhub/"
-           "?versions[0]={}&products[0]={}&channel[0]={}")
-    return url.format(version, product, channel_value)
+    return "{}?versions[0]={}&products[0]={}&channel[0]={}".format(
+        BUILDHUB_WEB, version, product, channel_value
+    )
 
 
 async def get_build_ids_for_version(product, version, *, size=10):
@@ -118,9 +118,7 @@ async def get_build_ids_for_version(product, version, *, size=10):
         "size": 0
     }
     async with get_session() as session:
-        url = '{}/buckets/build-hub/collections/releases/search'
-        url = url.format(BUILDHUB_SERVER)
-        async with session.post(url, data=json.dumps(query)) as response:
+        async with session.post(BUILDHUB_API, data=json.dumps(query)) as response:
             data = await response.json()
         build_ids = [r['key'] for r in data['aggregations']['by_version']['buckets']]
 
@@ -160,4 +158,4 @@ async def buildhub(product, version):
     return build_task_response(status, url, exists_message, missing_message)
 
 
-heartbeat = heartbeat_factory('{}/__heartbeat__'.format(BUILDHUB_SERVER))
+heartbeat = heartbeat_factory(BUILDHUB_HEARTBEAT)

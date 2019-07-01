@@ -13,7 +13,7 @@ from pollbot.exceptions import TaskError
 from pollbot.tasks import get_session, telemetry
 from pollbot.tasks.archives import archives, partner_repacks, RELEASE_PLATFORMS
 from pollbot.tasks.balrog import balrog_rules
-from pollbot.tasks.buildhub import buildhub, BUILDHUB_SERVER
+from pollbot.tasks.buildhub import buildhub, BUILDHUB_API, BUILDHUB_HEARTBEAT
 from pollbot.tasks.bedrock import release_notes, security_advisories, download_links
 from pollbot.tasks.bouncer import bouncer
 from pollbot.tasks.buildhub import get_releases
@@ -66,8 +66,7 @@ class DeliveryTasksTest(asynctest.TestCase):
             assert session._default_headers['User-Agent'].startswith("PollBot/")
 
     async def test_get_releases_tasks_return_releases(self):
-        url = "{}/buckets/build-hub/collections/releases/search".format(BUILDHUB_SERVER)
-        self.mocked.post(url, status=200, body=json.dumps({
+        self.mocked.post(BUILDHUB_API, status=200, body=json.dumps({
             "aggregations": {
                 "by_version": {
                     "buckets": [
@@ -82,8 +81,7 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert received == ["58.0b2"]
 
     async def test_get_releases_tasks_return_no_results(self):
-        url = "{}/buckets/build-hub/collections/releases/search".format(BUILDHUB_SERVER)
-        self.mocked.post(url, status=200, body=json.dumps({
+        self.mocked.post(BUILDHUB_API, status=200, body=json.dumps({
             "aggregations": {
                 "by_version": {
                     "buckets": [],
@@ -94,8 +92,7 @@ class DeliveryTasksTest(asynctest.TestCase):
         assert str(excinfo.value) == "Couldn't find any version matching."
 
     async def test_get_releases_tasks_returns_error_if_error(self):
-        url = "{}/buckets/build-hub/collections/releases/search".format(BUILDHUB_SERVER)
-        self.mocked.post(url, status=502)
+        self.mocked.post(BUILDHUB_API, status=502)
 
         with pytest.raises(TaskError) as excinfo:
             await get_releases('firefox')
@@ -869,7 +866,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         self.mocked.get(url, status=404)
 
         # Buildhub
-        url = '{}/__heartbeat__'.format(BUILDHUB_SERVER)
+        url = BUILDHUB_HEARTBEAT
         self.mocked.get(url, status=404)
 
         # Product Details
@@ -1010,8 +1007,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         assert received['status'] == Status.EXISTS.value
 
     def _mock_buildhub_search(self, build_id="20171009192146"):
-        url = "{}/buckets/build-hub/collections/releases/search".format(BUILDHUB_SERVER)
-        self.mocked.post(url, status=200, body=json.dumps({
+        self.mocked.post(BUILDHUB_API, status=200, body=json.dumps({
             "aggregations": {
                 "by_version": {
                     "buckets": [
@@ -1024,8 +1020,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             }}))
 
     async def test_buildhub_task_returns_missing_if_release_is_missing(self):
-        url = "{}/buckets/build-hub/collections/releases/search".format(BUILDHUB_SERVER)
-        self.mocked.post(url, status=200, body=json.dumps({
+        self.mocked.post(BUILDHUB_API, status=200, body=json.dumps({
             'aggregations': {
                 "by_version": {
                     "buckets": []

@@ -507,7 +507,7 @@ async def test_release_buildhub(cli):
     body = await resp.json()
     assert body["status"] == Status.EXISTS.value
     assert "Build IDs for this release: 20170608175746, 20170608105825" == body["message"]
-    assert body["link"] == ("https://mozilla-services.github.io/buildhub/"
+    assert body["link"] == ("https://buildhub.moz.tools/"
                             "?versions[0]=54.0&products[0]=firefox&channel[0]=release")
 
 
@@ -516,7 +516,7 @@ async def test_candidates_buildhub(cli):
     body = await resp.json()
     assert body["status"] == Status.EXISTS.value
     assert "Build IDs for this release: 20171002220106" == body["message"]
-    assert body["link"] == ("https://mozilla-services.github.io/buildhub/"
+    assert body["link"] == ("https://buildhub.moz.tools/"
                             "?versions[0]=56.0.1rc2&products[0]=firefox&channel[0]=release")
 
 
@@ -525,7 +525,7 @@ async def test_candidates_buildhub_build(cli):
     body = await resp.json()
     assert body["status"] == Status.EXISTS.value
     assert "Build IDs for this release: 20171002220106" == body["message"]
-    assert body["link"] == ("https://mozilla-services.github.io/buildhub/"
+    assert body["link"] == ("https://buildhub.moz.tools/"
                             "?versions[0]=56.0.1rc2&products[0]=firefox&channel[0]=release")
 
 
@@ -534,7 +534,7 @@ async def test_devedition_buildhub(cli):
     body = await resp.json()
     assert body["status"] == Status.EXISTS.value
     assert "Build IDs for this release: 20180108140638" == body["message"]
-    assert body["link"] == ("https://mozilla-services.github.io/buildhub/"
+    assert body["link"] == ("https://buildhub.moz.tools/"
                             "?versions[0]=58.0b15&products[0]=devedition&channel[0]=aurora")
 
 
