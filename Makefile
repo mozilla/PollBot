@@ -47,7 +47,7 @@ install-local:
 
 .PHONY: run
 run: .docker-build .env version-file install-local
-	${DC} run --rm app /usr/local/bin/pollbot
+	${DC} up app
 
 .PHONY: test
 test: .docker-build .env install-local
