@@ -720,38 +720,16 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         assert received["message"] == "No devedition and beta check for 'release' releases"
 
     async def test_bouncer_tasks_returns_error_if_error(self):
-        url = 'https://www.mozilla.org/en-US/firefox/all/'
+        url = 'https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US'
         self.mocked.get(url, status=404)
 
         with pytest.raises(TaskError) as excinfo:
             await bouncer('firefox', '54.0')
-        assert str(excinfo.value) == 'Download page not available  (404)'
-
-    async def test_bouncer_tasks_returns_error_if_not_link_found(self):
-        url = 'https://www.mozilla.org/en-US/firefox/all/'
-        self.mocked.get(url, status=200, body='''
-        <html></html>''')
-
-        with pytest.raises(TaskError) as excinfo:
-            await bouncer('firefox', '54.0')
-        assert str(excinfo.value) == 'No links found.'
-        assert str(excinfo.value.url) == 'https://www.mozilla.org/en-US/firefox/all/'
+        assert str(excinfo.value) == 'Bouncer is down (404).'
 
     async def test_bouncer_tasks_returns_true_if_version_matches_for_nightly(self):
-        url = 'https://www.mozilla.org/fr/firefox/channel/desktop/'
-        self.mocked.get(url, status=200, body='''
-        <html>
-          <div id="desktop-nightly-download">
-            <ul class="download-list">
-              <li class="os_linux64">
-                <a class="download-link"
-                   href="https://download.mozilla.org/?product=firefox-nightly-latest-l10n-ssl&os=linux64"
-                   >Téléchargement</a>
-              </li>
-            </ul>
-          </div>
-        </html>''')
-        url = 'https://download.mozilla.org/?product=firefox-nightly-latest-l10n-ssl&os=linux64'
+        url = 'https://download.mozilla.org/?product=firefox-nightly-latest-ssl' + \
+              '&os=linux64&lang=en-US'
         self.mocked.get(url, status=302, headers={
             "Location": "https://download-installer.cdn.mozilla.net/pub/firefox/nightly"
             "/latest-mozilla-central-l10n/firefox-57.0a1.en-US.linux-x86_64.tar.bz2"})
@@ -760,20 +738,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         assert received["status"] == Status.EXISTS.value
 
     async def test_bouncer_tasks_returns_true_if_version_matches_for_beta(self):
-        url = 'https://www.mozilla.org/fr/firefox/channel/desktop/'
-        self.mocked.get(url, status=200, body='''
-        <html>
-          <div id="desktop-beta-download">
-            <ul class="download-list">
-              <li class="os_linux64">
-                <a class="download-link"
-                   href="https://download.mozilla.org/?product=firefox-beta-ssl&amp;os=linux64"
-                   >Téléchargement</a>
-              </li>
-            </ul>
-          </div>
-        </html>''')
-        url = 'https://download.mozilla.org/?product=firefox-beta-ssl&os=linux64'
+        url = 'https://download.mozilla.org/?product=firefox-beta-latest-ssl&os=linux64&lang=en-US'
         self.mocked.get(url, status=302, headers={
             "Location": "https://download-installer.cdn.mozilla.net/pub/firefox/releases"
             "/57.0b13/linux-x86_64/en-US/firefox-57.0b13.tar.bz2"})
@@ -782,20 +747,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         assert received["status"] == Status.EXISTS.value
 
     async def test_bouncer_tasks_returns_true_if_version_matches_for_release(self):
-        url = 'https://www.mozilla.org/en-US/firefox/all/'
-        self.mocked.get(url, status=200, body='''
-<html>
-<table>
- <tr id="fr">
-  <td class="download linux64">
-   <a href="https://download.mozilla.org/?product=firefox-latest-ssl&amp;os=linux64&amp;lang=fr">
-    Download
-   </a>
-  </td>
- </tr>
-</table>
-</html>''')
-        url = 'https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&amp;lang=fr'
+        url = 'https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US'
         self.mocked.get(url, status=302, headers={
             "Location": "https://download-installer.cdn.mozilla.net/pub/firefox/releases"
             "/57.0/linux-x86_64/fr/firefox-57.0.tar.bz2"})
@@ -804,20 +756,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         assert received["status"] == Status.EXISTS.value
 
     async def test_bouncer_tasks_returns_true_if_version_matches_for_esr(self):
-        url = 'https://www.mozilla.org/en-US/firefox/organizations/all/'
-        self.mocked.get(url, status=200, body='''
-<html>
-<table>
- <tr id="fr">
-  <td class="download linux64">
-   <a href="https://download.mozilla.org/?product=firefox-esr-ssl&amp;os=linux64&amp;lang=fr">
-    Download
-   </a>
-  </td>
- </tr>
-</table>
-</html>''')
-        url = 'https://download.mozilla.org/?product=firefox-esr-ssl&os=linux64&amp;lang=fr'
+        url = 'https://download.mozilla.org/?product=firefox-esr-latest-ssl&os=linux64&lang=en-US'
         self.mocked.get(url, status=302, headers={
             "Location": "https://download-installer.cdn.mozilla.net/pub/firefox/releases/"
             "52.5.0esr/linux-x86_64/fr/firefox-52.5.0esr.tar.bz2"})
@@ -826,27 +765,14 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         assert received["status"] == Status.EXISTS.value
 
     async def test_bouncer_tasks_returns_error_if_bouncer_down(self):
-        url = 'https://www.mozilla.org/en-US/firefox/organizations/all/'
-        self.mocked.get(url, status=200, body='''
-<html>
-<table>
- <tr id="fr">
-  <td class="download linux64">
-   <a href="https://download.mozilla.org/?product=firefox-esr-ssl&amp;os=linux64&amp;lang=fr">
-    Download
-   </a>
-  </td>
- </tr>
-</table>
-</html>''')
-        url = 'https://download.mozilla.org/?product=firefox-esr-ssl&os=linux64&amp;lang=fr'
+        url = 'https://download.mozilla.org?product=firefox-esr-latest-ssl&os=linux64&lang=en-US'
         self.mocked.get(url, status=504)
 
         with pytest.raises(TaskError) as excinfo:
             await bouncer('firefox', '52.5.0esr')
         assert str(excinfo.value) == 'Bouncer is down (504).'
         assert str(excinfo.value.url) == (
-            'https://download.mozilla.org/?product=firefox-esr-ssl&os=linux64&lang=fr')
+            'https://download.mozilla.org?product=firefox-esr-latest-ssl&os=linux64&lang=en-US')
 
     async def test_failing_heartbeat(self):
         # Archive
