@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+1.4.2 (2019-11-05)
+------------------
+
+- (HEAD -> master, upstream/master) Merge pull request #252 from jcristau/bouncer-247
+
+- (jcristau/bouncer-247) Stop scraping www.mozilla.org for bouncer download links
+
+
+
 1.4.1 (2019-07-01)
 ------------------
 
