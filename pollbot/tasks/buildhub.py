@@ -17,6 +17,7 @@ async def get_releases(product):
     RELEASE_CHANNEL = {
         'devedition': 'aurora',
         'firefox': 'release',
+        'thunderbird': 'release',
     }
 
     query = {
