@@ -10,17 +10,28 @@ from . import get_session, heartbeat_factory, build_task_response
 from .archives import get_locales
 
 
+def get_release_notes_web(product):
+    if product in ['firefox', 'devedition']:
+        return 'www.mozilla.org'
+    elif product == 'thunderbird':
+        return 'www.thunderbird.net'
+    else:
+        raise Exception('Unknown product {}'.format(product))
+
 async def release_notes(product, full_version):
     channel = get_version_channel(product, full_version)
     version = full_version
+    web_host = get_release_notes_web(product)
     if channel in (Channel.BETA, Channel.AURORA):
         parts = full_version.split('b')
         version = "{}beta".format(parts[0])
     elif channel is Channel.ESR:
         version = re.sub('esr$', '', full_version)
 
+
     # The release notes for Devedition is actually under Firefox.
-    url = 'https://www.mozilla.org/en-US/{}/{}/releasenotes/'.format(
+    url = 'https://{}/en-US/{}/{}/releasenotes/'.format(
+        web_host,
         'firefox' if product == 'devedition' else product,
         version
     )
@@ -109,16 +120,22 @@ async def security_advisories(product, version):
             body = await resp.text()
             d = pq(body)
 
-            if channel is Channel.ESR:
-                version = re.sub('esr$', '', version)
+            if product in ['firefox', 'devedition']:
+                security_product = 'firefox'
+                if channel is Channel.ESR:
+                    version = re.sub('esr$', '', version)
+                    last_release = d("html").attr('data-esr-versions')
+                else:
+                    last_release = d("html").attr('data-latest-firefox')
+            elif product == 'thunderbird':
+                security_product = product
                 last_release = d("html").attr('data-esr-versions')
-            else:
-                last_release = d("html").attr('data-latest-firefox')
+
             status = build_version_id(last_release) >= build_version_id(version)
             message = ("Security advisories for release were "
                        "updated up to version {}".format(last_release))
 
-            version_title = "#firefox{}".format(version.split('.')[0])
+            version_title = "#{}{}".format(security_product, version.split('.')[0])
             if status and not d(version_title):
                 status = Status.INCOMPLETE
                 message += " but nothing was published for {} yet.".format(version_title)
@@ -127,6 +144,7 @@ async def security_advisories(product, version):
 
 
 async def download_links(product, version):
+    # Not supported for Thunderbird
     channel = get_version_channel(product, version)
     if channel is Channel.ESR:
         url = "https://www.mozilla.org/en-US/{}/organizations/all/".format(product)
