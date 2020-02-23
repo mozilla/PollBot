@@ -14,6 +14,14 @@ NIGHTLY_PLATFORMS = {
     "mac": "firefox-{version}.{locale}.mac.dmg",
 }
 
+THUNDERBIRD_NIGHTLY_PLATFORMS = {
+    # No stub installer for Thunderbird
+    "win32": "thunderbird-{version}.{locale}.win32.installer.exe",
+    "win64": "thunderbird-{version}.{locale}.win64.installer.exe",
+    "linux32": "thunderbird-{version}.{locale}.linux-i686.tar.bz2",
+    "linux64": "thunderbird-{version}.{locale}.linux-x86_64.tar.bz2",
+    "mac": "thunderbird-{version}.{locale}.mac.dmg",
+}
 
 RELEASE_PLATFORMS = [
     'linux-i686',
@@ -23,22 +31,73 @@ RELEASE_PLATFORMS = [
     'win64',
 ]
 
+CHANNEL_REPOS = {
+    Channel.NIGHTLY: 'mozilla-central',
+    Channel.AURORA: 'mozilla-beta',
+    Channel.BETA: 'mozilla-beta',
+    Channel.RELEASE: 'mozilla-release',
+    Channel.ESR: 'mozilla-esr{}'
+}
+
+THUNDERBIRD_CHANNEL_REPOS = {
+    Channel.NIGHTLY: 'comm-central',
+    Channel.BETA: 'comm-beta',
+    Channel.RELEASE: 'comm-esr{}',
+}
+
 JSON_HEADERS = {"Accept": "application/json"}
+
+
+def get_nightly_platforms(product):
+    if product in ['firefox', 'devedition']:
+        return NIGHTLY_PLATFORMS
+    elif product == 'thunderbird':
+        return THUNDERBIRD_NIGHTLY_PLATFORMS
+    else:
+        raise Exception('Unknown product {}'.format(product))
+
+
+def get_channel_repo(product, channel, version):
+    if product in ['firefox', 'devedition']:
+        repo = CHANNEL_REPOS[channel]
+    elif product == 'thunderbird':
+        repo = THUNDERBIRD_CHANNEL_REPOS[channel]
+    else:
+        raise Exception('Unknown product {}'.format(product))
+
+    if 'esr{}' in repo:
+        v = version.split('.')[0]
+        repo = repo.format(v)
+    return repo
+
+
+def product_locales_path(product):
+    if product in ['firefox', 'devedition']:
+        return 'browser'
+    elif product == 'thunderbird':
+        return 'mail'
+    else:
+        raise Exception('Unknown product {}'.format(product))
 
 
 async def get_locales(product, version):
     channel = get_version_channel(product, version)
+    repo_name = get_channel_repo(product, channel, version)
+    locales_path = product_locales_path(product)
     tag_product = product.upper()
     tag = "{}_{}_RELEASE".format(tag_product, version.replace('.', '_'))
     if channel is Channel.NIGHTLY:
-        url = "https://hg.mozilla.org/mozilla-central/raw-file/tip/browser/locales/all-locales"
+        url = "https://hg.mozilla.org/{}/raw-file/tip/{}/locales/all-locales".format(
+            repo_name, locales_path
+        )
     elif channel in (Channel.BETA, Channel.AURORA):
-        url = ("https://hg.mozilla.org/releases/mozilla-beta/raw-file/{}/"
-               "browser/locales/shipped-locales").format(tag)
+        url = ("https://hg.mozilla.org/releases/{}/raw-file/{}/"
+               "{}/locales/shipped-locales").format(repo_name, tag, locales_path)
     elif channel is Channel.RELEASE:
-        url = ("https://hg.mozilla.org/releases/mozilla-release/raw-file/{}/"
-               "browser/locales/shipped-locales").format(tag)
+        url = ("https://hg.mozilla.org/releases/{}/raw-file/{}/"
+               "{}/locales/shipped-locales").format(repo_name, tag, locales_path)
     elif channel is Channel.CANDIDATE:
+        # Not supported for Thunderbird
         if 'rc' in version:
             version, build = version.split('rc')
         else:
@@ -56,6 +115,7 @@ async def get_locales(product, version):
                 buildID, rev_url = body.strip().split('\n')
         url = '{}/browser/locales/shipped-locales'.format(rev_url.replace('rev', 'raw-file'))
     else:
+        # Not supported for Thunderbird
         major, _ = version.split('.', 1)
         branch = "mozilla-esr{}".format(major)
         url = ("https://hg.mozilla.org/releases/{}/raw-file/{}/"
@@ -113,12 +173,13 @@ def verdict(url, locales, missing_locales, missing_files):
 
 async def check_nightly_releases_files(url, files, product, version):
     locales = await get_locales(product, version)
+    nightly_platforms = get_nightly_platforms(product)
     missing_locales = []
     missing_files = []
     # Make sure all locales are present
     for locale in locales:
         missing_files_for_locale = []
-        for platform, platform_pattern in NIGHTLY_PLATFORMS.items():
+        for platform, platform_pattern in nightly_platforms.items():
             current_locale = locale
             if platform == 'mac' and locale == 'ja':
                 # https://github.com/mozilla/bedrock/ \
@@ -129,7 +190,7 @@ async def check_nightly_releases_files(url, files, product, version):
                                                         locale=current_locale))
             if filename not in files:
                 missing_files_for_locale.append(filename)
-        if len(missing_files_for_locale) == len(NIGHTLY_PLATFORMS):
+        if len(missing_files_for_locale) == len(nightly_platforms):
             # All platform files where missing for this locale.
             # The locale is missing from the release.
             missing_locales.append(locale)
@@ -191,9 +252,10 @@ async def check_releases_files(url, product, version):
 
 def build_version_url(product, version):
     channel = get_version_channel(product, version)
+    repo_name = get_channel_repo(product, channel, version)
     if channel is Channel.NIGHTLY:
-        return 'https://archive.mozilla.org/pub/{}/nightly/latest-mozilla-central-l10n/'.format(
-                product)
+        return 'https://archive.mozilla.org/pub/{}/nightly/latest-{}-l10n/'.format(
+                product, repo_name)
     elif channel is Channel.CANDIDATE:
         if 'rc' in version:
             version, build = version.split('rc')
@@ -241,6 +303,7 @@ async def archives(product, version):
 
 
 async def partner_repacks(product, version):
+    # Not supported for Thunderbird
     channel = get_version_channel(product, version)
     async with get_session() as session:
         if channel is Channel.CANDIDATE:
