@@ -55,7 +55,8 @@ async def heartbeat(request):
                                 bouncer.heartbeat(),
                                 buildhub.heartbeat(),
                                 product_details.heartbeat(),
-                                telemetry.heartbeat())
+                                telemetry.heartbeat(),
+                                bedrock.heartbeat_tbnet())
     status = all(info) and 200 or 503
     return web.json_response({"archive": info[0],
                               "balrog": info[1],
@@ -63,5 +64,6 @@ async def heartbeat(request):
                               "bouncer": info[3],
                               "buildhub": info[4],
                               "product-details": info[5],
-                              "telemetry": info[6]},
+                              "telemetry": info[6],
+                              "thunderbird_net": info[7]},
                              status=status)

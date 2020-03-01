@@ -189,3 +189,4 @@ async def download_links(product, version):
 
 
 heartbeat = heartbeat_factory('https://www.mozilla.org/en-US/firefox/all/')
+heartbeat_tbnet = heartbeat_factory('https://www.thunderbird.net/en-US/thunderbird/all/')
