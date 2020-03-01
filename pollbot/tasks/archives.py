@@ -90,10 +90,7 @@ async def get_locales(product, version):
         url = "https://hg.mozilla.org/{}/raw-file/tip/{}/locales/all-locales".format(
             repo_name, locales_path
         )
-    elif channel in (Channel.BETA, Channel.AURORA):
-        url = ("https://hg.mozilla.org/releases/{}/raw-file/{}/"
-               "{}/locales/shipped-locales").format(repo_name, tag, locales_path)
-    elif channel is Channel.RELEASE:
+    elif channel in (Channel.RELEASE, Channel.BETA, Channel.AURORA):
         url = ("https://hg.mozilla.org/releases/{}/raw-file/{}/"
                "{}/locales/shipped-locales").format(repo_name, tag, locales_path)
     elif channel is Channel.CANDIDATE:
