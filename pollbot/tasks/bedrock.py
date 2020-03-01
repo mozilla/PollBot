@@ -10,7 +10,7 @@ from . import get_session, heartbeat_factory, build_task_response
 from .archives import get_locales
 
 
-def get_release_notes_web(product):
+def get_www_server(product):
     if product in ['firefox', 'devedition']:
         return 'www.mozilla.org'
     elif product == 'thunderbird':
@@ -18,16 +18,16 @@ def get_release_notes_web(product):
     else:
         raise Exception('Unknown product {}'.format(product))
 
+
 async def release_notes(product, full_version):
     channel = get_version_channel(product, full_version)
     version = full_version
-    web_host = get_release_notes_web(product)
+    web_host = get_www_server(product)
     if channel in (Channel.BETA, Channel.AURORA):
         parts = full_version.split('b')
         version = "{}beta".format(parts[0])
     elif channel is Channel.ESR:
         version = re.sub('esr$', '', full_version)
-
 
     # The release notes for Devedition is actually under Firefox.
     url = 'https://{}/en-US/{}/{}/releasenotes/'.format(
@@ -143,17 +143,26 @@ async def security_advisories(product, version):
             return build_task_response(status, url, message)
 
 
-async def download_links(product, version):
-    # Not supported for Thunderbird
-    channel = get_version_channel(product, version)
+def get_downloads_url(product, channel):
+    web_host = get_www_server(product)
     if channel is Channel.ESR:
-        url = "https://www.mozilla.org/en-US/{}/organizations/all/".format(product)
+        url = "https://{}/en-US/{}/organizations/all/".format(web_host, product)
     elif channel is Channel.RELEASE:
-        url = 'https://www.mozilla.org/en-US/{}/all/'.format(product)
+        url = 'https://{}/en-US/{}/all/'.format(web_host, product)
     else:
-        url = 'https://www.mozilla.org/fr/{}/channel/desktop/'.format(product)
-        if product == 'devedition':
+        if product == 'thunderbird':
+            url = 'https://{}/en-US/{}/beta/all/'.format(web_host, product)
+        elif product == 'firefox':
+            url = 'https://{}/fr/{}/channel/desktop/'.format(web_host, product)
+        else:  # product == 'devedition':
             url = 'https://www.mozilla.org/en-US/firefox/developer/'
+
+    return url
+
+
+async def download_links(product, version):
+    channel = get_version_channel(product, version)
+    url = get_downloads_url(product, channel)
 
     async with get_session() as session:
         async with session.get(url) as resp:
@@ -163,24 +172,27 @@ async def download_links(product, version):
             body = await resp.text()
             d = pq(body)
 
-            if channel in (Channel.NIGHTLY, Channel.BETA, Channel.AURORA):
-                if product == 'devedition':
-                    link_path = "#intro-download > .download-list > .os_linux64 > a"
-                elif channel is Channel.NIGHTLY:
-                    link_path = "#desktop-nightly-download > .download-list > .os_linux64 > a"
-                else:  # channel is Channel.BETA:
-                    link_path = "#desktop-beta-download > .download-list > .os_linux64 > a"
-                url = d(link_path).attr('href')
-                async with session.get(url, allow_redirects=False) as resp:
-                    url = resp.headers['Location']
-                    filename = os.path.basename(url)
-                    last_release = get_version_from_filename(filename)
-            elif channel is Channel.ESR:
-                version = re.sub('esr$', '', version)
-                last_release = d("html").attr('data-esr-versions')
+            if product == 'thunderbird':
+                last_release = d("#all-downloads").attr('data-thunderbird-version')
             else:
-                # Does the content contains the version number?
-                last_release = d("html").attr('data-latest-firefox')
+                if channel in (Channel.NIGHTLY, Channel.BETA, Channel.AURORA):
+                    if product == 'devedition':
+                        link_path = "#intro-download > .download-list > .os_linux64 > a"
+                    elif channel is Channel.NIGHTLY:
+                        link_path = "#desktop-nightly-download > .download-list > .os_linux64 > a"
+                    else:  # channel is Channel.BETA:
+                        link_path = "#desktop-beta-download > .download-list > .os_linux64 > a"
+                    url = d(link_path).attr('href')
+                    async with session.get(url, allow_redirects=False) as resp:
+                        url = resp.headers['Location']
+                        filename = os.path.basename(url)
+                        last_release = get_version_from_filename(filename)
+                elif channel is Channel.ESR:
+                    version = re.sub('esr$', '', version)
+                    last_release = d("html").attr('data-esr-versions')
+                else:
+                    # Does the content contains the version number?
+                    last_release = d("html").attr('data-latest-firefox')
 
             status = build_version_id(last_release) >= build_version_id(version)
             message = ("The download links for release have been published for version {}".format(

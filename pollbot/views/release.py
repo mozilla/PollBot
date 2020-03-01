@@ -93,7 +93,6 @@ CHECKS = OrderedDict(
 NOT_ACTIONABLE = ['-uptake']
 IGNORES = {'devedition': ['partner-repacks'],
            'thunderbird': ['partner-repacks',
-                           'download-links',
                            'devedition-beta-matches',
                            'telemetry-main-summary-uptake']}
 
