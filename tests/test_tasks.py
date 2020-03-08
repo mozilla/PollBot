@@ -799,8 +799,12 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         url = 'https://product-details.mozilla.org/1.0/firefox.json'
         self.mocked.get(url, status=404)
 
-        # Product Details
+        # Telemetry
         url = 'https://sql.telemetry.mozilla.org/api/data_sources/1/version'
+        self.mocked.get(url, status=404)
+
+        # Thunderbird web
+        url = 'https://www.thunderbird.net/en-US/thunderbird/all/'
         self.mocked.get(url, status=404)
 
         resp = await heartbeat(None)
@@ -812,6 +816,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             "buildhub": False,
             "product-details": False,
             "telemetry": False,
+            "thunderbird_net": False,
         }
         assert resp.status == 503
 
