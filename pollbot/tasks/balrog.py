@@ -86,6 +86,7 @@ async def balrog_rules(product, version):
         url = 'https://aus-api.mozilla.org/api/v1/rules/esr{}'.format(version.split('.')[0])
     else:
         if product == 'thunderbird':
+            # Current rules: thunderbird-release60, thunderbird-release68
             rule_name = 'thunderbird-release{}'.format(version.split('.')[0])
         else:
             rule_name = 'firefox-release'

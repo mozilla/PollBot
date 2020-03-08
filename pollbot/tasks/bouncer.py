@@ -12,16 +12,18 @@ async def bouncer(product, version):
     channel = get_version_channel(product, version)
     channel_value = channel.value
 
+    if product == 'thunderbird' and channel == Channel.NIGHTLY:
+        # NIGHTLY is a valid channel for Thunderbird, but it does not use the bouncer
+        return build_task_response(True, "", "No nightly bouncer for Thunderbird.")
+
     if product == 'devedition':
         channel_value = "DEVEDITION"
         product_channel = 'firefox-{}'.format(channel_value.lower())
     else:  # product is 'firefox' or 'thunderbird'
         if channel == Channel.RELEASE:
             product_channel = product
-        elif channel == Channel.BETA:
+        else:
             product_channel = '{}-{}'.format(product, channel_value.lower())
-        else:  # No nightly bouncer for Thunderbird
-            return build_task_response(True, "", "No nightly bouncer for Thunderbird.")
 
     url = 'https://download.mozilla.org?product={}-latest-ssl&os=linux64&lang=en-US'.format(
             product_channel)

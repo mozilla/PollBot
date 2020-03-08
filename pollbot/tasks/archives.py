@@ -36,7 +36,8 @@ CHANNEL_REPOS = {
     Channel.AURORA: 'mozilla-beta',
     Channel.BETA: 'mozilla-beta',
     Channel.RELEASE: 'mozilla-release',
-    Channel.ESR: 'mozilla-esr{}'
+    Channel.ESR: 'mozilla-esr{}',
+    Channel.CANDIDATE: 'mozilla-release',
 }
 
 THUNDERBIRD_CHANNEL_REPOS = {
@@ -82,15 +83,16 @@ def product_locales_path(product):
 
 async def get_locales(product, version):
     channel = get_version_channel(product, version)
-    repo_name = get_channel_repo(product, channel, version)
     locales_path = product_locales_path(product)
     tag_product = product.upper()
     tag = "{}_{}_RELEASE".format(tag_product, version.replace('.', '_'))
     if channel is Channel.NIGHTLY:
+        repo_name = get_channel_repo(product, channel, version)
         url = "https://hg.mozilla.org/{}/raw-file/tip/{}/locales/all-locales".format(
             repo_name, locales_path
         )
     elif channel in (Channel.RELEASE, Channel.BETA, Channel.AURORA):
+        repo_name = get_channel_repo(product, channel, version)
         url = ("https://hg.mozilla.org/releases/{}/raw-file/{}/"
                "{}/locales/shipped-locales").format(repo_name, tag, locales_path)
     elif channel is Channel.CANDIDATE:
@@ -112,7 +114,7 @@ async def get_locales(product, version):
                 buildID, rev_url = body.strip().split('\n')
         url = '{}/browser/locales/shipped-locales'.format(rev_url.replace('rev', 'raw-file'))
     else:
-        # Not supported for Thunderbird
+        # Not supported for Thunderbird (Channel.ESR)
         major, _ = version.split('.', 1)
         branch = "mozilla-esr{}".format(major)
         url = ("https://hg.mozilla.org/releases/{}/raw-file/{}/"

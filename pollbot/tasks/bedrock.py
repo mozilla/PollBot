@@ -151,7 +151,10 @@ def get_downloads_url(product, channel):
         url = 'https://{}/en-US/{}/all/'.format(web_host, product)
     else:
         if product == 'thunderbird':
-            url = 'https://{}/en-US/{}/beta/all/'.format(web_host, product)
+            if channel is Channel.NIGHTLY:
+                url = 'https://{}/en-US/'.format(web_host)
+            else:
+                url = 'https://{}/en-US/{}/beta/all/'.format(web_host, product)
         elif product == 'firefox':
             url = 'https://{}/fr/{}/channel/desktop/'.format(web_host, product)
         else:  # product == 'devedition':
@@ -173,7 +176,13 @@ async def download_links(product, version):
             d = pq(body)
 
             if product == 'thunderbird':
-                last_release = d("#all-downloads").attr('data-thunderbird-version')
+                if channel is Channel.NIGHTLY:
+                    link_path = ".download-link.btn-nightly"
+                    url = d(link_path).attr('href')
+                    filename = os.path.basename(url)
+                    last_release = get_version_from_filename(filename)
+                else:
+                    last_release = d("#all-downloads").attr('data-thunderbird-version')
             else:
                 if channel in (Channel.NIGHTLY, Channel.BETA, Channel.AURORA):
                     if product == 'devedition':
