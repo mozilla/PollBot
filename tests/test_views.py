@@ -143,7 +143,8 @@ async def test_status_response_validates_product_name(cli):
     assert resp.status == 404
     assert json.loads(resp.body.decode()) == {
         "status": 404,
-        "message": "Invalid product: invalid-product not in ('firefox', 'devedition', 'thunderbird')",
+        "message": "Invalid product: invalid-product not in ('firefox', "
+                   "'devedition', 'thunderbird')",
     }
 
 
@@ -178,7 +179,8 @@ async def test_status_response_validates_devedition_version(cli):
 async def test_get_releases_response_validates_product_name(cli):
     await check_response(cli, "/v1/invalid-product", body={
         "status": 404,
-        "message": "Invalid product: invalid-product not in ('firefox', 'devedition', 'thunderbird')"
+        "message": "Invalid product: invalid-product not in ('firefox', "
+                   "'devedition', 'thunderbird')"
     }, status=404)
 
 
@@ -381,7 +383,8 @@ async def test_get_checks_for_esr(cli):
 async def test_get_checks_response_validates_product_name(cli):
     await check_response(cli, "/v1/invalid-product/56.0", body={
         "status": 404,
-        "message": "Invalid product: invalid-product not in ('firefox', 'devedition', 'thunderbird')"
+        "message": "Invalid product: invalid-product not in ('firefox', "
+                   "'devedition', 'thunderbird')"
     }, status=404)
 
 
@@ -738,7 +741,8 @@ async def test_version_view_return_200(cli):
 async def test_ongoing_versions_response_validates_product_name(cli):
     await check_response(cli, "/v1/invalid-product/ongoing-versions", body={
         "status": 404,
-        "message": "Invalid product: invalid-product not in ('firefox', 'devedition', 'thunderbird')"
+        "message": "Invalid product: invalid-product not in ('firefox', "
+                   "'devedition', 'thunderbird')"
     }, status=404)
 
 
