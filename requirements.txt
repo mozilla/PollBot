@@ -140,8 +140,8 @@ aiohttp_cors==0.6.0 \
 async_timeout==2.0.0 \
     --hash=sha256:c17d8ac2d735d59aa62737d76f2787a6c938f5a944ecf768a8c0ab70b0dea566 \
     --hash=sha256:d3a195a827b0f4068d1616ae2da04aac62e365d14f2b13dbc071f9feed9db4e2
-idna_ssl==1.0.0 \
-    --hash=sha256:1227e44039bd31e02adaeafdbba61281596d623d222643fb021f87f2144ea147
+idna_ssl==1.1.0 \
+    --hash=sha256:a933e3bb13da54383f9e8f35dc4f9cb9eb9b3b78c6b36f311254d6d0d92c6c7c
 aioresponses==0.6.0 \
     --hash=sha256:46ef0568e0bd9a603665649ae0ee42347525ebb1f8078519f24261b478942146 \
     --hash=sha256:ecc90e59d11cdef8b45753b87bd0a673e5556772fd593707bec78c4b06144f9e
