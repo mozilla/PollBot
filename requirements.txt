@@ -165,9 +165,9 @@ pytest-cache==1.0 \
 pytest-cover==3.0.0 \
     --hash=sha256:578249955eb3b5f3991209df6e532bb770b647743b7392d3d97698dc02f39ebb \
     --hash=sha256:5bdb6c1cc3dd75583bb7bc2c57f5e1034a1bfcb79d27c71aceb0b16af981dbf4
-swagger-spec-validator==2.4.3 \
-    --hash=sha256:57e29feb3aa921a9fb98bd70af148746b27c77d3207266f5571cebcce211e685 \
-    --hash=sha256:62ef22eca3f429d93fddda5d793d2a1a9057d3732e7a14606e641805326ae4a6
+swagger-spec-validator==2.7.3 \
+    --hash=sha256:d1514ec7e3c058c701f27cc74f85ceb876d6418c9db57786b9c54085ed5e29eb \
+    --hash=sha256:f4f23ee4dbd52bfcde90b1144dde22304add6260e9f29252e9fd7814c9b8fd16
 zest.releaser==6.19.0 \
     --hash=sha256:145b192f8e9c4d081c466c5f4be8c393c78936bf7ac736e0baad3a66597fe754 \
     --hash=sha256:2220f453c16da898b62827471b4eb846597fcc81b0dda557596a453229b16f95
