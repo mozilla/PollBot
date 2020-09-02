@@ -137,9 +137,9 @@ yarl==1.1.1 \
 aiohttp_cors==0.6.0 \
     --hash=sha256:3dbe82b2b28bd3dd3f91647ded384461c886daaa446a24f96b5b6a8fa7986836 \
     --hash=sha256:a44d59cb27a9e53377f6d49cfbd486de1aa071df653652e2a58135c01b5915e4
-async_timeout==2.0.0 \
-    --hash=sha256:c17d8ac2d735d59aa62737d76f2787a6c938f5a944ecf768a8c0ab70b0dea566 \
-    --hash=sha256:d3a195a827b0f4068d1616ae2da04aac62e365d14f2b13dbc071f9feed9db4e2
+async_timeout==3.0.1 \
+    --hash=sha256:4291ca197d287d274d0b6cb5d6f8f8f82d434ed288f962539ff18cc9012f9ea3 \
+    --hash=sha256:0c3c816a028d47f659d6ff5c745cb2acf1f966da1fe5c19c77a70282b25f4c5f
 idna_ssl==1.0.0 \
     --hash=sha256:1227e44039bd31e02adaeafdbba61281596d623d222643fb021f87f2144ea147
 aioresponses==0.6.0 \
