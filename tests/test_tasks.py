@@ -62,7 +62,7 @@ class DeliveryTasksTest(asynctest.TestCase):
 
     async def test_tasks_user_agent(self):
         self.mocked.get("http://localhost", status=200)
-        with get_session() as session:
+        async with get_session() as session:
             assert session._default_headers['User-Agent'].startswith("PollBot/")
 
     async def test_get_releases_tasks_return_releases(self):
