@@ -1,0 +1,16 @@
+aiohttp
+aiohttp_cors
+aiohttp_swagger
+aioresponses
+asyncio
+asynctest
+flake8
+mock
+pyquery
+pytest
+pytest-aiohttp
+pytest-cache
+pytest-cover
+ruamel.yaml
+swagger_spec_validator
+zest.releaser
