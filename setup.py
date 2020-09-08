@@ -20,7 +20,7 @@ CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 
 setup(
     name='pollbot',
-    version='1.4.2',
+    version='1.4.3',
     description='A service that polls other services about releases deliveries.',
     long_description="{}\n\n{}\n\n{}".format(README, CHANGELOG, CONTRIBUTORS),
     license='Mozilla Public License 2.0',
