@@ -20,7 +20,7 @@ RUN buildDeps=' \
     # install deps
     apt-get update -y && \
     apt-get install -y --no-install-recommends $buildDeps && \
-    pip install -r requirements.txt -c constraints.txt && \
+    pip install -r requirements.txt && \
     pip install -e /app && \
     # cleanup
     apt-get purge -y $buildDeps && \
