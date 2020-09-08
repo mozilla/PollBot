@@ -34,11 +34,15 @@ async def balrog_rules(product, version):
 
         # There are case were Nightly is deactivated, in that case
         # the mapping is not nightly-latest anymore
-        url = 'https://aus-api.mozilla.org/api/v1/rules/firefox-nightly'
+        url = 'https://aus-api.mozilla.org/api/v1/rules/{}-nightly'.format(product)
+        if product == 'firefox':
+            expected_rule_mapping = 'Firefox-mozilla-central-nightly-latest'
+        else:
+            expected_rule_mapping = 'Thunderbird-comm-central-nightly-latest'
         async with get_session() as session:
             async with session.get(url) as resp:
                 rule = await resp.json()
-                status = rule['mapping'] == 'Firefox-mozilla-central-nightly-latest'
+                status = rule['mapping'] == expected_rule_mapping
 
                 build_ids, appVersions = await get_release_info(rule['mapping'])
 
@@ -47,12 +51,13 @@ async def balrog_rules(product, version):
 
                 old_build_id = [bid for bid in build_ids.values() if not bid.startswith(date)]
 
-                if rule['mapping'] != 'Firefox-mozilla-central-nightly-latest':
+                if rule['mapping'] != expected_rule_mapping:
                     status = Status.MISSING
                     message = ('Balrog rule is configured for {} ({}) instead of '
-                               '"Firefox-mozilla-central-nightly-latest"')
+                               '"{}"')
                     message = message.format(rule['mapping'],
-                                             ', '.join(sorted(set(build_ids.values()))))
+                                             ', '.join(sorted(set(build_ids.values()))),
+                                             expected_rule_mapping)
                 elif old_build_id:
                     platforms = [k for k, v in build_ids.items() if v in old_build_id]
                     status = Status.INCOMPLETE
@@ -74,13 +79,18 @@ async def balrog_rules(product, version):
                 return build_task_response(status, url, message)
 
     elif channel in (Channel.BETA, Channel.AURORA):
-        rule_name = 'devedition' if product == 'devedition' else 'firefox-beta'
+        rule_name = 'devedition' if product == 'devedition' else '{}-beta'.format(product)
         url = 'https://aus-api.mozilla.org/api/v1/rules/{}'.format(rule_name)
     elif channel is Channel.ESR:
         version = re.sub('esr$', '', version)
         url = 'https://aus-api.mozilla.org/api/v1/rules/esr{}'.format(version.split('.')[0])
     else:
-        url = 'https://aus-api.mozilla.org/api/v1/rules/firefox-release'
+        if product == 'thunderbird':
+            # Current rules: thunderbird-release60, thunderbird-release68
+            rule_name = 'thunderbird-release{}'.format(version.split('.')[0])
+        else:
+            rule_name = 'firefox-release'
+        url = 'https://aus-api.mozilla.org/api/v1/rules/{}'.format(rule_name)
 
     async with get_session() as session:
         async with session.get(url) as resp:

@@ -91,7 +91,10 @@ CHECKS = OrderedDict(
     }.items(), key=lambda t: t[0]))
 
 NOT_ACTIONABLE = ['-uptake']
-IGNORES = {'devedition': ['partner-repacks']}
+IGNORES = {'devedition': ['partner-repacks'],
+           'thunderbird': ['partner-repacks',
+                           'devedition-beta-matches',
+                           'telemetry-main-summary-uptake']}
 
 
 @validate_product_version

@@ -457,6 +457,16 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         received = await download_links('firefox', '52.0.2')
         assert received["status"] == Status.EXISTS.value
 
+    async def test_download_links_tasks_returns_true_if_version_matches_thunderbird(self):
+        url = 'https://www.thunderbird.net/en-US/thunderbird/all/'
+        body = '''<html>
+        <body><div id="all-downloads" data-thunderbird-version="52.0.2"></div></body>
+        </html>'''
+        self.mocked.get(url, status=200, body=body)
+
+        received = await download_links('thunderbird', '52.0.2')
+        assert received["status"] == Status.EXISTS.value
+
     async def test_download_links_tasks_returns_true_if_version_matches_for_beta(self):
         url = 'https://www.mozilla.org/fr/firefox/channel/desktop/'
         self.mocked.get(url, status=200, body='''
@@ -499,6 +509,18 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             "/latest-mozilla-central-l10n/firefox-57.0a1.en-US.linux-x86_64.tar.bz2"})
 
         received = await download_links('firefox', '57.0a1')
+        assert received["status"] == Status.EXISTS.value
+
+    async def test_download_links_tasks_returns_true_if_version_matches_thunderbird_nightly(self):
+        url = "https://www.thunderbird.net/en-US/"
+        body = '''<html><body>
+            <a class="download-link btn-nightly"
+        href="https://ftp.mozilla.org/pub/thunderbird/nightly/latest-comm-central-l10n/thunderbird-75.0a1.en-US.linux-x86_64.tar.bz2">
+            Download Nightly</a>
+        </body></html>'''
+        self.mocked.get(url, status=200, body=body)
+
+        received = await download_links('thunderbird', '75.0a1')
         assert received["status"] == Status.EXISTS.value
 
     async def test_download_links_tasks_returns_true_if_older_version_for_beta(self):
@@ -774,6 +796,10 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         assert str(excinfo.value.url) == (
             'https://download.mozilla.org?product=firefox-esr-latest-ssl&os=linux64&lang=en-US')
 
+    async def test_bouncer_tasks_return_true_if_thunderbird_and_nightly(self):
+        received = await bouncer('thunderbird', '57.0a1')
+        assert received["status"] == Status.EXISTS.value
+
     async def test_failing_heartbeat(self):
         # Archive
         url = 'https://archive.mozilla.org/pub/firefox/releases/'
@@ -799,8 +825,12 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         url = 'https://product-details.mozilla.org/1.0/firefox.json'
         self.mocked.get(url, status=404)
 
-        # Product Details
+        # Telemetry
         url = 'https://sql.telemetry.mozilla.org/api/data_sources/1/version'
+        self.mocked.get(url, status=404)
+
+        # Thunderbird web
+        url = 'https://www.thunderbird.net/en-US/thunderbird/all/'
         self.mocked.get(url, status=404)
 
         resp = await heartbeat(None)
@@ -812,6 +842,7 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
             "buildhub": False,
             "product-details": False,
             "telemetry": False,
+            "thunderbird_net": False,
         }
         assert resp.status == 503
 
