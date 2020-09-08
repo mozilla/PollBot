@@ -200,6 +200,6 @@ pytest-cover==3.0.0 \
 swagger-spec-validator==2.4.3 \
     --hash=sha256:57e29feb3aa921a9fb98bd70af148746b27c77d3207266f5571cebcce211e685 \
     --hash=sha256:62ef22eca3f429d93fddda5d793d2a1a9057d3732e7a14606e641805326ae4a6
-zest.releaser==6.19.0 \
-    --hash=sha256:145b192f8e9c4d081c466c5f4be8c393c78936bf7ac736e0baad3a66597fe754 \
-    --hash=sha256:2220f453c16da898b62827471b4eb846597fcc81b0dda557596a453229b16f95
+zest.releaser==6.22.0 \
+    --hash=sha256:d0b3ef9bd7dfc95a424bb8e2d80045747eff3485d4f66979bf39b75d8bf734d1 \
+    --hash=sha256:496f3336d73eb36108ff9cc6ecbdf197b25fae51653f10cedea27b14e1c4a8fe
