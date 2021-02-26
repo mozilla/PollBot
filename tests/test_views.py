@@ -61,6 +61,11 @@ async def test_redirects_trailing_slashes(cli):
     assert resp.headers['Location'] == "/v1/firefox/54.0"
 
 
+async def test_redirects_strip_leading_slashes(cli):
+    resp = await check_response(cli, "//page/", status=302, allow_redirects=False)
+    assert resp.headers['Location'] == "/page"
+
+
 async def check_yaml_resource(cli, url, filename, **kwargs):
     with open(os.path.join(HERE, "..", "pollbot", filename)) as stream:
         content = yaml.safe_load(stream)

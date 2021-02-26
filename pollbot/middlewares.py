@@ -61,7 +61,7 @@ async def handle_any(request, response):
 async def handle_404(request, response):
     if 'json' not in response.headers['Content-Type']:
         if request.path.endswith('/'):
-            return web.HTTPFound(request.path.rstrip('/'))
+            return web.HTTPFound('/' + request.path.strip('/'))
         return web.json_response({
             "status": 404,
             "message": "Page '{}' not found".format(request.path)
