@@ -62,6 +62,7 @@ async def test_redirects_trailing_slashes(cli):
 
 
 async def test_redirects_strip_leading_slashes(cli):
+    cli.server.skip_url_asserts = True
     resp = await check_response(cli, "//page/", status=302, allow_redirects=False)
     assert resp.headers['Location'] == "/page"
 
