@@ -1,6 +1,75 @@
 CHANGELOG
 =========
 
+1.4.4 (2021-03-01)
+------------------
+
+- (HEAD -> master, upstream/master) Merge pull request #333 from bhearsum/advisory-fix-1
+
+- (sec/advisory-fix-1, origin/advisory-fix-1, advisory-fix-1) Fix invalid request in view test
+
+- Add missing MarkupSafe hash
+
+- Remove leading slashes in 404 redirections
+
+- (tag: 1.4.3, sec/master, origin/master, origin/HEAD, open-redirect) Merge pull request #311 from mozbhearsum/remove-constraints
+
+- (origin/remove-constraints, remove-constraints) Remove now-unused constraints file
+
+- Version bump
+
+- Merge pull request #308 from mozbhearsum/deps
+
+- (origin/deps, deps) Fix deps
+
+- Merge latest from master
+
+- Fix async with in tests
+
+- Bump dependencies
+
+- Add requirements.in
+
+- Merge pull request #278 from mozilla/dependabot/pip/markupsafe-1.1.1
+
+- Merge pull request #253 from jfx2006/thunderbird-support
+
+- Bump markupsafe from 1.0 to 1.1.1
+
+- Add dependabot config
+
+- Fix line length and whitespace test errors.
+
+- Add some new tests for Thunderbird specific cases.
+
+- Fixes for existing tests
+
+- Make existing tests aware of thunderbird product.
+
+- Support download links for Thunderbird release and beta.
+
+- Add heartbeat for www.thunderbird.net
+
+- Combine archives rules for RELASE and BETA/AURORA channels.
+
+- Enable 'thunderbird' product.
+
+- Disable checks that do not apply to Thunderbird releases.
+
+- Support Thunderbird in product_details task.
+
+- Support Thunderbird in bedrock task.
+
+- Support Thunderbird in balrog task.
+
+- Support Thunderbird in archive task.
+
+- Support Thunderbird in bouncer task.
+
+- Support Thunderbird in buildhub task.
+
+
+
 1.4.2 (2019-11-05)
 ------------------
 
