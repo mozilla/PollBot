@@ -514,9 +514,9 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
     async def test_download_links_tasks_returns_true_if_version_matches_thunderbird_nightly(self):
         url = "https://www.thunderbird.net/en-US/"
         body = '''<html><body>
-            <a class="download-link btn-nightly"
+            <a class="download-link btn-daily"
         href="https://ftp.mozilla.org/pub/thunderbird/nightly/latest-comm-central-l10n/thunderbird-75.0a1.en-US.linux-x86_64.tar.bz2">
-            Download Nightly</a>
+            Download Daily</a>
         </body></html>'''
         self.mocked.get(url, status=200, body=body)
 
