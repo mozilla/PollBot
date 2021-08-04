@@ -177,7 +177,7 @@ async def download_links(product, version):
 
             if product == 'thunderbird':
                 if channel is Channel.NIGHTLY:
-                    link_path = ".download-link.btn-nightly"
+                    link_path = ".download-link.btn-daily"
                     url = d(link_path).attr('href')
                     filename = os.path.basename(url)
                     last_release = get_version_from_filename(filename)
