@@ -26,8 +26,8 @@ RUN buildDeps=' \
     apt-get purge -y $buildDeps && \
     rm -rf /var/lib/apt/lists/* && \
     # allow run-tests.sh to run pip install successfully
-    chmod 777 /app && \
-    chmod -R 777 /app/pollbot.egg-info
+    chown pollbot:pollbot /app && \
+    chown -R pollbot:pollbot /app/pollbot.egg-info
 
 USER pollbot
 
