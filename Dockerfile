@@ -24,7 +24,10 @@ RUN buildDeps=' \
     pip install -e /app && \
     # cleanup
     apt-get purge -y $buildDeps && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    # allow run-tests.sh to run pip install successfully
+    chown pollbot:pollbot /app && \
+    chown -R pollbot:pollbot /app/pollbot.egg-info
 
 USER pollbot
 
