@@ -1,6 +1,35 @@
 CHANGELOG
 =========
 
+1.4.5 (2021-10-14)
+------------------
+
+- Merge pull request #352 from gbrownmozilla/upgrade-requirments-txt
+
+- upgrade all requirements via pip-compile --upgrade in python 3.6
+
+- Merge pull request #351 from gbrownmozilla/permissions-fix
+
+- use chown instead
+
+- relax docker file permissions to allow run-tests.sh to run pip install successfully
+
+- Merge pull request #349 from gbrownmozilla/python-version
+
+- Merge pull request #348 from gbrownmozilla/reformat-requirements-txt
+
+- add .python-version file, for dependabot
+
+- update requirements.txt with modern pip-compile, python 3.6
+
+- Merge pull request #346 from jfx2006/thunderbird-support
+
+- Update test for Thunderbird Daily download link.
+
+- Update Thunderbird Nightly download link query selector
+
+
+
 1.4.4 (2021-03-01)
 ------------------
 
