@@ -52,8 +52,9 @@ aiohttp-cors==0.7.0 \
     --hash=sha256:0451ba59fdf6909d0e2cd21e4c0a43752bc0703d33fc78ae94d9d9321710193e \
     --hash=sha256:4d39c6d7100fd9764ed1caf8cebf0eb01bf5e3f24e2e073fda6234bc48b19f5d
     # via -r requirements.in
-aiohttp-swagger==1.0.15 \
-    --hash=sha256:9ff0e7b55896abe824425dceea4574c414c4dfbe906d1353ff748f0a62e48cbe
+aiohttp_swagger==1.0.16 \
+    --hash=sha256:48e5d9e9a9ece13afd67ab37209c01fbd2b691694559b08141e4a89f8a28b126 \
+    --hash=sha256:96ada287da3fb4ed47c0a9853d565ba500a17e4230bcaafda0e8bb66974787e9
     # via -r requirements.in
 aioresponses==0.7.2 \
     --hash=sha256:2f8ff624543066eb465b0238de68d29231e8488f41dc4b5a9dae190982cdae50 \
@@ -372,9 +373,7 @@ markupsafe==1.1.1 \
     --hash=sha256:e249096428b3ae81b08327a63a485ad0878de3fb939049038579ac0ef61e17e7 \
     --hash=sha256:e8313f01ba26fbbe36c7be1966a7b7424942f670f38e666995b88d012765b9be \
     --hash=sha256:feb7b34d6325451ef96bc0e36e1a6c0c1c64bc1fbec4b854f4529e51887b1621
-    # via
-    #   aiohttp-swagger
-    #   jinja2
+    # via jinja2
 mccabe==0.6.1 \
     --hash=sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42 \
     --hash=sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f
