@@ -752,9 +752,9 @@ six==1.16.0 \
     #   jsonschema
     #   swagger-spec-validator
     #   zest.releaser
-swagger-spec-validator==2.7.3 \
-    --hash=sha256:d1514ec7e3c058c701f27cc74f85ceb876d6418c9db57786b9c54085ed5e29eb \
-    --hash=sha256:f4f23ee4dbd52bfcde90b1144dde22304add6260e9f29252e9fd7814c9b8fd16
+swagger_spec_validator==2.7.4 \
+    --hash=sha256:2aee5e1fc0503be9f8299378b10c92169572781573c6de3315e831fd0559ba73 \
+    --hash=sha256:4e373a4db5262e7257fde17d84c5c0178327b8057985ab1be63f580bfa009855
     # via -r requirements.in
 toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
