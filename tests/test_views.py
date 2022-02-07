@@ -68,7 +68,8 @@ async def test_redirects_strip_leading_slashes(cli):
     # also strip leading and trailing whitespace
     resp = await check_response(cli, "/%0a/www.evil.com/", status=302, allow_redirects=False)
     assert resp.headers['Location'] == "/www.evil.com"
-    resp = await check_response(cli, "/%0a /www.evil.com %0a%0b/", status=302, allow_redirects=False)
+    resp = await check_response(cli, "/%0a /www.evil.com %0a%0b/", status=302,
+                                allow_redirects=False)
     assert resp.headers['Location'] == "/www.evil.com"
 
 
