@@ -1,6 +1,7 @@
 import logging
 from aiohttp import web
 import os
+import string
 
 logger = logging.getLogger(__package__)
 
@@ -65,7 +66,7 @@ async def handle_404(request, response):
         #  - only redirect "/v1/.../"?
         #  - remove the redirect entirely; use duplicate routes instead, in app.py
         if request.path.endswith('/'):
-            return web.HTTPFound('/' + request.path.strip('/ \r\n'))
+            return web.HTTPFound('/' + request.path.strip('/'+string.whitespace))
         return web.json_response({
             "status": 404,
             "message": "Page '{}' not found".format(request.path)
