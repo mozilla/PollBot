@@ -65,6 +65,11 @@ async def test_redirects_strip_leading_slashes(cli):
     cli.server.skip_url_asserts = True
     resp = await check_response(cli, "//page/", status=302, allow_redirects=False)
     assert resp.headers['Location'] == "/page"
+    # also strip leading and trailing whitespace
+    resp = await check_response(cli, "/%0a/www.evil.com/", status=302, allow_redirects=False)
+    assert resp.headers['Location'] == "/www.evil.com"
+    resp = await check_response(cli, "/%0a /www.evil.com %0a%0b/", status=302, allow_redirects=False)
+    assert resp.headers['Location'] == "/www.evil.com"
 
 
 async def check_yaml_resource(cli, url, filename, **kwargs):
