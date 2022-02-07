@@ -60,8 +60,12 @@ async def handle_any(request, response):
 
 async def handle_404(request, response):
     if 'json' not in response.headers['Content-Type']:
+        # This traling slash redirect has caused security issues.
+        # If it continues to be problematic, consider:
+        #  - only redirect "/v1/.../"?
+        #  - remove the redirect entirely; use duplicate routes instead, in app.py
         if request.path.endswith('/'):
-            return web.HTTPFound('/' + request.path.strip('/'))
+            return web.HTTPFound('/' + request.path.strip('/ \r\n'))
         return web.json_response({
             "status": 404,
             "message": "Page '{}' not found".format(request.path)
