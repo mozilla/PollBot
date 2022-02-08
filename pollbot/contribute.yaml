@@ -3,13 +3,8 @@ description: A hardworking little robot (microservice) that frees its human mast
 repository:
   license: Mozilla Public Licence 2.0
   url: https://github.com/mozilla/PollBot
-  tests: https://travis-ci.org/mozilla/PollBot/
 participate:
-  irc: irc://irc.mozilla.org/#product-delivery
   docs: https://github.com/mozilla/PollBot
-  irc-contacts:
-  - Natim
-  - mostlygeek
 keywords:
 - JSON
 - Python
@@ -20,4 +15,3 @@ keywords:
 - Mozilla
 - release
 - bots
-whatsdeployed: https://whatsdeployed.io/s-D5S
