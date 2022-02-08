@@ -1,6 +1,53 @@
 CHANGELOG
 =========
 
+1.4.6 (2022-02-08)
+------------------
+
+- Merge pull request #361 from gbrownmozilla/cleanup
+
+- Add CODEOWNERS, remove some broken links
+
+- Merge pull request #360 from gbrownmozilla/redirects
+
+- Fix lint error
+
+- Expand unit tests
+
+- Merge pull request #358 from mozilla/dependabot/pip/aioresponses-0.7.3
+
+- Merge pull request #359 from mozilla/dependabot/pip/pytest-7.0.0
+
+- Merge pull request #357 from mozilla/dependabot/pip/lxml-4.6.5
+
+- Use string.whitespace
+
+- Harden trailing slashes redirect
+
+- Bump pytest from 6.2.5 to 7.0.0
+
+- Bump aioresponses from 0.7.2 to 0.7.3
+
+- Bump lxml from 4.6.3 to 4.6.5
+
+- Merge pull request #356 from mozilla/dependabot/pip/aiohttp-3.8.1
+
+- Bump aiohttp from 3.8.0 to 3.8.1
+
+- Merge pull request #355 from mozilla/dependabot/pip/swagger-spec-validator-2.7.4
+
+- Merge pull request #354 from mozilla/dependabot/pip/aiohttp-3.8.0
+
+- Bump aiohttp from 3.7.4.post0 to 3.8.0
+
+- Merge pull request #353 from mozilla/dependabot/pip/aiohttp-swagger-1.0.16
+
+- Bump swagger-spec-validator from 2.7.3 to 2.7.4
+
+- Bump aiohttp-swagger from 1.0.15 to 1.0.16
+
+
+
 1.4.5 (2021-10-14)
 ------------------
 
