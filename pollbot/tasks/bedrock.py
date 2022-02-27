@@ -129,7 +129,7 @@ async def security_advisories(product, version):
                     last_release = d("html").attr('data-latest-firefox')
             elif product == 'thunderbird':
                 security_product = product
-                last_release_h3_id = d('h3.level-heading:first').attr('id')  # thunderbird91.5, thunderbird91.6.1
+                last_release_h3_id = d('h3.level-heading:first').attr('id')  # thunderbird91.6.1
                 if not last_release_h3_id.startswith('thunderbird'):
                     msg = 'Security advisories not found for {}'.format(product)
                     raise TaskError(msg)
