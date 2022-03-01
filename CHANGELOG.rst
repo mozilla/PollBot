@@ -1,6 +1,21 @@
 CHANGELOG
 =========
 
+1.4.7 (2022-03-01)
+------------------
+
+- Merge pull request #365 from jfx2006/tb_security_bugfix
+
+- line too long fix
+
+- Fix Thunderbird security advisories for patch level releases. #364
+
+- Merge pull request #363 from gbrownmozilla/circleci-image
+
+- update circleci image
+
+
+
 1.4.6 (2022-02-08)
 ------------------
 
