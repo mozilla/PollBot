@@ -661,12 +661,17 @@ pytest==7.1.2 \
     # via
     #   -r requirements.in
     #   pytest-aiohttp
+    #   pytest-asyncio
     #   pytest-cache
     #   pytest-cov
-pytest-aiohttp==0.3.0 \
-    --hash=sha256:0b9b660b146a65e1313e2083d0d2e1f63047797354af9a28d6b7c9f0726fa33d \
-    --hash=sha256:c929854339637977375838703b62fef63528598bc0a9d451639eba95f4aaa44f
+pytest-aiohttp==1.0.4 \
+    --hash=sha256:1d2dc3a304c2be1fd496c0c2fb6b31ab60cd9fc33984f761f951f8ea1eb4ca95 \
+    --hash=sha256:39ff3a0d15484c01d1436cbedad575c6eafbf0f57cdf76fb94994c97b5b8c5a4
     # via -r requirements.in
+pytest-asyncio==0.19.0 \
+    --hash=sha256:7a97e37cfe1ed296e2e84941384bdd37c376453912d397ed39293e0916f521fa \
+    --hash=sha256:ac4ebf3b6207259750bc32f4c1d8fcd7e79739edbc67ad0c58dd150b1d072fed
+    # via pytest-aiohttp
 pytest-cache==1.0 \
     --hash=sha256:be7468edd4d3d83f1e844959fd6e3fd28e77a481440a7118d430130ea31b07a9
     # via -r requirements.in
