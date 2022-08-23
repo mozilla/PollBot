@@ -1,6 +1,5 @@
 # Mozilla PollBot server
-FROM python:3.6-slim
-MAINTAINER Product Delivery irc://irc.mozilla.org/#product-delivery
+FROM python:3.8-slim
 
 RUN groupadd -g 10001 pollbot && \
     useradd -M -u 10001 -g 10001 -G pollbot -d /app -s /sbin/nologin pollbot

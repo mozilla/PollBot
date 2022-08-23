@@ -8,7 +8,7 @@ flake8
 mock
 pyquery
 pytest
-pytest-aiohttp
+pytest-aiohttp==0.3.0
 pytest-cache
 pytest-cover
 ruamel.yaml
