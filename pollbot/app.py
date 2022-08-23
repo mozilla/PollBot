@@ -10,8 +10,8 @@ from .views import home, release, utilities, product
 HERE = os.path.dirname(__file__)
 
 
-def get_app(loop=None):
-    app = web.Application(loop=loop)
+def get_app():
+    app = web.Application()
 
     # Setup middlewares
     setup_middlewares(app)

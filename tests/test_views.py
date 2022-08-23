@@ -18,7 +18,7 @@ HERE = os.path.dirname(__file__)
 
 
 @pytest.fixture
-def cli(loop, test_client):
+def cli(event_loop, aiohttp_client):
     async def error403(request):
         raise web.HTTPForbidden()
 
@@ -28,11 +28,11 @@ def cli(loop, test_client):
     async def error(request):
         raise ValueError()
 
-    app = get_app(loop=loop)
+    app = get_app()
     app.router.add_get('/error', error)
     app.router.add_get('/error-403', error403)
     app.router.add_get('/error-404', error404)
-    return loop.run_until_complete(test_client(app))
+    return event_loop.run_until_complete(aiohttp_client(app))
 
 
 async def check_response(cli, url, *, status=200, body=None, method="get", **kwargs):

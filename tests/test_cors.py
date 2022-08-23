@@ -1,10 +1,11 @@
 import pytest
+from aiohttp import web
 from pollbot.app import get_app
 
 
 @pytest.fixture
-def cli(loop, test_client):
-    return loop.run_until_complete(test_client(get_app(loop=loop)))
+def cli(event_loop, aiohttp_client):
+    return event_loop.run_until_complete(aiohttp_client(get_app()))
 
 
 async def check_cors(cli, url):
