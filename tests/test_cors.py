@@ -1,5 +1,4 @@
 import pytest
-from aiohttp import web
 from pollbot.app import get_app
 
 
