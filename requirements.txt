@@ -203,7 +203,7 @@ charset-normalizer==2.1.1 \
 colorama==0.4.5 \
     --hash=sha256:854bf444933e37f5824ae7bfc1e98d5bce2ebe4160d46b5edf346a89358e99da \
     --hash=sha256:e6c6b4334fc50988a639d9b98aa429a0b57da6e17b9a44f0451f930b6967b7a4
-    # via zest.releaser
+    # via zest-releaser
 commonmark==0.9.1 \
     --hash=sha256:452f9dc859be7f06631ddcb328b6919c67984aca654e5fefb3914d54691aed60 \
     --hash=sha256:da2f38c92590f83de410ba1a3cbceafbc74fee9def35f9251ba9a971d6d66fd9
@@ -655,9 +655,9 @@ pyrsistent==0.18.1 \
     --hash=sha256:f87cc2863ef33c709e237d4b5f4502a62a00fab450c9e020892e8e2ede5847f5 \
     --hash=sha256:fd8da6d0124efa2f67d86fa70c851022f87c98e205f0594e1fae044e7119a5a6
     # via jsonschema
-pytest==7.1.2 \
-    --hash=sha256:13d0e3ccfc2b6e26be000cb6568c832ba67ba32e719443bfe725814d3c42433c \
-    --hash=sha256:a06a0425453864a270bc45e71f783330a7428defb4230fb5e6a731fde06ecd45
+pytest==7.1.3 \
+    --hash=sha256:1377bda3466d70b55e3f5cecfa55bb7cfcf219c7964629b967c37cf0bda818b7 \
+    --hash=sha256:4f365fec2dff9c1162f834d9f18af1ba13062db0c708bf7b946f8a5c76180c39
     # via
     #   -r requirements.in
     #   pytest-aiohttp
@@ -730,7 +730,7 @@ requests==2.28.1 \
     # via
     #   requests-toolbelt
     #   twine
-    #   zest.releaser
+    #   zest-releaser
 requests-toolbelt==0.9.1 \
     --hash=sha256:380606e1d10dc85c3bd47bf5a6095f815ec007be7a8b69c878507068df059e6f \
     --hash=sha256:968089d4584ad4ad7c171454f0a5c6dac23971e9472521ea3b6d49d610aa6fc0
@@ -743,11 +743,11 @@ rich==12.5.1 \
     --hash=sha256:2eb4e6894cde1e017976d2975ac210ef515d7548bc595ba20e195fb9628acdeb \
     --hash=sha256:63a5c5ce3673d3d5fbbf23cd87e11ab84b6b451436f1b7f19ec54b6bc36ed7ca
     # via twine
-ruamel.yaml==0.17.21 \
+ruamel-yaml==0.17.21 \
     --hash=sha256:742b35d3d665023981bd6d16b3d24248ce5df75fdb4e2924e93a05c1f8b61ca7 \
     --hash=sha256:8b7ce697a2f212752a35c1ac414471dc16c424c9573be4926b56ff3f5d23b7af
     # via -r requirements.in
-ruamel.yaml.clib==0.2.6 \
+ruamel-yaml-clib==0.2.6 \
     --hash=sha256:066f886bc90cc2ce44df8b5f7acfc6a7e2b2e672713f027136464492b0c34d7c \
     --hash=sha256:0847201b767447fc33b9c235780d3aa90357d20dd6108b92be544427bea197dd \
     --hash=sha256:1070ba9dd7f9370d0513d649420c3b362ac2d687fe78c6e888f5b12bf8bc7bee \
@@ -778,7 +778,7 @@ ruamel.yaml.clib==0.2.6 \
     --hash=sha256:d67f273097c368265a7b81e152e07fb90ed395df6e552b9fa858c6d2c9f42502 \
     --hash=sha256:dc6a613d6c74eef5a14a214d433d06291526145431c3b964f5e16529b1842bed \
     --hash=sha256:de9c6b8a1ba52919ae919f3ae96abb72b994dd0350226e28f3686cb4f142165c
-    # via ruamel.yaml
+    # via ruamel-yaml
 secretstorage==3.3.3 \
     --hash=sha256:2403533ef369eca6d2ba81718576c5e0f564d5cca1b58f73a8b23e7d4eeebd77 \
     --hash=sha256:f356e6628222568e3af06f2eba8df495efa13b3b63081dafd4f7d9a7b7bc9f99
@@ -789,7 +789,7 @@ six==1.16.0 \
     # via
     #   bleach
     #   swagger-spec-validator
-    #   zest.releaser
+    #   zest-releaser
 swagger-spec-validator==2.7.4 \
     --hash=sha256:2aee5e1fc0503be9f8299378b10c92169572781573c6de3315e831fd0559ba73 \
     --hash=sha256:4e373a4db5262e7257fde17d84c5c0178327b8057985ab1be63f580bfa009855
@@ -803,7 +803,7 @@ tomli==2.0.1 \
 twine==4.0.1 \
     --hash=sha256:42026c18e394eac3e06693ee52010baa5313e4811d5a11050e7d48436cf41b9e \
     --hash=sha256:96b1cf12f7ae611a4a40b6ae8e9570215daff0611828f5fe1f37a16255ab24a0
-    # via zest.releaser
+    # via zest-releaser
 typing-extensions==4.3.0 \
     --hash=sha256:25642c956049920a5aa49edcdd6ab1e06d7e5d467fc00e0506c44ac86fbfca02 \
     --hash=sha256:e6d2677a32f47fc7eb2795db1dd15c1f34eff616bcaf2cfb5e997f854fa1c4a6
@@ -879,7 +879,7 @@ yarl==1.8.1 \
     --hash=sha256:f5af52738e225fcc526ae64071b7e5342abe03f42e0e8918227b38c9aa711e28 \
     --hash=sha256:fae37373155f5ef9b403ab48af5136ae9851151f7aacd9926251ab26b953118b
     # via aiohttp
-zest.releaser==6.22.2 \
+zest-releaser==6.22.2 \
     --hash=sha256:c9185cccaf621426b7b9b62eb628e473ddd00007a1c31b99e845c8526d56200e \
     --hash=sha256:fe3814a78dc68712de46f78c8e2dbe65639b79c86a5ff29eab4d0b8696f69926
     # via -r requirements.in
@@ -894,4 +894,4 @@ zipp==3.8.1 \
 setuptools==65.2.0 \
     --hash=sha256:7f4bc85450898a09f76ebf28b72fa25bc7111f6c7d665d514a60bba9c75ef2a9 \
     --hash=sha256:a3ca5857c89f82f5c9410e8508cb32f4872a3bafd4aa7ae122a24ca33bccc750
-    # via zest.releaser
+    # via zest-releaser
