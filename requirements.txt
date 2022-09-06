@@ -790,9 +790,9 @@ six==1.16.0 \
     #   bleach
     #   swagger-spec-validator
     #   zest-releaser
-swagger-spec-validator==2.7.4 \
-    --hash=sha256:2aee5e1fc0503be9f8299378b10c92169572781573c6de3315e831fd0559ba73 \
-    --hash=sha256:4e373a4db5262e7257fde17d84c5c0178327b8057985ab1be63f580bfa009855
+swagger-spec-validator==2.7.6 \
+    --hash=sha256:73f33e631a58f407265f2f813d194f2762a2b86f9aa905e7eee3df9b7f9428d3 \
+    --hash=sha256:ff55d671f4cf8a386e7ecda60267d6cdd2cfbe0b3521a8ccf09b0669cbb72ab6
     # via -r requirements.in
 tomli==2.0.1 \
     --hash=sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc \
