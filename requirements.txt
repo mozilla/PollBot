@@ -801,12 +801,10 @@ secretstorage==3.3.3 \
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
-    # via
-    #   bleach
-    #   swagger-spec-validator
-swagger-spec-validator==2.7.6 \
-    --hash=sha256:73f33e631a58f407265f2f813d194f2762a2b86f9aa905e7eee3df9b7f9428d3 \
-    --hash=sha256:ff55d671f4cf8a386e7ecda60267d6cdd2cfbe0b3521a8ccf09b0669cbb72ab6
+    # via bleach
+swagger-spec-validator==3.0.2 \
+    --hash=sha256:bf3af74e7e76539d89a44fd010f1e6edbf3e12df964bebbe73b8804cf2b0f1ff \
+    --hash=sha256:da5aa63f3da80d0cb390dbe2d0b4d7186d0a62e141a1f0b1938a26a96b1f077d
     # via -r requirements.in
 tomli==2.0.1 \
     --hash=sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc \
