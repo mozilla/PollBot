@@ -802,9 +802,9 @@ six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
     # via bleach
-swagger-spec-validator==3.0.2 \
-    --hash=sha256:bf3af74e7e76539d89a44fd010f1e6edbf3e12df964bebbe73b8804cf2b0f1ff \
-    --hash=sha256:da5aa63f3da80d0cb390dbe2d0b4d7186d0a62e141a1f0b1938a26a96b1f077d
+swagger-spec-validator==3.0.3 \
+    --hash=sha256:16a5ce08c772824a77b1a4a05efc047d72eef1ed53fb969dfe0a18f437ac30a8 \
+    --hash=sha256:174b5de4ab0899df9a57d35c880aaa515511c4b8b578d9d519b09a9596537055
     # via -r requirements.in
 tomli==2.0.1 \
     --hash=sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc \
@@ -819,7 +819,9 @@ twine==4.0.1 \
 typing-extensions==4.3.0 \
     --hash=sha256:25642c956049920a5aa49edcdd6ab1e06d7e5d467fc00e0506c44ac86fbfca02 \
     --hash=sha256:e6d2677a32f47fc7eb2795db1dd15c1f34eff616bcaf2cfb5e997f854fa1c4a6
-    # via rich
+    # via
+    #   rich
+    #   swagger-spec-validator
 urllib3==1.26.12 \
     --hash=sha256:3fa96cf423e6987997fc326ae8df396db2a8b7c667747d47ddd8ecba91f4a74e \
     --hash=sha256:b930dd878d5a8afb066a637fbb35144fe7901e3b209d1cd4f524bd0e9deee997
