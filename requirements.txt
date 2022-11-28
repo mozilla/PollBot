@@ -893,9 +893,9 @@ yarl==1.8.1 \
     --hash=sha256:f5af52738e225fcc526ae64071b7e5342abe03f42e0e8918227b38c9aa711e28 \
     --hash=sha256:fae37373155f5ef9b403ab48af5136ae9851151f7aacd9926251ab26b953118b
     # via aiohttp
-zest-releaser==7.0.0 \
-    --hash=sha256:ada1448ff3b7fc9e993790a0e85067413c9b759a273e176d3978ee888fed7d34 \
-    --hash=sha256:ecf46536a89f7b96fe66c58a0b0480f0fe8cd64377175378f6ef07e0ee013cc6
+zest-releaser==7.1.0 \
+    --hash=sha256:2fe9add1a97e124af2a2ae33041248bcc23cf1b2c5b795fb4cc0da5848eab503 \
+    --hash=sha256:b356b5d69c195d5f9735331cbd7e52e0492a7cb20f527d19677ac14388278739
     # via -r requirements.in
 zipp==3.8.1 \
     --hash=sha256:05b45f1ee8f807d0cc928485ca40a07cb491cf092ff587c0df9cb1fd154848d2 \
