@@ -1,6 +1,75 @@
 CHANGELOG
 =========
 
+1.4.8 (2022-12-15)
+------------------
+
+- Merge pull request #383 from mozilla/dependabot/pip/cryptography-38.0.3
+
+- Merge pull request #380 from mozilla/dependabot/pip/certifi-2022.12.7
+
+- Bump certifi from 2022.6.15 to 2022.12.7
+
+- Bump cryptography from 37.0.4 to 38.0.3
+
+- Merge pull request #382 from mozilla/dependabot/pip/zest-releaser-7.2.0
+
+- Bump zest-releaser from 7.0.0 to 7.2.0
+
+- Merge pull request #378 from mozilla/dependabot/pip/swagger-spec-validator-3.0.3
+
+- Bump swagger-spec-validator from 3.0.2 to 3.0.3
+
+- Merge pull request #377 from mozilla/dependabot/pip/pytest-7.2.0
+
+- Bump pytest from 7.1.3 to 7.2.0
+
+- Merge pull request #376 from mozilla/dependabot/pip/swagger-spec-validator-3.0.2
+
+- Bump swagger-spec-validator from 2.7.6 to 3.0.2
+
+- Merge pull request #375 from mozilla/dependabot/pip/aiohttp-3.8.3
+
+- Bump aiohttp from 3.8.1 to 3.8.3
+
+- Merge pull request #374 from mozilla/dependabot/pip/zest-releaser-7.0.0
+
+- Bump zest-releaser from 6.22.2 to 7.0.0
+
+- Merge pull request #371 from mozilla/dependabot/pip/swagger-spec-validator-2.7.6
+
+- Bump swagger-spec-validator from 2.7.4 to 2.7.6
+
+- Merge pull request #372 from mozilla/dependabot/pip/pytest-7.1.3
+
+- Bump pytest from 7.1.2 to 7.1.3
+
+- Merge pull request #373 from gbrownmozilla/fix-lint
+
+- remove unused import to fix lint error
+
+- Merge pull request #370 from gbrownmozilla/upgrade-pytest
+
+- Upgrade pytest-aiohttp to 1.0.4
+
+- Merge pull request #369 from gbrownmozilla/upgrade-python
+
+- Use python 3.8, re-pin requirements
+
+- Merge pull request #368 from mozilla/dependabot/pip/flake8-5.0.4
+
+- Bump flake8 from 4.0.1 to 5.0.4
+
+- Merge pull request #367 from mozilla/dependabot/pip/lxml-4.9.1
+
+- Bump lxml from 4.6.5 to 4.9.1
+
+- Merge pull request #366 from mozilla/dependabot/pip/pytest-7.0.1
+
+- Bump pytest from 7.0.0 to 7.0.1
+
+
+
 1.4.7 (2022-03-01)
 ------------------
 
