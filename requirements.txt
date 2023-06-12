@@ -887,6 +887,7 @@ tomli==2.0.1 \
     # via
     #   coverage
     #   pytest
+    #   zest-releaser
 twine==4.0.2 \
     --hash=sha256:929bc3c280033347a00f847236564d1c52a3e61b1ac2516c97c48f3ceab756d8 \
     --hash=sha256:9e102ef5fdd5a20661eb88fad46338806c3bd32cf1db729603fe3697b1bc83c8
@@ -983,9 +984,9 @@ yarl==1.8.2 \
     --hash=sha256:fc77086ce244453e074e445104f0ecb27530d6fd3a46698e33f6c38951d5a0f1 \
     --hash=sha256:ff205b58dc2929191f68162633d5e10e8044398d7a45265f90a0f1d51f85f72c
     # via aiohttp
-zest-releaser==7.3.0 \
-    --hash=sha256:76ea1e569c21657f025bbc7a8157db78e165b4efc349f0cd0db9fac143292d11 \
-    --hash=sha256:bf9c57aefdb16b8f96cc5c7ef10e07749457d7ade658169ecd672a42529e212e
+zest-releaser==8.0.0 \
+    --hash=sha256:9b6495d02e594b318862f35cec84c596bf3fe37842db0009c39201f2ebcef809 \
+    --hash=sha256:e18ee4d41de08274687bb625ffbfbd3e66b15bcba28c660eb072306f635f885f
     # via -r requirements.in
 zipp==3.13.0 \
     --hash=sha256:23f70e964bc11a34cef175bc90ba2914e1e4545ea1e3e2f67c079671883f9cb6 \
