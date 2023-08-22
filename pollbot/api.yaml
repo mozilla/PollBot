@@ -17,7 +17,7 @@ parameters:
   product:
     name: "product"
     in: "path"
-    description: "Mozila Product name (i.e firefox, devedition)"
+    description: "Mozilla Product name (i.e firefox, devedition)"
     required: true
     type: "string"
   version:
