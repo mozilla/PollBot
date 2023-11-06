@@ -270,7 +270,9 @@ coverage[toml]==7.1.0 \
     --hash=sha256:f2cba5c6db29ce991029b5e4ac51eb36774458f0a3b8d3137241b32d1bb91f06 \
     --hash=sha256:f5b4198d85a3755d27e64c52f8c95d6333119e49fd001ae5798dac872c95e0f8 \
     --hash=sha256:ffeeb38ee4a80a30a6877c5c4c359e5498eec095878f1581453202bfacc8fbc2
-    # via pytest-cov
+    # via
+    #   coverage
+    #   pytest-cov
 cryptography==41.0.4 \
     --hash=sha256:004b6ccc95943f6a9ad3142cfabcc769d7ee38a3f60fb0dddbfb431f818c3a67 \
     --hash=sha256:047c4603aeb4bbd8db2756e38f5b8bd7e94318c047cfe4efeb5d715e08b49311 \
@@ -829,9 +831,9 @@ rich==13.3.1 \
     --hash=sha256:125d96d20c92b946b983d0d392b84ff945461e5a06d3867e9f9e575f8697b67f \
     --hash=sha256:8aa57747f3fc3e977684f0176a88e789be314a99f99b43b75d1e9cb5dc6db9e9
     # via twine
-ruamel-yaml==0.17.35 \
-    --hash=sha256:801046a9caacb1b43acc118969b49b96b65e8847f29029563b29ac61d02db61b \
-    --hash=sha256:b105e3e6fc15b41fdb201ba1b95162ae566a4ef792b9f884c46b4ccc5513a87a
+ruamel-yaml==0.18.5 \
+    --hash=sha256:61917e3a35a569c1133a8f772e1226961bf5a1198bea7e23f06a0841dea1ab0e \
+    --hash=sha256:a013ac02f99a69cdd6277d9664689eb1acba07069f912823177c5eced21a6ada
     # via -r requirements.in
 ruamel-yaml-clib==0.2.7 \
     --hash=sha256:045e0626baf1c52e5527bd5db361bc83180faaba2ff586e763d3d5982a876a9e \
