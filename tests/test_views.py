@@ -75,7 +75,7 @@ async def test_redirects_strip_leading_slashes(cli):
 
 async def check_yaml_resource(cli, url, filename, **kwargs):
     with open(os.path.join(HERE, "..", "pollbot", filename)) as stream:
-        content = yaml.safe_load(stream)
+        content = yaml.YAML(typ='safe', pure=True).load(stream)
     resp = await cli.get(url, headers={"Host": "127.0.0.1"})
     content.update(**kwargs)
     assert await resp.json() == content

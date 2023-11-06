@@ -25,13 +25,13 @@ async def version(request):
 
 def render_yaml_file(filename):
     with open(os.path.join(HERE, "..", filename)) as stream:
-        content = yaml.safe_load(stream)
+        content = yaml.YAML(typ='safe', pure=True).load(stream)
     return web.json_response(content)
 
 
 async def oas_spec(request):
     with open(os.path.join(HERE, "..", 'api.yaml')) as stream:
-        content = yaml.safe_load(stream)
+        content = yaml.YAML(typ='safe', pure=True).load(stream)
     content['host'] = request.headers['Host']
     return web.json_response(content)
 
