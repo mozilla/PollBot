@@ -106,9 +106,9 @@ aiohttp-swagger==1.0.16 \
     --hash=sha256:48e5d9e9a9ece13afd67ab37209c01fbd2b691694559b08141e4a89f8a28b126 \
     --hash=sha256:96ada287da3fb4ed47c0a9853d565ba500a17e4230bcaafda0e8bb66974787e9
     # via -r requirements.in
-aioresponses==0.7.4 \
-    --hash=sha256:1160486b5ea96fcae6170cf2bdef029b9d3a283b7dbeabb3d7f1182769bfb6b7 \
-    --hash=sha256:9b8c108b36354c04633bad0ea752b55d956a7602fe3e3234b939fc44af96f1d8
+aioresponses==0.7.5 \
+    --hash=sha256:0af13b077bde04ae965bc21981a1c6afd7dd17b861150d858de477d1c39c26a6 \
+    --hash=sha256:794b3e04837a683fd2c0c099bdf77f8d7ecdd284bc2c15203003518bf5cb8da8
     # via -r requirements.in
 aiosignal==1.3.1 \
     --hash=sha256:54cd96e15e1649b75d6c87526a6ff0b6c1b0dd3459f43d9ca11d48c339b68cfc \
