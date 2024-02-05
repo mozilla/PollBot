@@ -1,6 +1,207 @@
 CHANGELOG
 =========
 
+1.4.9 (2024-02-05)
+------------------
+
+- Merge pull request #441 from mozilla/dependabot/pip/aiohttp-3.9.3
+
+- Bump aiohttp from 3.9.2 to 3.9.3
+
+- Merge pull request #440 from mozilla/dependabot/pip/zest-releaser-9.1.2
+
+- Bump zest-releaser from 9.1.1 to 9.1.2
+
+- Merge pull request #438 from mozilla/dependabot/pip/pytest-8.0.0
+
+- Merge pull request #439 from mozilla/dependabot/pip/aiohttp-3.9.2
+
+- Bump aiohttp from 3.9.1 to 3.9.2
+
+- Bump pytest from 7.4.4 to 8.0.0
+
+- Merge pull request #437 from mozilla/dependabot/pip/jinja2-3.1.3
+
+- Bump jinja2 from 3.1.2 to 3.1.3
+
+- Merge pull request #436 from mozilla/dependabot/pip/flake8-7.0.0
+
+- Bump flake8 from 6.1.0 to 7.0.0
+
+- Merge pull request #435 from mozilla/dependabot/pip/pytest-7.4.4
+
+- Bump pytest from 7.4.3 to 7.4.4
+
+- Merge pull request #434 from mozilla/dependabot/pip/cryptography-41.0.6
+
+- Bump cryptography from 41.0.4 to 41.0.6
+
+- Merge pull request #433 from mozilla/dependabot/pip/aiohttp-3.9.1
+
+- Bump aiohttp from 3.9.0 to 3.9.1
+
+- Merge pull request #431 from mozilla/dependabot/pip/aiohttp-3.9.0
+
+- Bump aiohttp from 3.8.6 to 3.9.0
+
+- Merge pull request #432 from mozilla/dependabot/pip/aioresponses-0.7.6
+
+- Bump aioresponses from 0.7.4 to 0.7.6
+
+- Merge pull request #427 from mozilla/dependabot/pip/zest-releaser-9.1.1
+
+- Bump zest-releaser from 8.0.0 to 9.1.1
+
+- Merge pull request #428 from mozilla/dependabot/pip/ruamel-yaml-0.18.5
+
+- Bump ruamel-yaml from 0.17.35 to 0.18.5
+
+- Merge pull request #429 from gbrownmozilla/yaml-safeload
+
+- update yaml.safe_load uses (safe_load is deprecated)
+
+- Merge pull request #425 from mozilla/dependabot/pip/pytest-7.4.3
+
+- Bump pytest from 7.4.2 to 7.4.3
+
+- Merge pull request #423 from mozilla/dependabot/pip/urllib3-1.26.18
+
+- Bump urllib3 from 1.26.17 to 1.26.18
+
+- Merge pull request #421 from mozilla/dependabot/pip/ruamel-yaml-0.17.35
+
+- Bump ruamel-yaml from 0.17.33 to 0.17.35
+
+- Merge pull request #422 from mozilla/dependabot/pip/aiohttp-3.8.6
+
+- Bump aiohttp from 3.8.5 to 3.8.6
+
+- Merge pull request #420 from mozilla/dependabot/pip/urllib3-1.26.17
+
+- Bump urllib3 from 1.26.14 to 1.26.17
+
+- Merge pull request #419 from mozilla/dependabot/pip/ruamel-yaml-0.17.33
+
+- Bump ruamel-yaml from 0.17.32 to 0.17.33
+
+- Merge pull request #418 from mozilla/dependabot/pip/cryptography-41.0.4
+
+- Bump cryptography from 41.0.3 to 41.0.4
+
+- Merge pull request #417 from mozilla/dependabot/pip/pytest-7.4.2
+
+- Merge pull request #416 from mozilla/dependabot/pip/pytest-aiohttp-1.0.5
+
+- Bump pytest from 7.4.1 to 7.4.2
+
+- Bump pytest-aiohttp from 1.0.4 to 1.0.5
+
+- Merge pull request #415 from mozilla/dependabot/pip/pytest-7.4.1
+
+- Bump pytest from 7.4.0 to 7.4.1
+
+- Merge pull request #414 from 0o001/master
+
+- fix: mozilla name typo
+
+- Merge pull request #413 from mozilla/dependabot/pip/flake8-6.1.0
+
+- Bump flake8 from 6.0.0 to 6.1.0
+
+- Merge pull request #412 from mozilla/dependabot/pip/cryptography-41.0.3
+
+- Bump cryptography from 41.0.2 to 41.0.3
+
+- Merge pull request #408 from mozilla/dependabot/pip/mock-5.1.0
+
+- Bump mock from 5.0.2 to 5.1.0
+
+- Merge pull request #407 from mozilla/dependabot/pip/cryptography-41.0.2
+
+- Bump cryptography from 41.0.0 to 41.0.2
+
+- Merge pull request #409 from mozilla/dependabot/pip/pygments-2.15.0
+
+- Merge pull request #410 from mozilla/dependabot/pip/aiohttp-3.8.5
+
+- Merge pull request #411 from mozilla/dependabot/pip/certifi-2023.7.22
+
+- Bump certifi from 2022.12.7 to 2023.7.22
+
+- Bump aiohttp from 3.8.4 to 3.8.5
+
+- Bump pygments from 2.14.0 to 2.15.0
+
+- Merge pull request #406 from mozilla/dependabot/pip/pytest-7.4.0
+
+- Bump pytest from 7.3.2 to 7.4.0
+
+- Merge pull request #405 from mozilla/dependabot/pip/ruamel-yaml-0.17.32
+
+- Bump ruamel-yaml from 0.17.31 to 0.17.32
+
+- Merge pull request #404 from mozilla/dependabot/pip/cryptography-41.0.0
+
+- Merge pull request #403 from mozilla/dependabot/pip/requests-2.31.0
+
+- Bump cryptography from 39.0.1 to 41.0.0
+
+- Bump requests from 2.28.2 to 2.31.0
+
+- Merge pull request #402 from mozilla/dependabot/pip/pytest-7.3.2
+
+- Merge pull request #401 from mozilla/dependabot/pip/zest-releaser-8.0.0
+
+- Merge pull request #400 from mozilla/dependabot/pip/ruamel-yaml-0.17.31
+
+- Bump pytest from 7.3.1 to 7.3.2
+
+- Bump zest-releaser from 7.3.0 to 8.0.0
+
+- Bump ruamel-yaml from 0.17.21 to 0.17.31
+
+- Merge pull request #399 from mozilla/dependabot/pip/pytest-7.3.1
+
+- Merge pull request #398 from mozilla/dependabot/pip/mock-5.0.2
+
+- Bump pytest from 7.3.0 to 7.3.1
+
+- Bump mock from 5.0.1 to 5.0.2
+
+- Merge pull request #397 from mozilla/dependabot/pip/pytest-7.3.0
+
+- Bump pytest from 7.2.2 to 7.3.0
+
+- Merge pull request #395 from mozilla/dependabot/pip/pytest-7.2.2
+
+- Merge pull request #394 from mozilla/dependabot/pip/markdown-it-py-2.2.0
+
+- Bump pytest from 7.2.1 to 7.2.2
+
+- Bump markdown-it-py from 2.1.0 to 2.2.0
+
+- Merge pull request #393 from mozilla/dependabot/pip/aiohttp-3.8.4
+
+- Bump aiohttp from 3.8.3 to 3.8.4
+
+- Merge pull request #392 from gbrownmozilla/upgrade-deps
+
+- re-pin requirements
+
+- Merge pull request #386 from mozilla/dependabot/pip/mock-5.0.0
+
+- Bump mock from 4.0.3 to 5.0.0
+
+- Merge pull request #385 from mozilla/dependabot/pip/setuptools-65.5.1
+
+- Bump setuptools from 65.2.0 to 65.5.1
+
+- Merge pull request #384 from mozilla/dependabot/pip/aioresponses-0.7.4
+
+- Bump aioresponses from 0.7.3 to 0.7.4
+
+
+
 1.4.8 (2022-12-15)
 ------------------
 
