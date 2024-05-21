@@ -320,9 +320,7 @@ coverage[toml]==7.1.0 \
     --hash=sha256:f2cba5c6db29ce991029b5e4ac51eb36774458f0a3b8d3137241b32d1bb91f06 \
     --hash=sha256:f5b4198d85a3755d27e64c52f8c95d6333119e49fd001ae5798dac872c95e0f8 \
     --hash=sha256:ffeeb38ee4a80a30a6877c5c4c359e5498eec095878f1581453202bfacc8fbc2
-    # via
-    #   coverage
-    #   pytest-cov
+    # via pytest-cov
 cryptography==42.0.4 \
     --hash=sha256:01911714117642a3f1792c7f376db572aadadbafcd8d75bb527166009c9f1d1b \
     --hash=sha256:0e89f7b84f421c56e7ff69f11c441ebda73b8a8e6488d322ef71746224c20fce \
@@ -820,9 +818,9 @@ pyrsistent==0.19.3 \
     --hash=sha256:f0774bf48631f3a20471dd7c5989657b639fd2d285b861237ea9e82c36a415a9 \
     --hash=sha256:f0e7c4b2f77593871e918be000b96c8107da48444d57005b6a6bc61fb4331b2c
     # via jsonschema
-pytest==8.2.0 \
-    --hash=sha256:1733f0620f6cda4095bbf0d9ff8022486e91892245bb9e7d5542c018f612f233 \
-    --hash=sha256:d507d4482197eac0ba2bae2e9babf0672eb333017bcedaa5fb1a3d42c1174b3f
+pytest==8.2.1 \
+    --hash=sha256:5046e5b46d8e4cac199c373041f26be56fdb81eb4e67dc11d4e10811fc3408fd \
+    --hash=sha256:faccc5d332b8c3719f40283d0d44aa5cf101cec36f88cde9ed8f2bc0538612b1
     # via
     #   -r requirements.in
     #   pytest-aiohttp
@@ -898,7 +896,6 @@ readme-renderer[md]==42.0 \
     --hash=sha256:13d039515c1f24de668e2c93f2e877b9dbe6c6c32328b90a40a49d8b2b85f36d \
     --hash=sha256:2d55489f83be4992fe4454939d1a051c33edbab778e82761d060c9fc6b308cd1
     # via
-    #   readme-renderer
     #   twine
     #   zest-releaser
 requests==2.31.0 \
