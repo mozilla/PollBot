@@ -831,9 +831,9 @@ pytest-aiohttp==1.0.5 \
     --hash=sha256:63a5360fd2f34dda4ab8e6baee4c5f5be4cd186a403cabd498fced82ac9c561e \
     --hash=sha256:880262bc5951e934463b15e3af8bb298f11f7d4d3ebac970aab425aff10a780a
     # via -r requirements.in
-pytest-asyncio==0.23.6 \
-    --hash=sha256:68516fdd1018ac57b846c9846b954f0393b26f094764a28c955eabb0536a4e8a \
-    --hash=sha256:ffe523a89c1c222598c76856e76852b787504ddb72dd5d9b6617ffa8aa2cde5f
+pytest-asyncio==0.23.7 \
+    --hash=sha256:009b48127fbe44518a547bddd25611551b0e43ccdbf1e67d12479f569832c20b \
+    --hash=sha256:5f5c72948f4c49e7db4f29f2521d4031f1c27f86e57b046126654083d4770268
     # via
     #   -r requirements.in
     #   pytest-aiohttp
