@@ -1,6 +1,95 @@
 CHANGELOG
 =========
 
+1.4.10 (2024-06-18)
+-------------------
+
+- Merge pull request #463 from mozilla/dependabot/pip/urllib3-1.26.19
+
+- Bump urllib3 from 1.26.18 to 1.26.19
+
+- Merge pull request #461 from mozilla/dependabot/pip/zest-releaser-9.2.0
+
+- Bump zest-releaser from 9.1.3 to 9.2.0
+
+- Merge pull request #462 from mozilla/dependabot/pip/flake8-7.1.0
+
+- Bump flake8 from 7.0.0 to 7.1.0
+
+- Merge pull request #464 from gbrownmozilla/no-candidates
+
+- remove invalid test; a.m.o candidates cleanup has invalidated test
+
+- Merge pull request #460 from mozilla/dependabot/pip/pytest-8.2.2
+
+- Bump pytest from 8.2.1 to 8.2.2
+
+- Merge pull request #459 from mozilla/dependabot/pip/requests-2.32.0
+
+- --- updated-dependencies: - dependency-name: requests   dependency-type: indirect ...
+
+- Merge pull request #458 from mozilla/dependabot/pip/pytest-asyncio-0.23.7
+
+- Merge pull request #457 from mozilla/dependabot/pip/pytest-8.2.1
+
+- --- updated-dependencies: - dependency-name: pytest-asyncio   dependency-type: direct:production   update-type: version-update:semver-patch ...
+
+- --- updated-dependencies: - dependency-name: pytest   dependency-type: direct:production   update-type: version-update:semver-patch ...
+
+- Merge pull request #456 from gbrownmozilla/upgrade-pytest
+
+- update pytest based on https://github.com/pytest-dev/pytest/issues/12269
+
+- Merge pull request #455 from mozilla/dependabot/pip/jinja2-3.1.4
+
+- build(deps): bump jinja2 from 3.1.3 to 3.1.4
+
+- Merge pull request #451 from mozilla/dependabot/pip/idna-3.7
+
+- Merge pull request #453 from mozilla/dependabot/pip/aiohttp-3.9.5
+
+- build(deps): bump aiohttp from 3.9.3 to 3.9.5
+
+- build(deps): bump idna from 3.4 to 3.7
+
+- Merge pull request #450 from mozilla/dependabot/pip/pytest-8.1.1
+
+- build(deps): bump pytest from 8.0.2 to 8.1.1
+
+- Merge pull request #449 from mozilla/dependabot/pip/pytest-8.0.2
+
+- build(deps): bump pytest from 8.0.1 to 8.0.2
+
+- Merge pull request #448 from gbrownmozilla/image-bump
+
+- update circleci image
+
+- Merge pull request #447 from mozilla/dependabot/pip/cryptography-42.0.4
+
+- build(deps): bump cryptography from 42.0.2 to 42.0.4
+
+- Merge pull request #445 from mozilla/dependabot/pip/cryptography-42.0.2
+
+- Merge pull request #446 from mozilla/dependabot/pip/pytest-8.0.1
+
+- Bump pytest from 8.0.0 to 8.0.1
+
+- Bump cryptography from 42.0.0 to 42.0.2
+
+- Merge pull request #444 from mozilla/dependabot/pip/ruamel-yaml-0.18.6
+
+- Bump ruamel-yaml from 0.18.5 to 0.18.6
+
+- Merge pull request #442 from mozilla/dependabot/pip/cryptography-42.0.0
+
+- Merge pull request #443 from mozilla/dependabot/pip/zest-releaser-9.1.3
+
+- Bump zest-releaser from 9.1.2 to 9.1.3
+
+- Bump cryptography from 41.0.6 to 42.0.0
+
+
+
 1.4.9 (2024-02-05)
 ------------------
 
