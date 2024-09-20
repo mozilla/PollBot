@@ -1128,4 +1128,4 @@ https://hg.mozilla.org/releases/mozilla-release/rev/3702966a64c80e17d01f613b0a46
         received = await telemetry.main_summary_uptake('firefox', '57.0a1')
         assert received["status"] == Status.EXISTS.value
         assert received["message"] == ("Telemetry uptake for version 57.0a1 "
-                                       "({}) is 55.000%".format(build_id))
+                                       "({}) is 55.001%".format(build_id))
