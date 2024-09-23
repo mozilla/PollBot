@@ -93,7 +93,7 @@ async def main_summary_uptake(product, version):
             status = Status.INCOMPLETE
         else:
             status = Status.EXISTS
-        message = 'Telemetry uptake for version {} is {:.1f}%'.format(
+        message = 'Telemetry uptake for version {} is {:.3f}%'.format(
             version_name, ratio * 100)
 
         return build_task_response(status, url, message)
