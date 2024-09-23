@@ -1,6 +1,60 @@
 CHANGELOG
 =========
 
+1.5.0 (2024-09-23)
+------------------
+
+- Issue 481: Output uptake message with 3 decimals (#482)
+
+- Merge pull request #476 from mozilla/dependabot/pip/aiohttp-3.10.4
+
+- Bump aiohttp from 3.10.3 to 3.10.4
+
+- Merge pull request #475 from mozilla/dependabot/pip/aiohttp-3.10.3
+
+- Bump aiohttp from 3.10.2 to 3.10.3
+
+- Merge pull request #474 from mozilla/dependabot/pip/aiohttp-3.10.2
+
+- Bump aiohttp from 3.10.1 to 3.10.2
+
+- Merge pull request #472 from mozilla/dependabot/pip/aiohttp-3.10.1
+
+- Merge pull request #473 from mozilla/dependabot/pip/flake8-7.1.1
+
+- Bump flake8 from 7.1.0 to 7.1.1
+
+- Bump aiohttp from 3.9.5 to 3.10.1
+
+- Merge pull request #471 from mozilla/dependabot/pip/pytest-8.3.2
+
+- Bump pytest from 8.3.1 to 8.3.2
+
+- Merge pull request #470 from mozilla/dependabot/pip/pytest-8.3.1
+
+- Bump pytest from 8.2.2 to 8.3.1
+
+- Merge pull request #469 from mozilla/dependabot/pip/pytest-asyncio-0.23.8
+
+- Bump pytest-asyncio from 0.23.7 to 0.23.8
+
+- Merge pull request #465 from mozilla/dependabot/pip/swagger-spec-validator-3.0.4
+
+- Bump swagger-spec-validator from 3.0.3 to 3.0.4
+
+- Merge pull request #466 from mozilla/dependabot/pip/certifi-2024.7.4
+
+- Merge pull request #467 from mozilla/dependabot/pip/zipp-3.19.1
+
+- Bump zipp from 3.13.0 to 3.19.1
+
+- Merge pull request #468 from mozilla/dependabot/pip/setuptools-70.0.0
+
+- Bump setuptools from 67.2.0 to 70.0.0
+
+- Bump certifi from 2023.7.22 to 2024.7.4
+
+
 1.4.10 (2024-06-18)
 -------------------
 
